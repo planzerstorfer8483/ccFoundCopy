@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxTable xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockGroup</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+public class FWFTextBlockGroup extends common
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>find</Name>
+				<Source><![CDATA[
+    public static FWFTextBlockGroup find(
+        RefRecId    _recId,
+        boolean     _update = false)
+    {
+        FWFTextBlockGroup  textBlockGroup;
+
+        textBlockGroup.selectForUpdate(_update);
+    
+        if (_recId)
+        {
+            select firstonly textBlockGroup
+                where textBlockGroup.RecId == _recId;
+        }
+    
+        return textBlockGroup;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>findGroupModule</Name>
+				<Source><![CDATA[
+    public static FWFTextBlockGroup findGroupModule(
+        FWFTextBlockGroupId _id,
+        FWFTextBlockModule  _module,
+        boolean             _update = false
+        )
+    {
+        FWFTextBlockGroup   textBlockGroup;
+    
+        textBlockGroup.selectForUpdate(_update);
+    
+        if (_id && _module)
+        {
+            select firstonly textBlockGroup
+                where  textBlockGroup.Id	  == _id
+                   &&  textBlockGroup.Module  == _module;
+        }
+    
+        return textBlockGroup;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>lookup</Name>
+				<Source><![CDATA[
+    public static void lookup(FormControl _control, FWFTextBlockModule _module)
+    {
+        SysTableLookup sysTableLookup;
+
+        sysTableLookup  = SysTableLookup::newParameters(tableNum(FWFTextBlockGroup), _control);
+    
+        sysTableLookup.addLookupfield(fieldNum(FWFTextBlockGroup, Id));
+        sysTableLookup.addLookupfield(fieldNum(FWFTextBlockGroup, Description));
+        sysTableLookup.parmQuery(FWFTextBlockGroup::lookupQuery(_module));
+    
+        sysTableLookup.performFormLookup();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>lookupQuery</Name>
+				<Source><![CDATA[
+    public static query lookupQuery(FWFTextBlockModule	_module)
+    {
+        Query                   query = new Query();
+        QueryBuildDataSource    qbds;
+        
+        qbds = query.addDataSource(tableNum(FWFTextBlockGroup));
+    
+        if (_module)
+        {
+            qbds.addRange(fieldNum(FWFTextBlockGroup, Module)).value(queryValue(_module));
+        }
+    
+        return query;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>exist</Name>
+				<Source><![CDATA[
+    public static boolean exist(FWFTextBlockGroupId _id,
+                                FWFTextBlockModule  _module)
+    {
+        FWFTextBlockGroup  textBlockGroup;
+    
+        if (_id && _module)
+        {
+            select firstonly RecId from textBlockGroup
+                where  textBlockGroup.Id	  == _id
+                    &&  textBlockGroup.Module == _module;
+        }
+    
+        return textBlockGroup.RecId != 0;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+	<DeveloperDocumentation>@FWFTextBlock:TextBlockGroupDevDoc</DeveloperDocumentation>
+	<FormRef>FWFTextBlockGroup</FormRef>
+	<Label>@FWFTextBlock:TextBlockGroup</Label>
+	<SubscriberAccessLevel>
+		<Read>Allow</Read>
+	</SubscriberAccessLevel>
+	<TableGroup>Group</TableGroup>
+	<TitleField1>Id</TitleField1>
+	<TitleField2>Module</TitleField2>
+	<CacheLookup>Found</CacheLookup>
+	<ClusteredIndex>IdModulIdx</ClusteredIndex>
+	<PrimaryIndex>IdModulIdx</PrimaryIndex>
+	<ReplacementKey>IdModulIdx</ReplacementKey>
+	<DeleteActions />
+	<FieldGroups>
+		<AxTableFieldGroup>
+			<Name>AutoReport</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoLookup</Name>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>Id</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>Description</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoIdentification</Name>
+			<AutoPopulate>Yes</AutoPopulate>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>Id</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>Module</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoSummary</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoBrowse</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>Overview</Name>
+			<Label>@SYS35894</Label>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>Id</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>Module</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>Description</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>General</Name>
+			<Label>@SYS81043</Label>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>Id</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>Description</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+	</FieldGroups>
+	<Fields>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>Id</Name>
+			<AllowEdit>No</AllowEdit>
+			<ExtendedDataType>FWFTextBlockGroupId</ExtendedDataType>
+			<Mandatory>Yes</Mandatory>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>Description</Name>
+			<ExtendedDataType>Description</ExtendedDataType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>Module</Name>
+			<AllowEdit>No</AllowEdit>
+			<Mandatory>Yes</Mandatory>
+			<EnumType>FWFTextBlockModule</EnumType>
+		</AxTableField>
+	</Fields>
+	<FullTextIndexes />
+	<Indexes>
+		<AxTableIndex>
+			<Name>IdModulIdx</Name>
+			<AlternateKey>Yes</AlternateKey>
+			<Fields>
+				<AxTableIndexField>
+					<DataField>Module</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>Id</DataField>
+				</AxTableIndexField>
+			</Fields>
+		</AxTableIndex>
+	</Indexes>
+	<Mappings />
+	<Relations />
+	<StateMachines />
+</AxTable>

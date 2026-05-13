@@ -1,0 +1,575 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockEventHandler_Trans</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+class FWFTextBlockEventHandler_Trans extends FWFTextBlockEventHandler
+{
+
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>findSourceRecord</Name>
+				<Source><![CDATA[
+    protected Common findSourceRecord()
+    {
+        Common sourceRecord;
+    
+        switch (targetRecord.TableId)
+        {
+            case tableNum(CustQuotationJour) :
+                CustQuotationJour custQuotationJour = targetRecord as CustQuotationJour;
+                sourceRecord = SalesQuotationTable::find(custQuotationJour.FWFTextBlockQuotationIdFrom);
+                break;
+    
+            case tableNum(CustQuotationTrans) :
+                CustQuotationTrans custQuotationTrans = targetRecord as custQuotationTrans;
+                sourceRecord = SalesQuotationLine::findInventTransId(custQuotationTrans.inventTransId);
+                break;
+    
+            case tableNum(WMSPickingRoute) :
+                WMSPickingRoute wmsPickingRoute = targetRecord as WMSPickingRoute;
+                if (wmsPickingRoute.transType == InventTransType::Sales)
+                {
+                    sourceRecord = SalesTable::find(wmsPickingRoute.transRefId);
+                }
+                break;
+    
+            case tableNum(WMSOrder) :
+                WMSOrder wmsOrder = targetRecord as WMSOrder;
+                if (wmsOrder.inventTransType == InventTransType::Sales)
+                {
+                    sourceRecord = SalesLine::findInventTransId(wmsOrder.inventTransId);
+                }
+                break;
+    
+            case tableNum(WMSOrderTrans) :
+                WMSOrderTrans wmsOrderTrans = targetRecord as WMSOrderTrans;
+                sourceRecord  = SalesLine::findInventTransId(wmsOrderTrans.wmsOrder().inventTransId);
+                break;
+    
+            case tableNum(CustPackingSlipJour) :
+                CustPackingSlipJour custPackingSlipJour = targetRecord as CustPackingSlipJour;
+                sourceRecord = custPackingSlipJour.salesTable();
+                break;
+    
+            case tableNum(CustPackingSlipTrans) :
+                CustPackingSlipTrans custPackingSlipTrans = targetRecord as CustPackingSlipTrans;
+                sourceRecord = custPackingSlipTrans.salesLine();
+                break;
+    
+            case tableNum(CustInvoiceJour) :
+                sourceRecord = this.getSourceRecordFromCustInvoiceJour(targetRecord as CustInvoiceJour);
+                break;
+    
+            case tableNum(CustInvoiceTrans) :
+                CustInvoiceTrans custInvoiceTrans = targetRecord as CustInvoiceTrans;
+                sourceRecord   = custInvoiceTrans.salesLine();
+                break;
+    
+            case tableNum(CustConfirmJour) :
+                CustConfirmJour custConfirmJour = targetRecord as CustConfirmJour;
+                sourceRecord = custConfirmJour.salesTable();
+                break;
+    
+            case tableNum(CustConfirmTrans) :
+                CustConfirmTrans custConfirmTrans = targetRecord as CustConfirmTrans;
+                sourceRecord = custConfirmTrans.salesLine();
+                break;
+    
+            case tableNum(VendPurchOrderJour) :
+                VendPurchOrderJour vendPurchOrderJour = targetRecord as VendPurchOrderJour;
+                sourceRecord = vendPurchOrderJour.purchTable();
+                break;
+    
+            case tableNum(VendReceiptsListJour) :
+                VendReceiptsListJour vendReceiptsListJour = targetRecord as VendReceiptsListJour;
+                sourceRecord = vendReceiptsListJour.purchTable();
+                break;
+    
+            case tableNum(VendReceiptsListTrans) :
+                VendReceiptsListTrans vendReceiptsListTrans = targetRecord as VendReceiptsListTrans;
+                sourceRecord =vendReceiptsListTrans.purchLine();
+                break;
+    
+            case tableNum(VendPackingSlipJour) :
+                VendPackingSlipJour vendPackingSlipJour = targetRecord as VendPackingSlipJour;
+                sourceRecord = vendPackingSlipJour.purchTable();
+                break;
+    
+            case tableNum(VendPackingSlipTrans) :
+                VendPackingSlipTrans vendPackingSlipTrans = targetRecord as VendPackingSlipTrans;
+                sourceRecord = vendPackingSlipTrans.purchLine();
+                break;
+    
+            case tableNum(VendInvoiceJour) :
+                VendInvoiceJour vendInvoiceJour = targetRecord as vendInvoiceJour;
+                sourceRecord = vendInvoiceJour.purchTable();
+                break;
+    
+            case tableNum(VendInvoiceTrans) :
+                VendInvoiceTrans vendInvoiceTrans = targetRecord as VendInvoiceTrans;
+                sourceRecord = vendInvoiceTrans.purchLine();
+                break;
+
+            case tableNum(PurchAgreementHeaderHistory) :
+                PurchAgreementHeaderHistory purchAgreementHeaderHist = targetRecord as PurchAgreementHeaderHistory;
+                sourceRecord = PurchAgreementHeader::find(purchAgreementHeaderHist.AgreementHeader);
+                break;
+
+            case tableNum(SalesAgreementHeaderHistory) :
+                SalesAgreementHeaderHistory salesAgreementHeaderHist = targetRecord as SalesAgreementHeaderHistory;
+                sourceRecord = SalesAgreementHeader::find(salesAgreementHeaderHist.AgreementHeader);
+                break;
+
+            case tableNum(AgreementLineVolumeCommitmentHistory ):
+            case tableNum(AgreementLineQuantityCommitmentHistory ):
+                AgreementLineHistory agreementLineHist = targetRecord as AgreementLineHistory;
+                sourceRecord = AgreementLine::find(agreementLineHist.AgreementLine);
+                break;
+
+            case tableNum(ProdTable) :
+                ProdTable prodTable = targetRecord as ProdTable;
+                if (prodTable.FWFTextBlockReqPOFromRefRecId)
+                {
+                    sourceRecord = ReqPO::findRecId(prodTable.FWFTextBlockReqPOFromRefRecId);
+                }
+                else if (prodTable.InventRefType == InventRefType::Sales && prodTable.InventRefId && prodTable.InventRefTransId)
+                {
+                    sourceRecord = SalesLine::findInventTransId(prodTable.InventRefTransId);
+                }
+                else if (prodTable.InventRefType == InventRefType::ProdLine && prodTable.InventRefId && prodTable.InventRefTransId)
+                {
+                    sourceRecord = ProdBOM::findTransId(prodTable.InventRefTransId);
+                }
+                break;
+
+            case tableNum(PurchTable) :
+                PurchTable purchTable = targetRecord as PurchTable;
+                PurchRFQTable srcRFQTable = PurchRFQTable::findRecId(purchTable.FWFTextBlockPurchRFQTableFromRefRecId);
+                PurchRFQReplyTable srcRFQReplyTable = srcRFQTable.purchRFQReplyTable();
+                if (srcRFQReplyTable)
+                {
+                    sourceRecord = srcRFQReplyTable;
+                }
+                else
+                {
+                    sourceRecord = srcRFQTable;
+                }
+                break;
+
+            case tableNum(PurchAgreementHeader) :
+                PurchAgreementHeader purchAgreementHeader = targetRecord as PurchAgreementHeader;
+                sourceRecord = PurchRFQTable::findRecId(purchAgreementHeader.FWFTextBlockPurchRFQTableFromRefRecId);
+                break;
+
+            case tableNum(PurchLine) :
+                PurchLine purchLine = targetRecord as PurchLine;
+                if (purchLine.FWFTextBlockReqPOFromRefRecId)
+                {
+                    sourceRecord = ReqPO::findRecId(purchLine.FWFTextBlockReqPOFromRefRecId);
+                }
+                else if (purchLine.ItemRefType == InventRefType::Sales && purchLine.InventRefId && purchLine.InventRefTransId)
+                {
+                    sourceRecord = SalesLine::findInventTransId(purchLine.InventRefTransId);
+                }
+                else if(purchLine.PurchReqId)
+                {
+                    // init line text blocks from setup
+                    FWFTextBlockEventHandler_Setup eventHandler_Setup = FWFTextBlockEventHandler_Setup::construct();
+                    eventHandler_Setup.parmEventType(EventLogType::Insert);
+                    eventHandler_Setup.parmTargetRecord(purchLine);
+                    eventHandler_Setup.run();
+                    
+                    PurchReqLine reqLine = PurchReqLine::findLineRefId(purchLine.PurchReqLineRefId);
+                    sourceRecord = reqLine;
+
+                    PurchLine purchLineCreated;
+                    select count(RecId) from purchLineCreated
+                        where purchLineCreated.PurchReqId == purchLine.PurchReqId
+                           && purchLineCreated.PurchId == purchLine.PurchId;
+
+                    if (purchLineCreated.RecId == 1)  // also update purchase order header from purchase requistion header if first line with purchase requisition reference
+                    {
+                        this.insertFromSourceRecord(sourceRecord);
+                        this.parmTargetRecord(purchLine.purchTable());
+                        //this.runDelete(); // keep header text blocks from setup
+                        sourceRecord = reqLine.purchReqTable();
+                    }
+                }
+                else
+                {
+                    PurchRFQReplyLinePurchLine RFQReplyLinePurchLine = PurchRFQReplyLinePurchLine::findByPurchLine(purchLine.RecId);
+                    PurchRFQReplyLine purchLineRFQReplyLine;
+                    if(RFQReplyLinePurchLine)   //if purchase order created from request for quotation delete texts from setup first and copy texts from request for quotation
+                    {
+                        this.runDelete();
+                        purchLineRFQReplyLine = PurchRFQReplyLine::findRecId(RFQReplyLinePurchLine.PurchRFQReplyLine);
+                        if (purchLineRFQReplyLine)
+                        {
+                            sourceRecord = purchLineRFQReplyLine;
+                        }
+                        else
+                        {
+                            sourceRecord = PurchRFQLine::findRecId(RFQReplyLinePurchLine.PurchRFQReplyLine);
+                        }
+                    }
+                }
+                break;
+
+            case tableNum(AgreementLineQuantityCommitment) :
+            case tableNum(AgreementLineVolumeCommitment) :
+            case tableNum(AgreementLine) :
+                AgreementLine agreementLine = targetRecord as AgreementLine;
+                PurchRFQReplyLinePurchAgreementLine RFQReplyLinePurchAgreementLine = PurchRFQReplyLinePurchAgreementLine::findByPurchAgreementLine(agreementLine.RecId);
+                if (RFQReplyLinePurchAgreementLine) //if purchase agreement created from request for quotation delete texts from setup first and copy texts from request for quotation
+                {
+                    this.runDelete();
+                    sourceRecord = PurchRFQLine::find(RFQReplyLinePurchAgreementLine.PurchRFQReplyLineRFQId, RFQReplyLinePurchAgreementLine.PurchRFQReplyLineLineNum);
+                }
+                break;
+   
+            case tableNum(ReqPO) :
+                ReqPO reqPO = targetRecord as ReqPO;
+                switch (reqPO.RefType)
+                {
+                    case ReqRefType::BOMPlannedOrder:
+                    case ReqRefType::PmfPlannedProdBatch:
+                    case ReqRefType::ItemPlannedOrder:
+                        if (reqPO.FWFTextBlockSalesLineFromRefRecId)
+                        {
+                            sourceRecord = SalesLine::findRecId(reqPO.FWFTextBlockSalesLineFromRefRecId);
+                        }
+                        else if (reqPO.FWFTextBlockProdBOMFromRefRecId)
+                        {
+                            sourceRecord = ProdBOM::find(reqPO.FWFTextBlockProdBOMFromRefRecId);
+                        }
+                        break;
+                }
+                break;
+
+            case tableNum(CustQuotationConfirmJour) :
+                CustQuotationConfirmJour custQuotationConfirmJour = targetRecord as CustQuotationConfirmJour;
+                sourceRecord = SalesQuotationTable::find(custQuotationConfirmJour.FWFTextBlockQuotationIdFrom);
+                break;
+
+            case tableNum(CustQuotationConfirmTrans ):
+                CustQuotationConfirmTrans custQuotationConfirmTrans = targetRecord as CustQuotationConfirmTrans;
+                sourceRecord = SalesQuotationLine::findInventTransId(custQuotationConfirmTrans.InventTransId);
+                break;
+
+            case tableNum(ProdBOM) :
+                ProdBOM prodBOM = targetRecord as ProdBOM;
+                sourceRecord = BOM::findRecId(prodBOM.BOMRefRecId);
+                break;
+
+            case tableNum(ReqTrans) :
+                ReqTrans	reqTrans = targetRecord as ReqTrans;
+                ReqGroup	reqGroup = ReqGroup::find(reqTrans.inventTable().ReqGroupId);
+                if (reqGroup.CovRule == ReqCovType::Req && reqGroup.FWFTextBlockCopyFromSalesOrder)
+                {
+                    switch (reqTrans.RefType)
+                    {
+                        case ReqRefType::BOMLine:
+                            sourceRecord = BOM::findRecId(reqTrans.BOMRefRecId);
+                            break;
+                    }
+
+                    this.parmTargetRecord(reqTrans.reqPo());
+                }
+                break;
+
+            case tableNum(ProjInvoiceJour) :
+                ProjInvoiceJour projInvoiceJour = targetRecord as ProjInvoiceJour;
+                sourceRecord = ProjProposalJour::find(projInvoiceJour.ProposalId);
+                break;
+
+            case tableNum(ProjInvoiceItem) :
+                ProjInvoiceItem projInvoiceItem = targetRecord as ProjInvoiceItem;
+                sourceRecord = ProjProposalItem::findInvent(projInvoiceItem.InventTransId);
+                break;
+
+            case tableNum(ProjProposalJour) :
+                ProjProposalJour projProposalJour = targetRecord as ProjProposalJour;
+                sourceRecord = projProposalJour.salesTable();
+                break;
+
+            case tableNum(ProjProposalItem) :
+                ProjProposalItem projProposalItem = targetRecord as ProjProposalItem;
+                if (projProposalItem.ItemType == ProjItemType::SalesOrder ||
+					projProposalItem.ItemType == ProjItemType::Project)
+                {
+					sourceRecord = projProposalItem.salesLine();
+                }
+                else if (projProposalItem.ItemType == ProjItemType::PurchOrder		 ||
+                         projProposalItem.ItemType == ProjItemType::Production		 || 
+                         projProposalItem.ItemType == ProjItemType::ProdLine		 ||
+                         projProposalItem.ItemType == ProjItemType::BeginningBalance ||
+						 projProposalItem.ItemType == ProjItemType::VendorInvoice)
+                {
+                    //sourceRecord = ;	// TODO: review concerning relations running
+                }
+                break;
+
+            case tableNum(VendRFQJour) :
+                VendRFQJour RFQJour = targetRecord as VendRFQJour;
+                PurchRFQReplyTable sourceRFQReplyTable;
+                PurchRFQTable sourceRFQTable;
+                PurchRFQCaseTable sourceRFQCaseTable;
+                
+                sourceRFQReplyTable = PurchRFQReplyTable::find(RFQJour.RFQId);
+                if (sourceRFQReplyTable)
+                {
+                    sourceRecord = sourceRFQReplyTable;
+                }
+                else
+                {
+                    sourceRFQTable = PurchRFQTable::findRFQCaseId(RFQJour.RFQCaseId, RFQJour.VendAccount);
+                    if (sourceRFQTable)
+                    {
+                        sourceRecord = sourceRFQTable;
+                    }
+                    else
+                    {
+                        sourceRFQCaseTable = PurchRFQCaseTable::find(RFQJour.RFQCaseId);
+                        if (sourceRFQCaseTable)
+                        {
+                            sourceRecord = sourceRFQCaseTable;
+                        }
+                    }
+                }
+                break;
+    
+            case tableNum(VendRFQTrans) :
+                VendRFQTrans RFQTrans = targetRecord as VendRFQTrans;
+                PurchRFQReplyLine sourceRFQReplyLine;
+                PurchRFQLine sourceRFQLine;
+                PurchRFQCaseLine sourceRFQCaseLine;
+                
+                sourceRFQReplyLine = PurchRFQReplyLine::find(RFQTrans.RFQId, RFQTrans.LineNum);
+                if (sourceRFQReplyLine)
+                {
+                    sourceRecord = sourceRFQReplyLine;
+                }
+                else
+                {
+                    sourceRFQLine = PurchRFQLine::find(RFQTrans.RFQId);
+                    if (sourceRFQLine)
+                    {
+                        sourceRecord = sourceRFQLine;
+                    }
+                    else
+                    {
+                        sourceRFQCaseLine = PurchRFQCaseLine::find(RFQTrans.vendRFQJour().RFQCaseId);
+                        if (sourceRFQLine)
+                        {
+                            sourceRecord = sourceRFQCaseLine;
+                        }
+                    }
+                }
+                break;
+
+            case tableNum(PurchRFQTable) :
+                PurchRFQTable RFQTable = targetRecord as PurchRFQTable;
+                sourceRecord = PurchRFQCaseTable::find(RFQTable.RFQCaseId);
+                break;
+
+            case tableNum(PurchRFQLine) :
+                PurchRFQLine RFQLine = targetRecord as PurchRFQLine;
+                sourceRecord =  PurchRFQCaseLine::findRecId(RFQLine.RFQCaseLineRefRecId);
+                break;
+
+            case tableNum(PurchRFQCaseTable) :
+                PurchRFQCaseTable RFQCaseTable = targetRecord as PurchRFQCaseTable;
+                if (RFQCaseTable.RFQType == PurchRFQType::PurchReq)
+                {
+                    sourceRecord = PurchReqTable::find(RFQCaseTable.FWFTextBlockPurchReqTableFromRefRecId);
+                }
+                break;
+
+            case tableNum(PurchRFQCaseLine) :
+                PurchRFQCaseLine RFQCaseLine = targetRecord as PurchRFQCaseLine;
+                if (RFQCaseLine.RFQType == PurchRFQType::PurchReq && RFQCaseLine.ReqLineRefId)
+                {
+                    sourceRecord = RFQCaseLine.purchReqLine();
+                }
+                break;
+            case tableNum(PurchRFQReplyTable) :
+                PurchRFQReplyTable RFQReplyTable = targetRecord as PurchRFQReplyTable;
+                sourceRecord = RFQReplyTable.purchRFQTable();
+                break;
+
+            case tableNum(PurchRFQReplyLine) :
+                PurchRFQReplyLine RFQReplyLine = targetRecord as PurchRFQReplyLine;
+                sourceRecord = PurchRFQLine::findRecId(RFQReplyLine.RFQLineRecId);
+                break;
+
+        }
+    
+        return sourceRecord;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>insertFromSourceRecord</Name>
+				<Source><![CDATA[
+    protected void insertFromSourceRecord(Common _sourceRecord)
+    {
+        FWFTextBlockValueSubstitutor substitutor;
+        FWFTextBlockInstance         instance, targetInstance;
+        FWFTextBlockTransParm        transParm;
+        str                          textBlockText, targetTextBlockText;
+    
+        while select instance
+            where instance.RefTableId == _sourceRecord.TableId
+               && instance.RefRecId   == _sourceRecord.RecId
+        join transParm
+            where transParm.RecId == instance.SetupRecId
+        {
+            if (! transParm.isValidForTarget(targetRecord))
+            {
+                continue;
+            }
+    
+            targetInstance = instance.copyToTarget(targetRecord);
+            textBlockText  = targetInstance.editValue();
+    
+            substitutor = FWFTextBlockValueSubstitutor::newParameters(_sourceRecord, targetRecord, textBlockText);
+            targetTextBlockText = substitutor.run();
+    
+            if (targetTextBlockText != textBlockText)
+            {
+                targetInstance.editValue(true, targetTextBlockText);
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>runInsert</Name>
+				<Source><![CDATA[
+    protected void runInsert()
+    {
+        Common sourceRecord;
+    
+        // SalesLine ==> CustConfirmTrans, SalesTable ==> CustConfirmJour, ...
+        sourceRecord = this.findSourceRecord();
+        this.insertFromSourceRecord(sourceRecord);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>runUpdate</Name>
+				<Source><![CDATA[
+    protected void runUpdate()
+    {
+        Common sourceRecord;
+
+        switch (targetRecord.TableId)
+        {
+            case tableNum(ProdBOM) :
+                ProdBOM	prodBOM = targetRecord as ProdBOM;
+                if (prodBOM.InventRefType == InventRefType::Purch)
+                {
+                    this.parmTargetRecord(PurchTable::find(prodBOM.InventRefId));
+                    sourceRecord = prodBOM;
+                }
+                break;
+
+            case tableNum(PurchReqLine) :
+                PurchReqLine reqLine = targetRecord as PurchReqLine;
+                PurchReqLine origReqLine = targetRecord.orig() as PurchReqLine;
+                PurchRFQReplyLine reqLineRFQReplyLine;
+                PurchRFQTable reqTableRFQTable;
+                PurchRFQReplyTable reqLineRFQReplyTable;
+                if (reqLine.FWFTextBlockPurchRFQLineFromRefRecId != origReqLine.FWFTextBlockPurchRFQLineFromRefRecId)
+                {
+                    this.runDelete();
+                    reqLineRFQReplyLine = PurchRFQReplyLine::findRecId(reqLine.FWFTextBlockPurchRFQLineFromRefRecId);
+                    if (reqLineRFQReplyLine)
+                    {
+                        sourceRecord = reqLineRFQReplyLine;
+                    }
+                    else
+                    {
+                        sourceRecord = PurchRFQLine::findRecId(reqLine.FWFTextBlockPurchRFQLineFromRefRecId);
+                    }
+
+                    PurchReqTable   reqTable = reqLine.purchReqTable();
+                    PurchReqLine    reqLineRFQCreated;
+                    select count(RecId) from reqLineRFQCreated
+                        where reqLineRFQCreated.PurchReqTable   == reqTable.RecId
+                           && reqLineRFQCreated.PurchRFQCaseId  != ''
+                           && reqLineRFQCreated.FWFTextBlockPurchRFQLineFromRefRecId;
+                    if (reqLineRFQCreated.Recid == 1)
+                    {
+                        this.insertFromSourceRecord(sourceRecord);
+                        this.parmTargetRecord(reqTable);
+                        this.runDelete();
+
+                        reqTableRFQTable = PurchRFQTable::findRFQCaseId(reqLine.PurchRFQCaseId);
+                        reqLineRFQReplyTable = reqTableRFQTable.purchRFQReplyTable();
+                        if (reqLineRFQReplyTable)
+                        {
+                            sourceRecord = reqLineRFQReplyTable;
+                        }
+                        else
+                        {
+                            sourceRecord = reqTableRFQTable;
+                        }
+                    }
+                }
+                break;
+        }
+
+        this.insertFromSourceRecord(sourceRecord);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>construct</Name>
+				<Source><![CDATA[
+    public static FWFTextBlockEventHandler_Trans construct()
+    {
+        return new FWFTextBlockEventHandler_Trans();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>getSourceRecordFromCustInvoiceJour</Name>
+				<Source><![CDATA[
+    private Common getSourceRecordFromCustInvoiceJour(CustInvoiceJour _custInvoiceJour)
+    {
+        Common sourceRecord;
+
+        if (_custInvoiceJour.SalesId)
+        {
+            sourceRecord = _custInvoiceJour.salesTable();
+        }
+        else
+        {
+            if (_custInvoiceJour.Proforma)
+            {
+                RecId	recordId = str2Int64(strRem(_custInvoiceJour.InvoiceId, '#'));
+                sourceRecord = CustInvoiceTable::findRecId(recordId);
+            }
+            else
+            {
+                sourceRecord = _custInvoiceJour.custInvoiceTable();
+            }
+        }
+
+        return sourceRecord;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

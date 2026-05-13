@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockSalesConfirmDP_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of <c>SalesConfirmDP</c> for text block management
+/// </summary>
+[ExtensionOf(classStr(SalesConfirmDP))]
+final class FWFTextBlockSalesConfirmDP_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>initializeSalesOrderConfirmationHeader</Name>
+				<Source><![CDATA[
+    protected SalesConfirmHeaderTmp initializeSalesOrderConfirmationHeader()
+    {
+        SalesConfirmHeaderTmp salesConfirmHeaderTmpCreated = next initializeSalesOrderConfirmationHeader();
+
+        FWFTextBlockReportTextInit::newParameters(salesConfirmHeaderTmpCreated, this.parmCustConfirmJour()).addTexts();
+
+        return salesConfirmHeaderTmpCreated;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initializeSalesOrderConfirmationLine</Name>
+				<Source><![CDATA[
+    protected SalesConfirmDetailsTmp initializeSalesOrderConfirmationLine(SalesConfirmHeaderTmp _salesConfirmHeaderTmp, SalesConfirmDPConfirmationLineQuerySelection _confirmationLineSelection)
+    {
+        SalesConfirmDetailsTmp salesConfirmDetailsTmpCreated = next initializeSalesOrderConfirmationLine(_salesConfirmHeaderTmp, _confirmationLineSelection);
+
+        FWFTextBlockReportTextInit::newParameters(salesConfirmDetailsTmpCreated, _confirmationLineSelection.parmCustConfirmTrans()).addTexts();
+
+        return salesConfirmDetailsTmpCreated;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockSalesQuotationDP_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of <c>SalesQuotationDP</c> for text block management
+/// </summary>
+[ExtensionOf(classStr(SalesQuotationDP))]
+final class FWFTextBlockSalesQuotationDP_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>initializeSalesQuotationHeaderTmp</Name>
+				<Source><![CDATA[
+    protected SalesQuotationHeaderTmp initializeSalesQuotationHeaderTmp(CustQuotationJour _custQuotationJour, FormLetterRemarks _formLetterRemarks, CustFormletterDocument _custFormletterDocument, CustFormletterParameters _custFormletterParameters)
+    {
+        SalesQuotationHeaderTmp salesQuotationHeaderTmpCreated = next initializeSalesQuotationHeaderTmp(_custQuotationJour, _formLetterRemarks, _custFormletterDocument, _custFormletterParameters);
+
+        FWFTextBlockReportTextInit::newParameters(salesQuotationHeaderTmpCreated, _custQuotationJour).addTexts();
+
+        return salesQuotationHeaderTmpCreated;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initializeSalesQuotationDetailsTmp</Name>
+				<Source><![CDATA[
+    protected SalesQuotationDetailsTmp initializeSalesQuotationDetailsTmp(CustQuotationJour _custQuotationJour, CustQuotationTrans _custQuotationTrans, CustFormletterDocument _custFormletterDocument)
+    {
+        SalesQuotationDetailsTmp salesQuotationDetailsTmpCreated = next initializeSalesQuotationDetailsTmp(_custQuotationJour, _custQuotationTrans, _custFormletterDocument);
+
+        FWFTextBlockReportTextInit::newParameters(salesQuotationDetailsTmpCreated, _custQuotationTrans).addTexts();
+
+        return salesQuotationDetailsTmpCreated;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

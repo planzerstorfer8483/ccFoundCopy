@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockPurchRFQCaseCopying_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(classStr(PurchRFQCaseCopying))]
+final class FWFTextBlockPurchRFQCaseCopying_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>copyHeader</Name>
+				<Source><![CDATA[
+    void copyHeader()
+    {
+        FWFTextBlockInstance    sourceInstance, targetInstance;
+        Common                  sourceRecord;
+
+        if (this.tmpFrmVirtualLines.TableNum == tableNum(PurchRFQCaseLine))
+        {
+            sourceRecord = PurchRFQCaseTable::find(tmpFrmVirtualLines.Id);
+        }
+
+        next copyHeader();
+
+        if (this.parmCopyHeaderTextBlock())
+        {
+            //delete texts from setup
+            delete_from targetInstance
+                where targetInstance.RefTableId == purchRFQCaseTable.TableId
+                   && targetInstance.RefRecId   == purchRFQCaseTable.RecId;
+            
+            while select sourceInstance
+                where sourceInstance.RefTableId == sourceRecord.TableId
+                   && sourceInstance.RefRecId   == sourceRecord.RecId
+            {
+                targetInstance = sourceInstance.copyToTarget(purchRFQCaseTable, true);
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>copyLine</Name>
+				<Source><![CDATA[
+    protected void copyLine(TmpFrmVirtual _tmpFrmVirtualLines)
+    {
+        FWFTextBlockInstance    sourceInstance, targetInstance;
+        PurchRFQCaseLine        purchRFQCaseLine;
+        Common                  sourceRecord = PurchRFQCaseLine::findRecId(_tmpFrmVirtualLines.RecordNo);
+        
+        next copyLine(_tmpFrmVirtualLines);
+
+        if (this.parmCopyLineTextBlock())
+        {
+            select firstonly purchRFQCaseLine order by RecId desc;
+
+            //delete texts from setup
+            delete_from targetInstance
+                where targetInstance.RefTableId == purchRFQCaseLine.TableId
+                   && targetInstance.RefRecId   == purchRFQCaseLine.RecId;
+
+            while select sourceInstance
+                where sourceInstance.RefTableId == sourceRecord.TableId
+                   && sourceInstance.RefRecId   == sourceRecord.RecId
+            {
+                targetInstance = sourceInstance.copyToTarget(purchRFQCaseLine, true);
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

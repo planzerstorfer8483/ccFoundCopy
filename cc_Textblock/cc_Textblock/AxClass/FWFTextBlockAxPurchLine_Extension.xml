@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockAxPurchLine_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(classStr(AxPurchLine))]
+final class FWFTextBlockAxPurchLine_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>setTableFields</Name>
+				<Source><![CDATA[
+    protected void setTableFields()
+    {
+        next setTableFields();
+
+        this.setFWFTextBlockReInitRequired();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>setFWFTextBlockReInitRequired</Name>
+				<Source><![CDATA[
+    private void setFWFTextBlockReInitRequired()
+    {
+        if (this.isMethodExecuted(funcname(), fieldnum(PurchLine, FWFTextBlockReInitRequired)))
+        {
+            return;
+        }
+
+        this.setAxPurchTableFields();
+
+        if (this.isAxPurchTableFieldsSet() || this.axPurchTable().isFieldModified(fieldnum(PurchTable, FWFTextBlockLanguageId)))
+        {
+            this.parmFWFTextBlockReInitRequired(true);
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmFWFTextBlockReInitRequired</Name>
+				<Source><![CDATA[
+    public NoYesId parmFWFTextBlockReInitRequired(NoYesId _reInitTB = NoYes::No)
+    {
+        if (!prmisDefault(_reInitTB))
+        {
+            this.setField(fieldNum(PurchLine, FWFTextBlockReInitRequired), _reInitTB);
+        }
+
+        return purchLine.FWFTextBlockReInitRequired;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

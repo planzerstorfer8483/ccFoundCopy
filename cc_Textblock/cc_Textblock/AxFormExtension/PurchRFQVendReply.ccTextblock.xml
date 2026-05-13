@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxFormExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>PurchRFQVendReply.ccTextblock</Name>
+	<ControlModifications />
+	<Controls>
+		<AxFormExtensionControl xmlns="">
+			<Name>Copyxpx42g1u1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormMenuFunctionButtonControl">
+				<Name>FWFTextBlockValueRFQReplyLine</Name>
+				<Type>MenuFunctionButton</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<DataSource>PurchRFQReplyLine</DataSource>
+				<MenuItemName>FWFTextBlockValue</MenuItemName>
+				<NeedsRecord>Yes</NeedsRecord>
+			</FormControl>
+			<Parent>PurchRFQLineButtonGroup</Parent>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>Copyd2hwibq41</Name>
+			<FormControl xmlns=""
+				i:type="AxFormMenuFunctionButtonControl">
+				<Name>FWFTextBlockValueRFQReplyTable</Name>
+				<Type>MenuFunctionButton</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<DataSource>PurchRFQReplyTable</DataSource>
+				<MenuItemName>FWFTextBlockValue</MenuItemName>
+				<NeedsRecord>Yes</NeedsRecord>
+			</FormControl>
+			<Parent>ActionButtonGroup</Parent>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>Copylnvpd1rj1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormImageControl">
+				<Name>ccHasTextblock_Line</Name>
+				<HelpText>@FWFTextBlock:hasTextBlockHelp</HelpText>
+				<Type>Image</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<CacheDataMethod>Yes</CacheDataMethod>
+				<DataMethod>FWFTextBlockPurchRFQReplyLine_Extension.displayHasTextblock</DataMethod>
+				<DataSource>PurchRFQReplyLine</DataSource>
+				<Label>@FWFTextBlock:hasTextBlock</Label>
+			</FormControl>
+			<Parent>PurchRFQLinesGrid</Parent>
+			<PositionType>Begin</PositionType>
+		</AxFormExtensionControl>
+	</Controls>
+	<DataSourceModifications />
+	<DataSourceReferences />
+	<DataSources />
+	<Parts />
+	<PropertyModifications />
+</AxFormExtension>

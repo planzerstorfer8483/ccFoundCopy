@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxFormExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>SalesQuotationProjTable.FWFTextBlock</Name>
+	<ControlModifications />
+	<Controls>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControl1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormMenuFunctionButtonControl">
+				<Name>FWFTextBlockValue</Name>
+				<Type>MenuFunctionButton</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Big>Yes</Big>
+				<DataSource>SalesQuotationTable</DataSource>
+				<MenuItemName>FWFTextBlockValue</MenuItemName>
+				<NeedsRecord>Yes</NeedsRecord>
+			</FormControl>
+			<Parent>RelatedInformation</Parent>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControl2</Name>
+			<FormControl xmlns=""
+				i:type="AxFormMenuFunctionButtonControl">
+				<Name>FWFTextBlockValue4Line</Name>
+				<Type>MenuFunctionButton</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Big>Yes</Big>
+				<DataSource>SalesQuotationLine</DataSource>
+				<MenuItemName>FWFTextBlockValue</MenuItemName>
+				<NeedsRecord>Yes</NeedsRecord>
+			</FormControl>
+			<Parent>ActionUpdateLine</Parent>
+			<PositionType>Begin</PositionType>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>Copyqqigxvk31</Name>
+			<FormControl xmlns=""
+				i:type="AxFormImageControl">
+				<Name>ccHasTextblock</Name>
+				<HelpText>@FWFTextBlock:hasTextBlockHelp</HelpText>
+				<Type>Image</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<CacheDataMethod>Yes</CacheDataMethod>
+				<DataMethod>FWFTextBlockSalesQuotationTable_Extension::displayHasTextblock</DataMethod>
+				<DataSource>SalesQuotationTable</DataSource>
+				<Label>@FWFTextBlock:hasTextBlock</Label>
+			</FormControl>
+			<Parent>GridHeader</Parent>
+			<PositionType>Begin</PositionType>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>Copyyqqx25ua1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormImageControl">
+				<Name>ccHasTextblock_Line</Name>
+				<HelpText>@FWFTextBlock:hasTextBlockHelp</HelpText>
+				<Type>Image</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<CacheDataMethod>Yes</CacheDataMethod>
+				<DataMethod>FWFTextBlockSalesQuotationLine_Extension::displayHasTextblock</DataMethod>
+				<DataSource>SalesQuotationLine</DataSource>
+				<Label>@FWFTextBlock:hasTextBlock</Label>
+			</FormControl>
+			<Parent>SalesQuotationLineProjGrid</Parent>
+			<PositionType>Begin</PositionType>
+		</AxFormExtensionControl>
+	</Controls>
+	<DataSourceModifications />
+	<DataSourceReferences />
+	<DataSources />
+	<Parts />
+	<PropertyModifications />
+</AxFormExtension>

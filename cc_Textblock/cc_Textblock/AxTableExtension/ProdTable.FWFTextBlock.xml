@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxTableExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>ProdTable.FWFTextBlock</Name>
+	<FieldGroupExtensions>
+		<AxTableFieldGroupExtension>
+			<Name>System</Name>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>FWFTextBlockReqPoFromRefRecId</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroupExtension>
+	</FieldGroupExtensions>
+	<FieldGroups />
+	<FieldModifications />
+	<Fields>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldInt64">
+			<Name>FWFTextBlockReqPOFromRefRecId</Name>
+			<AllowEdit>No</AllowEdit>
+			<ExtendedDataType>RefRecId</ExtendedDataType>
+		</AxTableField>
+	</Fields>
+	<FullTextIndexes />
+	<Indexes />
+	<Mappings />
+	<PropertyModifications />
+	<RelationExtensions />
+	<RelationModifications />
+	<Relations>
+		<AxTableRelation>
+			<Name>FWFTextBlockReqPOFrom</Name>
+			<RelatedTable>ReqPO</RelatedTable>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>FWFTextBlockReqPOFromRefRecId1</Name>
+					<Field>FWFTextBlockReqPOFromRefRecId</Field>
+					<RelatedField>RecId</RelatedField>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+	</Relations>
+</AxTableExtension>

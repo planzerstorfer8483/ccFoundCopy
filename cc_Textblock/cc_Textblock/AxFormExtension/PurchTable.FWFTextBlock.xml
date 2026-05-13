@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxFormExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>PurchTable.FWFTextBlock</Name>
+	<ControlModifications />
+	<Controls>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControl1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormMenuFunctionButtonControl">
+				<Name>FWFTextBlockValue</Name>
+				<Type>MenuFunctionButton</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Big>Yes</Big>
+				<DataSource>PurchTable</DataSource>
+				<MenuItemName>FWFTextBlockValue</MenuItemName>
+				<NeedsRecord>Yes</NeedsRecord>
+			</FormControl>
+			<Parent>GeneralRelatedInfo</Parent>
+			<PositionType>AfterItem</PositionType>
+			<PreviousSibling>LineQuantity</PreviousSibling>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControl2</Name>
+			<FormControl xmlns=""
+				i:type="AxFormMenuFunctionButtonControl">
+				<Name>FWFTextBlockValue4Line</Name>
+				<Type>MenuFunctionButton</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<DataSource>PurchLine</DataSource>
+				<MenuItemName>FWFTextBlockValue</MenuItemName>
+				<NeedsRecord>Yes</NeedsRecord>
+			</FormControl>
+			<Parent>LineStripUpdate</Parent>
+			<PositionType>AfterItem</PositionType>
+			<PreviousSibling>InventTransPick</PreviousSibling>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControlrevtzidp1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormImageControl">
+				<Name>ccHasTextblock</Name>
+				<HelpText>@FWFTextBlock:hasTextBlockHelp</HelpText>
+				<Type>Image</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<CacheDataMethod>Yes</CacheDataMethod>
+				<DataMethod>FWFTextBlockPurchTable_Extension::displayHasTextblock</DataMethod>
+				<DataSource>PurchTable</DataSource>
+				<Label>@FWFTextBlock:hasTextBlock</Label>
+			</FormControl>
+			<Parent>Grid</Parent>
+			<PositionType>Begin</PositionType>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControl0fo5aall1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormImageControl">
+				<Name>ccHasTextblock_Line</Name>
+				<HelpText>@FWFTextBlock:hasTextBlockHelp</HelpText>
+				<Type>Image</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<CacheDataMethod>Yes</CacheDataMethod>
+				<DataMethod>FWFTextBlockPurchLine_Extension::displayHasTextBlock</DataMethod>
+				<DataSource>PurchLine</DataSource>
+				<Label>@FWFTextBlock:hasTextBlock</Label>
+			</FormControl>
+			<Parent>LineSpec</Parent>
+			<PositionType>Begin</PositionType>
+		</AxFormExtensionControl>
+	</Controls>
+	<DataSourceModifications />
+	<DataSourceReferences />
+	<DataSources />
+	<Parts />
+	<PropertyModifications />
+</AxFormExtension>

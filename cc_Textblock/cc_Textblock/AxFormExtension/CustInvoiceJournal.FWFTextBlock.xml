@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxFormExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>CustInvoiceJournal.FWFTextBlock</Name>
+	<ControlModifications />
+	<Controls>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControl2</Name>
+			<FormControl xmlns=""
+				i:type="AxFormMenuFunctionButtonControl">
+				<Name>FWFTextBlockTransParmLines</Name>
+				<Type>MenuFunctionButton</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<DataSource>CustInvoiceTrans</DataSource>
+				<MenuItemName>FWFTextBlockTransParm</MenuItemName>
+			</FormControl>
+			<Parent>LinesButtonGroup</Parent>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControl3</Name>
+			<FormControl xmlns=""
+				i:type="AxFormButtonSeparatorControl">
+				<Name>FWFTextBlockButtonSeparator</Name>
+				<ConfigurationKey>LedgerBasicSalesTax</ConfigurationKey>
+				<CountryRegionCodes>RU</CountryRegionCodes>
+				<Type>ButtonSeparator</Type>
+				<FormControlExtension
+					i:nil="true" />
+			</FormControl>
+			<Parent>OverviewButtonGroup</Parent>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControl1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormMenuFunctionButtonControl">
+				<Name>FWFTextBlockTransParmHeader</Name>
+				<Type>MenuFunctionButton</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<DataSource>CustInvoiceJour</DataSource>
+				<MenuItemName>FWFTextBlockTransParm</MenuItemName>
+			</FormControl>
+			<Parent>OverviewButtonGroup</Parent>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>Copy0nrjv1yj1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormImageControl">
+				<Name>ccHasTextblock</Name>
+				<HelpText>@FWFTextBlock:hasTextBlockHelp</HelpText>
+				<Type>Image</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<CacheDataMethod>Yes</CacheDataMethod>
+				<DataMethod>FWFTextBlockCustInvoiceJour_Extension::displayHasTextBlock</DataMethod>
+				<DataSource>CustInvoiceJour</DataSource>
+				<Label>@FWFTextBlock:hasTextBlock</Label>
+			</FormControl>
+			<Parent>MainGrid</Parent>
+			<PositionType>Begin</PositionType>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>Copy3p0e2obo1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormImageControl">
+				<Name>ccHasTextblock_Line</Name>
+				<HelpText>@FWFTextBlock:hasTextBlockHelp</HelpText>
+				<Type>Image</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<CacheDataMethod>Yes</CacheDataMethod>
+				<DataMethod>FWFTextBlockCustInvoiceTrans_Extension::displayHasTextBlock</DataMethod>
+				<DataSource>CustInvoiceTrans</DataSource>
+				<Label>@FWFTextBlock:hasTextBlock</Label>
+			</FormControl>
+			<Parent>Grid</Parent>
+			<PositionType>Begin</PositionType>
+		</AxFormExtensionControl>
+	</Controls>
+	<DataSourceModifications />
+	<DataSourceReferences />
+	<DataSources />
+	<Parts />
+	<PropertyModifications />
+</AxFormExtension>

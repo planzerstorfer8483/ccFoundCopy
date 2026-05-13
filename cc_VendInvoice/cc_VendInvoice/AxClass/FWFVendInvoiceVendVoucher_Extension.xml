@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFVendInvoiceVendVoucher_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of <c>VendVocher</c> class.
+/// </summary>
+[ExtensionOf(classstr(VendVoucher))]
+final class FWFVendInvoiceVendVoucher_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>newVendVoucherPurch</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Constructs a new <c>VendVoucherPurch</c> instance.
+    /// </summary>
+    /// <param name = "_ledgerTransTxt">A <c>LedgerTransTxt</c> string to initialize the new <c>VendVoucherPurch</c> instance.</param>
+    /// <param name = "_vendInvoiceJour">A <c>VendInvoiceJour</c> table.</param>
+    /// <param name = "_vendInvoiceInfoTable">> <c>VendInvoiceInfoTable</c> table.</param>
+    /// <param name = "_purchTable">A <c>PurchTable</c> table.</param>
+    /// <returns></returns>
+    public static VendVoucherPurch newVendVoucherPurch(
+        LedgerTransTxt _ledgerTransTxt,
+        VendInvoiceJour _vendInvoiceJour,
+        VendInvoiceInfoTable _vendInvoiceInfoTable,
+        PurchTable _purchTable)
+    {
+        VendVoucherPurch vendVoucherPurch = next newVendVoucherPurch(_ledgerTransTxt, _vendInvoiceJour, _vendInvoiceInfoTable, _purchTable);
+
+        vendVoucherPurch.parmFWFVendInvoiceDate(_vendInvoiceInfoTable.FWFVendInvoiceDate);
+
+        return vendVoucherPurch;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>newVendVoucherJournal</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Constructs a new <c>VendVoucher</c> instance.
+    /// </summary>
+    /// <param name = "_ledgerJournalTrans">A <c>LedgerJournalTrans</c> table.</param>
+    /// <param name = "_amountCur">A <c>AmountCur</c> real value.</param>
+    /// <param name = "_ledgerTransTxt">A <c>LedgerTransTxt</c> string.</param>
+    /// <param name = "_taxAgentVATAmount">A <c>AmountCur</c> real value.</param>
+    /// <returns></returns>
+    public static VendVoucher newVendVoucherJournal(
+        LedgerJournalTrans _ledgerJournalTrans,
+        AmountCur _amountCur,
+        LedgerTransTxt _ledgerTransTxt,
+        AmountCur _taxAgentVATAmount)
+    {
+        VendVoucher vendVoucher = next newVendVoucherJournal(_ledgerJournalTrans, _amountCur, _ledgerTransTxt, _taxAgentVATAmount);
+
+        vendVoucher.parmFWFVendInvoiceDate(_ledgerJournalTrans.FWFVendInvoiceDate);
+
+        return vendVoucher;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

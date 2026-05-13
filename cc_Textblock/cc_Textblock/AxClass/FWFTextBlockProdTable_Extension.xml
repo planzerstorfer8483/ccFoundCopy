@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockProdTable_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(tableStr(ProdTable))]
+final class FWFTextBlockProdTable_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>initFromReqPo</Name>
+				<Source><![CDATA[
+    public void initFromReqPo(ReqPO _reqPO)
+    {
+        next initFromReqPo(_reqPO);
+
+        this.FWFTextBlockReqPoFromRefRecId = _reqPO.RecId;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>displayHasTextblock</Name>
+				<Source><![CDATA[
+    [SysClientCacheDataMethodAttribute(true)]
+    public display container displayHasTextblock()
+    {
+        return FWFTextBlockHelper::hasTextblock(this);
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

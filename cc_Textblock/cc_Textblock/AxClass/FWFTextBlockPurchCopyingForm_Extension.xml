@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockPurchCopyingForm_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(classStr(PurchCopyingForm))]
+final class FWFTextBlockPurchCopyingForm_Extension
+{
+    private NoYes   copyHeaderTB;
+    private NoYes   copyLineTB;
+
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>constructAndInitCopying</Name>
+				<Source><![CDATA[
+    public void constructAndInitCopying(TmpFrmVirtual   _tmpFrmVirtualLines,
+                                        TmpFrmVirtual   _tmpFrmVirtualHeader,
+                                        Qty             _qtyFactor,
+                                        NoYes           _reverseSign,
+                                        NoYes           _recalculateAmount,
+                                        NoYes           _copyMarkup,
+                                        NoYes           _copyPrecisely,
+                                        NoYes           _deleteLines,
+                                        VendInvoiceJour _vendInvoiceJour)
+    {
+        next constructAndInitCopying(_tmpFrmVirtualLines,
+                                     _tmpFrmVirtualHeader,
+                                     _qtyFactor,    
+                                     _reverseSign,      
+                                     _recalculateAmount,
+                                     _copyMarkup,       
+                                     _copyPrecisely,    
+                                     _deleteLines,      
+                                     _vendInvoiceJour);
+  
+
+        contract.parmCopyHeaderTextBlock(copyHeaderTB);
+        contract.parmCopyLineTextBlock(copyLineTB);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmCopyHeaderTextBlock</Name>
+				<Source><![CDATA[
+    public NoYes parmCopyHeaderTextBlock(NoYes _copyHeaderTB = copyHeaderTB)
+    {
+        copyHeaderTB = _copyHeaderTB;
+        return copyHeaderTB;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmCopyLineTextBlock</Name>
+				<Source><![CDATA[
+    public NoYes parmCopyLineTextBlock(NoYes _copyLineTB = copyLineTB)
+    {
+        copyLineTB = _copyLineTB;
+        return copyLineTB;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxTableExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>VendFormletterParameters.ccTextblock</Name>
+	<FieldGroupExtensions />
+	<FieldGroups>
+		<AxTableFieldGroup>
+			<Name>FWFTextBlockPurchTable</Name>
+			<Label>@SYS115660</Label>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>FWFTextBlockCopyingHeader</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>FWFTextBlockCopyingLine</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>FWFTextBlockPurchRFQCaseTable</Name>
+			<Label>@SYS112845</Label>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>FWFTextBlockCopyingHeaderRFQCase</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>FWFTextBlockCopyingLineRFQCase</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>FWFTextBlockPurchReqTable</Name>
+			<Label>@SYS114378</Label>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>FWFTextBlockCopyingHeaderReq</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>FWFTextBlockCopyingLineReq</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+	</FieldGroups>
+	<FieldModifications />
+	<Fields>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>FWFTextBlockCopyingHeader</Name>
+			<ExtendedDataType>FWFTextBlockCopyingHeader</ExtendedDataType>
+			<IgnoreEDTRelation>Yes</IgnoreEDTRelation>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>FWFTextBlockCopyingLine</Name>
+			<ExtendedDataType>FWFTextBlockCopyingLine</ExtendedDataType>
+			<IgnoreEDTRelation>Yes</IgnoreEDTRelation>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>FWFTextBlockCopyingHeaderRFQCase</Name>
+			<ExtendedDataType>FWFTextBlockCopyingHeader</ExtendedDataType>
+			<IgnoreEDTRelation>Yes</IgnoreEDTRelation>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>FWFTextBlockCopyingLineRFQCase</Name>
+			<ExtendedDataType>FWFTextBlockCopyingLine</ExtendedDataType>
+			<IgnoreEDTRelation>Yes</IgnoreEDTRelation>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>FWFTextBlockCopyingHeaderReq</Name>
+			<ExtendedDataType>FWFTextBlockCopyingHeader</ExtendedDataType>
+			<IgnoreEDTRelation>Yes</IgnoreEDTRelation>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>FWFTextBlockCopyingLineReq</Name>
+			<ExtendedDataType>FWFTextBlockCopyingLine</ExtendedDataType>
+			<IgnoreEDTRelation>Yes</IgnoreEDTRelation>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+	</Fields>
+	<FullTextIndexes />
+	<Indexes />
+	<Mappings />
+	<PropertyModifications />
+	<RelationExtensions />
+	<RelationModifications />
+	<Relations />
+</AxTableExtension>

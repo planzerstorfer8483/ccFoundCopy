@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxTable xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockGroupAssign</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+public class FWFTextBlockGroupAssign extends common
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>findByGroupIdRefId</Name>
+				<Source><![CDATA[
+    /// <summary>
+    ///
+    /// </summary>
+    public static FWFTextBlockGroupAssign findByGroupIdRefId(
+        FWFTextBlockGroupId	_groupId,
+        FWFTextBlockRefId	_refId,
+        boolean				_forUpdate = false)
+    {
+        FWFTextBlockGroupAssign  textBlockGroupAssign;
+    
+        textBlockGroupAssign.selectForUpdate(_forUpdate);
+    
+        if (_groupId && _refId)
+        {
+            select firstOnly textBlockGroupAssign
+                where textBlockGroupAssign.GroupId == _groupId
+                   && textBlockGroupAssign.RefId   == _refId;
+        }
+    
+        return textBlockGroupAssign;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>selectedReferences</Name>
+				<Source><![CDATA[
+    static server container selectedReferences(
+        FWFTextBlockGroupId _groupId,
+        FWFTextBlockModule	_module
+        )
+    {
+        container				ret;
+        container				data;
+        CustTable				custTable;
+        VendTable				vendTable;
+        InventTable				inventTable;
+        ProjTable				projTable;
+        FWFTextBlockGroupAssign groupList;
+
+        switch (_module)
+        {
+            case FWFTextBlockModule::Customer :
+                while select custTable order by AccountNum
+                exists join groupList
+                    where groupList.RefId   == custTable.AccountNum
+                       && groupList.GroupId == _groupId
+                {
+                    data = [custTable.AccountNum, custTable.AccountNum, custTable.name()];
+                    ret += [data];
+                }
+                break;
+
+            case FWFTextBlockModule::Supplier :
+                while select vendTable order by AccountNum
+                exists join groupList
+                    where groupList.RefId   == vendTable.AccountNum
+                       && groupList.GroupId == _groupId
+                {
+                    data = [vendTable.AccountNum, vendTable.AccountNum, vendTable.name()];
+                    ret += [data];
+                }
+                break;
+
+            case FWFTextBlockModule::ReleasedProduct :
+                while select inventTable order by ItemId
+                exists join groupList
+                    where groupList.RefId   == inventTable.ItemId
+                       && groupList.GroupId == _groupId
+                {
+                    data = [inventTable.ItemId, inventTable.ItemId, inventTable.NameAlias];
+                    ret += [data];
+                }
+                break;
+
+            case FWFTextBlockModule::Project :
+                while select projTable order by ProjId
+                exists join groupList
+                    where groupList.RefId   == projTable.ProjId
+                       && groupList.GroupId == _groupId
+                {
+                    data = [projTable.ProjId, projTable.ProjId, projTable.Name];
+                    ret += [data];
+                }
+                break;
+        }
+
+        return ret;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>availableReferences</Name>
+				<Source><![CDATA[
+    static server container availableReferences(
+        FWFTextBlockGroupId _groupId,
+        FWFTextBlockModule	_module
+        )
+    {
+        container				ret;
+        container				data;
+        CustTable				custTable;
+        VendTable				vendTable;
+        InventTable				inventTable;
+        ProjTable				projTable;
+        FWFTextBlockGroupAssign groupList;
+
+        switch (_module)
+        {
+            case FWFTextBlockModule::Customer :
+                while select custTable order by AccountNum
+                notExists join firstOnly groupList
+                    where groupList.RefId   == custTable.AccountNum
+                       && groupList.GroupId == _groupId
+                {
+                    data = [custTable.AccountNum, custTable.AccountNum, custTable.name()];
+                    ret += [data];
+                }
+                break;
+
+            case FWFTextBlockModule::Supplier :
+                while select vendTable order by AccountNum
+                notExists join firstOnly groupList
+                    where groupList.RefId   == vendTable.AccountNum
+                       && groupList.GroupId == _groupId
+                {
+                    data = [vendTable.AccountNum, vendTable.AccountNum, vendTable.name()];
+                    ret += [data];
+                }
+                break;
+
+            case FWFTextBlockModule::ReleasedProduct :
+                while select inventTable order by ItemId
+                notExists join groupList
+                    where groupList.RefId   == inventTable.ItemId
+                       && groupList.GroupId == _groupId
+                {
+                    data = [inventTable.ItemId, inventTable.ItemId, inventTable.NameAlias];
+                    ret += [data];
+                }
+                break;
+
+            case FWFTextBlockModule::Project :
+                while select projTable order by ProjId
+                notExists join groupList
+                    where groupList.RefId   == projTable.ProjId
+                       && groupList.GroupId == _groupId
+                {
+                    data = [projTable.ProjId, projTable.ProjId, projTable.Name];
+                    ret += [data];
+                }
+                break;
+        }
+        return ret;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>exists</Name>
+				<Source><![CDATA[
+    public static boolean exists(
+        FWFTextBlockGroupId	_groupId,
+        FWFTextBlockRefId	_refId)
+    {
+        FWFTextBlockGroupAssign  textBlockGroupAssign;
+    
+        if (_groupId && _refId)
+        {
+            select firstOnly textBlockGroupAssign
+                where textBlockGroupAssign.GroupId == _groupId
+                   && textBlockGroupAssign.RefId   == _refId;
+        }
+    
+        return textBlockGroupAssign.RecId != 0;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>insertTextBlockGroupAssign</Name>
+				<Source><![CDATA[
+    /// <summary>
+    ///
+    /// </summary>
+    public static FWFTextBlockGroupAssign insertTextBlockGroupAssign(
+        FWFTextBlockGroupId	_groupId,
+        FWFTextBlockModule  _module,
+        FWFTextBlockRefId	_refId
+        )
+    {
+        FWFTextBlockGroupAssign	newTextBlockGroupAssign;
+        FWFTextBlockGroupAssign selectedTextBlockGroupAssign;
+
+        select firstonly RecId from selectedTextBlockGroupAssign
+            where selectedTextBlockGroupAssign.GroupId  == _groupId
+               && selectedTextBlockGroupAssign.Module   == _module
+               && selectedTextBlockGroupAssign.RefId	== _refId;
+
+        if (! selectedTextBlockGroupAssign.RecId)
+        {
+            newTextBlockGroupAssign = null;
+            newTextBlockGroupAssign.initValue();
+            newTextBlockGroupAssign.GroupId = _groupId;
+            newTextBlockGroupAssign.Module  = _module;
+            newTextBlockGroupAssign.RefId	= _refId;
+            newTextBlockGroupAssign.insert();
+        }
+        else
+        {
+            error (strFmt("@FWFTextBlock:TextBlockGroupAssignInsertError", _module, _refId, _groupId));
+        }
+
+        return newTextBlockGroupAssign;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>name</Name>
+				<Source><![CDATA[
+    /// <summary>
+    ///
+    /// </summary>
+    display Name name()
+    {
+        CustTable	custTable;
+        VendTable	vendTable;
+        InventTable	inventTable;
+        ProjTable	projTable;
+
+        switch (this.Module)
+        {
+            case FWFTextBlockModule::Customer :
+                select firstonly Party from custTable
+                    where custTable.AccountNum == this.RefId;
+                return custTable.name();
+
+            case FWFTextBlockModule::Supplier :
+                select firstonly Party from vendTable
+                    where vendTable.AccountNum == this.RefId;
+                return vendTable.name();
+
+            case FWFTextBlockModule::ReleasedProduct :
+                select firstonly NameAlias from inventTable
+                    where inventTable.ItemId == this.RefId;
+                return inventTable.NameAlias;
+
+            case FWFTextBlockModule::Project :
+                select firstonly Name from projTable
+                    where projTable.ProjId == this.RefId;
+                return projTable.Name;
+
+        }
+
+        return '';
+
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+	<DeveloperDocumentation>@FWFTextBlock:TextBlockGroupAssignDevDoc</DeveloperDocumentation>
+	<FormRef>FWFTextBlockGroupAssignment</FormRef>
+	<Label>@FWFTextBlock:TextBlockGroupAssign</Label>
+	<SubscriberAccessLevel>
+		<Read>Allow</Read>
+	</SubscriberAccessLevel>
+	<TableGroup>Group</TableGroup>
+	<TitleField1>GroupId</TitleField1>
+	<TitleField2>RefId</TitleField2>
+	<CacheLookup>Found</CacheLookup>
+	<ClusteredIndex>GroupIdModuleRefIdIdx</ClusteredIndex>
+	<ReplacementKey>GroupIdModuleRefIdIdx</ReplacementKey>
+	<DeleteActions />
+	<FieldGroups>
+		<AxTableFieldGroup>
+			<Name>AutoReport</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoLookup</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoIdentification</Name>
+			<AutoPopulate>Yes</AutoPopulate>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>GroupId</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>Module</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>RefId</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoSummary</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoBrowse</Name>
+			<Fields />
+		</AxTableFieldGroup>
+	</FieldGroups>
+	<Fields>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>RefId</Name>
+			<ExtendedDataType>FWFTextBlockRefId</ExtendedDataType>
+			<Mandatory>Yes</Mandatory>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>GroupId</Name>
+			<ExtendedDataType>FWFTextBlockGroupId</ExtendedDataType>
+			<Mandatory>Yes</Mandatory>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>Module</Name>
+			<Mandatory>Yes</Mandatory>
+			<EnumType>FWFTextBlockModule</EnumType>
+		</AxTableField>
+	</Fields>
+	<FullTextIndexes />
+	<Indexes>
+		<AxTableIndex>
+			<Name>GroupIdModuleRefIdIdx</Name>
+			<AlternateKey>Yes</AlternateKey>
+			<Fields>
+				<AxTableIndexField>
+					<DataField>GroupId</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>Module</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>RefId</DataField>
+				</AxTableIndexField>
+			</Fields>
+		</AxTableIndex>
+	</Indexes>
+	<Mappings />
+	<Relations>
+		<AxTableRelation>
+			<Name>CustTable</Name>
+			<RelatedTable>CustTable</RelatedTable>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>RefId</Name>
+					<Field>RefId</Field>
+					<RelatedField>AccountNum</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>Module</Name>
+					<Field>Module</Field>
+					<ValueStr>FWFTextBlockModule::Customer</ValueStr>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+		<AxTableRelation>
+			<Name>VendTable</Name>
+			<RelatedTable>VendTable</RelatedTable>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>RefId</Name>
+					<Field>RefId</Field>
+					<RelatedField>AccountNum</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>Module</Name>
+					<Field>Module</Field>
+					<ValueStr>FWFTextBlockModule::Supplier</ValueStr>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+		<AxTableRelation>
+			<Name>InventTable</Name>
+			<RelatedTable>InventTable</RelatedTable>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>RefId</Name>
+					<Field>RefId</Field>
+					<RelatedField>ItemId</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>Module</Name>
+					<Field>Module</Field>
+					<ValueStr>FWFTextBlockModule::ReleasedProduct</ValueStr>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+		<AxTableRelation>
+			<Name>FWFTextBlockGroup</Name>
+			<Cardinality>ZeroMore</Cardinality>
+			<RelatedTable>FWFTextBlockGroup</RelatedTable>
+			<RelatedTableCardinality>ExactlyOne</RelatedTableCardinality>
+			<RelatedTableRole>FWFTextBlockGroup</RelatedTableRole>
+			<RelationshipType>Composition</RelationshipType>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>GroupId</Name>
+					<Field>GroupId</Field>
+					<RelatedField>Id</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>Module</Name>
+					<Field>Module</Field>
+					<RelatedField>Module</RelatedField>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+		<AxTableRelation>
+			<Name>ProjTable</Name>
+			<RelatedTable>ProjTable</RelatedTable>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>RefId</Name>
+					<Field>RefId</Field>
+					<RelatedField>ProjId</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>Module</Name>
+					<Field>Module</Field>
+					<ValueStr>FWFTextBlockModule::Project</ValueStr>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+	</Relations>
+	<StateMachines />
+</AxTable>

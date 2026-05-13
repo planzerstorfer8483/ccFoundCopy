@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxMenuExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V1">
+	<Name>AccountsReceivable.FWFTextBlock</Name>
+	<Customizations />
+	<Elements>
+		<AxMenuExtensionElement xmlns="">
+			<Parent>Setup</Parent>
+			<MenuElement xmlns=""
+				i:type="AxMenuElementSubMenu">
+				<Name>FWFTextBlock</Name>
+				<Label>@FWFTextBlock:TextBlockSubMenuLabel</Label>
+				<Elements>
+					<AxMenuElement xmlns=""
+						i:type="AxMenuElementMenuItem">
+						<Name>FWFTextBlockGroup_Customer</Name>
+						<MenuItemName>FWFTextBlockGroup_Customer</MenuItemName>
+					</AxMenuElement>
+					<AxMenuElement xmlns=""
+						i:type="AxMenuElementMenuItem">
+						<Name>FWFTextBlockTable_Customer</Name>
+						<MenuItemName>FWFTextBlockTable_Customer</MenuItemName>
+					</AxMenuElement>
+					<AxMenuElement xmlns=""
+						i:type="AxMenuElementMenuItem">
+						<Name>FWFTextBlockUsage_Customer</Name>
+						<MenuItemName>FWFTextBlockUsage_Customer</MenuItemName>
+					</AxMenuElement>
+					<AxMenuElement xmlns=""
+						i:type="AxMenuElementMenuItem">
+						<Name>FWFTextBlockSetupGroup_Customer</Name>
+						<MenuItemName>FWFTextBlockSetupGroup_Customer</MenuItemName>
+					</AxMenuElement>
+				</Elements>
+			</MenuElement>
+		</AxMenuExtensionElement>
+	</Elements>
+	<MenuElementModifications />
+	<PropertyModifications />
+</AxMenuExtension>

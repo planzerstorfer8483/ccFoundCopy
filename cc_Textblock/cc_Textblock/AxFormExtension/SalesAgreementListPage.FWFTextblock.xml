@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxFormExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>SalesAgreementListPage.FWFTextblock</Name>
+	<ControlModifications />
+	<Controls>
+		<AxFormExtensionControl xmlns="">
+			<Name>Copyd5ea42kc1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormImageControl">
+				<Name>ccHasTextblock</Name>
+				<HelpText>@FWFTextBlock:hasTextBlockHelp</HelpText>
+				<Type>Image</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<CacheDataMethod>Yes</CacheDataMethod>
+				<DataMethod>FWFTextBlockSalesAgreementHeader_Extension::displayHasTextblock</DataMethod>
+				<DataSource>SalesAgreementHeader</DataSource>
+				<Label>@FWFTextBlock:hasTextBlock</Label>
+			</FormControl>
+			<Parent>ListPageGrid</Parent>
+			<PositionType>Begin</PositionType>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControljav00xzh1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormMenuFunctionButtonControl">
+				<Name>FWFTextBlockValue</Name>
+				<Type>MenuFunctionButton</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<DataSource>SalesAgreementHeader</DataSource>
+				<MenuItemName>FWFTextBlockValue</MenuItemName>
+			</FormControl>
+			<Parent>RelatedInformationGroup</Parent>
+		</AxFormExtensionControl>
+	</Controls>
+	<DataSourceModifications />
+	<DataSourceReferences />
+	<DataSources />
+	<Parts />
+	<PropertyModifications />
+</AxFormExtension>

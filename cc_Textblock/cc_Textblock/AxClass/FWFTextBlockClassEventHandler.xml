@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockClassEventHandler</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Handles events related with classes.
+/// </summary>
+
+class FWFTextBlockClassEventHandler
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>SalesTable2LineField_lineUpdateDescriptionDelegate</Name>
+				<Source><![CDATA[
+    [SubscribesTo(classStr(SalesTable2LineField), delegateStr(SalesTable2LineField, lineUpdateDescriptionDelegate))]
+    public static void SalesTable2LineField_lineUpdateDescriptionDelegate(FieldId _fieldId, TableId _tableId, EventHandlerResult _result)
+    {
+        switch (_tableId)
+        {
+            case (tableNum(SalesTable)):
+                switch (_fieldId)
+                {
+                    case fieldNum(SalesTable, FWFTextBlockLanguageId):
+                        _result.result(fieldId2PName(tableNum(SalesLine), fieldNum(SalesLine, FWFTextBlockReInitRequired)));
+                        break;
+                }
+                break;
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>PurchTable2LineField_getFieldDescriptionDelegate</Name>
+				<Source><![CDATA[
+    [SubscribesTo(classStr(PurchTable2LineField), delegateStr(PurchTable2LineField, getFieldDescriptionDelegate))]
+    public static void PurchTable2LineField_getFieldDescriptionDelegate(FieldId _fieldId, EventHandlerResult _result)
+    {
+        switch (_fieldId)
+        {
+            case fieldnum(PurchTable, FWFTextBlockLanguageId) :
+                _result.result(fieldId2PName(tableNum(PurchLine), fieldNum(PurchLine, FWFTextBlockReInitRequired)));
+                break;
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>SalesQuotationToLineField_getFieldDescriptionDelegate</Name>
+				<Source><![CDATA[
+    [SubscribesTo(classStr(SalesQuotationToLineField), delegateStr(SalesQuotationToLineField, getFieldDescriptionDelegate))]
+    public static void SalesQuotationToLineField_getFieldDescriptionDelegate(FieldId _fieldId, EventHandlerResult _result)
+    {
+        switch (_fieldId)
+        {
+            case fieldnum(SalesQuotationTable, FWFTextBlockLanguageId) :
+                _result.result(fieldId2PName(tableNum(SalesQuotationLine), fieldNum(SalesQuotationLine, FWFTextBlockReInitRequired)));
+                break;
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>VendInvoiceTableToLineUpdate_convertPurchTableFieldToVendInvoiceDelegate</Name>
+				<Source><![CDATA[
+    [SubscribesTo(classStr(VendInvoiceTableToLineUpdate), staticDelegateStr(VendInvoiceTableToLineUpdate, convertPurchTableFieldToVendInvoiceDelegate))]
+    public static void VendInvoiceTableToLineUpdate_convertPurchTableFieldToVendInvoiceDelegate(FieldId _purchTableFieldId, EventHandlerResult _result)
+    {
+        switch (_purchTableFieldId)
+        {
+            case fieldNum(PurchTable, FWFTextBlockLanguageId):
+                _result.result(0);
+                break;
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

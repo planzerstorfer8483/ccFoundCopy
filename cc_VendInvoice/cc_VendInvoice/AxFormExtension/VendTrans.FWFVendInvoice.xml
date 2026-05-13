@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxFormExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>VendTrans.FWFVendInvoice</Name>
+	<ControlModifications />
+	<Controls>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControlvhn3t3vx1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormDateControl">
+				<Name>FWFVendInvoice_VendTrans_FWFVendInvoiceDate</Name>
+				<Type>Date</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<DataField>FWFVendInvoiceDate</DataField>
+				<DataSource>VendTrans</DataSource>
+			</FormControl>
+			<Parent>Grid</Parent>
+			<PositionType>AfterItem</PositionType>
+			<PreviousSibling>VendTrans_Invoice</PreviousSibling>
+		</AxFormExtensionControl>
+	</Controls>
+	<DataSources />
+	<Parts />
+	<PropertyModifications />
+</AxFormExtension>

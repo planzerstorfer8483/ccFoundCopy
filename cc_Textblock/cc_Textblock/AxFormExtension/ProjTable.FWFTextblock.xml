@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxFormExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>ProjTable.FWFTextblock</Name>
+	<ControlModifications />
+	<Controls>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControlmoj24arn1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormMenuFunctionButtonControl">
+				<Name>FWFTextBlockGroupAssignment_Project</Name>
+				<Type>MenuFunctionButton</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<MenuItemName>FWFTextBlockGroupAssignment_Project</MenuItemName>
+			</FormControl>
+			<Parent>SetupGroup</Parent>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControlzhn1q3q51</Name>
+			<FormControl xmlns=""
+				i:type="AxFormMenuFunctionButtonControl">
+				<Name>FWFTextBlockUsageEx_Project</Name>
+				<Type>MenuFunctionButton</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<MenuItemName>FWFTextBlockUsageEx_Project</MenuItemName>
+			</FormControl>
+			<Parent>RelatedInfoGroup1</Parent>
+			<PositionType>AfterItem</PositionType>
+			<PreviousSibling>CtrlItemTasks</PreviousSibling>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControl0ynl1vgw1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormMenuButtonControl">
+				<Name>FWFTextBlock</Name>
+				<HelpText>@FWFTextBlock:TextBlockHelp</HelpText>
+				<Type>MenuButton</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormMenuFunctionButtonControl">
+						<Name>FWFTextBlockUsage_Project</Name>
+						<Type>MenuFunctionButton</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<MenuItemName>FWFTextBlockUsage_Project</MenuItemName>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormMenuFunctionButtonControl">
+						<Name>FWFTextBlockUsage_Product</Name>
+						<Type>MenuFunctionButton</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<MenuItemName>FWFTextBlockUsage_Product_Project</MenuItemName>
+					</AxFormControl>
+				</Controls>
+				<ImageLocation>EmbeddedResource</ImageLocation>
+				<NormalImage>10042</NormalImage>
+				<Text>@SYS24752</Text>
+			</FormControl>
+			<Parent>RelatedInfoGroup1</Parent>
+		</AxFormExtensionControl>
+	</Controls>
+	<DataSourceModifications />
+	<DataSourceReferences />
+	<DataSources />
+	<Parts />
+	<PropertyModifications />
+</AxFormExtension>

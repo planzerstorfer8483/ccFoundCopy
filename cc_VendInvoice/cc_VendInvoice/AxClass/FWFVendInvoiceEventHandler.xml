@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFVendInvoiceEventHandler</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Handles events related with forms used by vendor invoice.
+/// </summary>
+class FWFVendInvoiceEventHandler
+{
+    
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>VendEditInvoice_OnPostRun</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Handles the postRun event of <c>VendEditInvoice</c> form.
+    /// </summary>
+    /// <param name="_sender">The <c>VendEditInvoice</c> formrun.</param>
+    /// <param name="_e">The event arguments.</param>
+    [FormEventHandler(formStr(VendEditInvoice), FormEventType::PostRun),
+        SuppressBPWarningAttribute('BPParameterNotUsed', 'No use for parameter _e')]
+    public static void VendEditInvoice_OnPostRun(xFormRun _sender, FormEventArgs _e)
+    {        
+        FormRun         formVendEditInvoice = _sender as FormRun;
+        PurchParmUpdate purchParmUpdate = formVendEditInvoice.dataSource(formDataSourceStr(VendEditInvoice, PurchParmUpdate)).cursor() as PurchParmUpdate;
+
+        if (purchParmUpdate.ParmId)
+        {
+            VendIInvoice formVendIInvoice = _sender as VendIInvoice;
+            VendInvoiceInfoTable vendInvoiceInfoTable = formVendEditInvoice.dataSource(formDataSourceStr(VendEditInvoice, VendInvoiceInfoTable)).cursor() as VendInvoiceInfoTable;
+
+            formVendEditInvoice.dataSource(formDataSourceStr(VendEditInvoice, VendInvoiceInfoTable)).object(fieldNum(VendInvoiceInfoTable, FWFVendInvoiceDate)).allowEdit(formVendIInvoice.getPurchEditLinesForm_Invoice().fixedDueDateAllowEdit() && vendInvoiceInfoTable.PaymentSched == '');
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>VendInvoiceJour_Post_initFromParmTable</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Handles the post event of <c>InitFromParmTable</c> of <c>VendInvoiceJour</c> table.
+    /// </summary>
+    /// <param name="_args">The event argutments.</param>
+    [PostHandlerFor(tableStr(VendInvoiceJour), tableMethodStr(VendInvoiceJour, initFromParmTable))]
+    public static void VendInvoiceJour_Post_initFromParmTable(XppPrePostArgs _args)
+    {
+        VendInvoiceJour vendInvoiceJour = _args.getThis() as VendInvoiceJour;
+        VendInvoiceInfoTable parmTable = _args.getArg(identifierStr(_parmTable)) as VendInvoiceInfoTable;
+
+        vendInvoiceJour.FWFVendInvoiceDate = parmTable.FWFVendInvoiceDate;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>VendInvoiceJour_Post_initFromVendTrans</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Handles the post event of <c>initFromVendTrans</c> of <c>VendInvoiceJour</c> table.
+    /// </summary>
+    /// <param name="_args">The event arguments.</param>
+    [PostHandlerFor(tableStr(VendInvoiceJour), tableMethodStr(VendInvoiceJour, initFromVendTrans))]
+    public static void VendInvoiceJour_Post_initFromVendTrans(XppPrePostArgs _args)
+    {
+        VendInvoiceJour vendInvoiceJour = _args.getThis() as VendInvoiceJour;
+        VendTrans vendTrans = _args.getArg(identifierStr(vendTrans)) as VendTrans;
+
+        vendInvoiceJour.FWFVendInvoiceDate = vendTrans.FWFVendInvoiceDate;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>VendInvoiceInfoTable_Post_copyFromHeader</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Handles the post event of <c>copyFromHeader</c> of <c>VendInvoiceInfoTable</c> table.
+    /// </summary>
+    /// <param name="_args">The event arguments.</param>
+    [PostHandlerFor(tableStr(VendInvoiceInfoTable), tableMethodStr(VendInvoiceInfoTable, copyFromHeader))]
+    public static void VendInvoiceInfoTable_Post_copyFromHeader(XppPrePostArgs _args)
+    {
+        VendInvoiceInfoTable vendInvoiceInfoTable = _args.getThis() as VendInvoiceInfoTable;
+        VendInvoiceInfoTable header = _args.getArg(identifierStr(_header)) as VendInvoiceInfoTable;
+
+        vendInvoiceInfoTable.FWFVendInvoiceDate = header.FWFVendInvoiceDate;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

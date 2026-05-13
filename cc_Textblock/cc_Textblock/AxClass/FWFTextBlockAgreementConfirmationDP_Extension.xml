@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockAgreementConfirmationDP_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of <c>SalesConfirmDP</c> for text block management
+/// </summary>
+[ExtensionOf(classStr(AgreementConfirmationDP))]
+final class FWFTextBlockAgreementConfirmationDP_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>createQuantityCommitmentHistoryAgreementLine</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Fills the <c>AgreementLineTmp</c> table with the data for a confirmation report.
+    /// </summary>
+    /// <param name="_agreementLineTmp">The table to fill with the data.</param>
+    protected void createQuantityCommitmentHistoryAgreementLine(AgreementConfirmationDPLineHistoryCreationParameters _parameters)
+    {
+        next createQuantityCommitmentHistoryAgreementLine(_parameters);
+
+        FWFTextBlockReportTextInit::newParameters(this.agreementLineTmp, _parameters.agreementLineQuantityCommitmentHistory).addTexts();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>createVolumeCommitmentHistoryAgreementLine</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Creates a volume commitment history agreement line based on the specified parameters.
+    /// </summary>
+    /// <param name = "_parameters">An instance of <c>AgreementConfirmationDPLineHistoryCreationParameters</c>.</param>
+    protected void createVolumeCommitmentHistoryAgreementLine(AgreementConfirmationDPLineHistoryCreationParameters _parameters)
+    {
+        next createVolumeCommitmentHistoryAgreementLine(_parameters);
+
+        FWFTextBlockReportTextInit::newParameters(this.agreementLineTmp, _parameters.AgreementLineVolumeCommitmentHistory).addTexts();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>createQuantityCommitmentAgreementLine</Name>
+				<Source><![CDATA[
+    protected void createQuantityCommitmentAgreementLine(AgreementConfirmationDPLineCreationParameters _parameters)
+    {
+        AgreementLine localAgreementLineQuantityCommitment = AgreementLine::find(_parameters.agreementLineQuantityCommitment.RecId);
+
+        next createQuantityCommitmentAgreementLine(_parameters);
+              
+        if (_parameters.agreementHeader is SalesAgreementHeader)
+        {
+            FWFTextBlockReportTextInit::newParameters(this.agreementLineTmp, localAgreementLineQuantityCommitment).addTextsProformaAgreement(SalesPurch::Sales);
+        }
+        else if (_parameters.agreementHeader is PurchAgreementHeader)
+        {
+            FWFTextBlockReportTextInit::newParameters(this.agreementLineTmp, localAgreementLineQuantityCommitment).addTextsProformaAgreement(SalesPurch::Purch);
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>createVolumeCommitmentAgreementLine</Name>
+				<Source><![CDATA[
+    protected void createVolumeCommitmentAgreementLine(AgreementConfirmationDPLineCreationParameters _parameters)
+    {
+        AgreementLine localAgreementLineVolumeCommitment = AgreementLine::find(_parameters.agreementLineVolumeCommitment.RecId);
+        
+        next createVolumeCommitmentAgreementLine(_parameters);
+
+        if (_parameters.agreementHeader is SalesAgreementHeader)
+        {
+            FWFTextBlockReportTextInit::newParameters(this.agreementLineTmp, localAgreementLineVolumeCommitment).addTextsProformaAgreement(SalesPurch::Sales);
+        }
+        else if (_parameters.agreementHeader is PurchAgreementHeader)
+        {
+            FWFTextBlockReportTextInit::newParameters(this.agreementLineTmp, localAgreementLineVolumeCommitment).addTextsProformaAgreement(SalesPurch::Purch);
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>createAgreementHeaderTmp</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Creates a <c>AgreementHeaderTmp</c> record.
+    /// </summary>
+    /// <returns>
+    /// The created <c>AgreementHeaderTmp</c> record.
+    /// </returns>
+    protected AgreementHeaderTmp createAgreementHeaderTmp()
+    {
+        AgreementHeaderTmp agreementHeaderTmpRecord = next createAgreementHeaderTmp();
+
+        if (this.proforma == NoYes::No)
+        {
+            AgreementHeaderHistory agreementHeaderHist = AgreementHeaderHistory::find(this.recId);
+            if (agreementHeaderHist is SalesAgreementHeaderHistory)
+            {
+                SalesAgreementHeaderHistory salesAgreementHeaderHist = agreementHeaderHist as SalesAgreementHeaderHistory;
+                FWFTextBlockReportTextInit::newParameters(agreementHeaderTmpRecord, salesAgreementHeaderHist).addTexts();
+            }
+            else if (agreementHeaderHist is PurchAgreementHeaderHistory)
+            {
+                PurchAgreementHeaderHistory purchAgreementHeaderHist = agreementHeaderHist as PurchAgreementHeaderHistory;
+                FWFTextBlockReportTextInit::newParameters(agreementHeaderTmpRecord, purchAgreementHeaderHist).addTexts();
+            }
+        }
+        else //proforma
+        {
+            AgreementHeader agreementHeader = AgreementHeader::find(this.recId);
+            if (agreementHeader is SalesAgreementHeader)
+            {
+                SalesAgreementHeader salesAgreementHeader = agreementHeader as SalesAgreementHeader;
+                FWFTextBlockReportTextInit::newParameters(agreementHeaderTmpRecord, salesAgreementHeader).addTextsProformaAgreement(SalesPurch::Sales);
+            }
+            else if (agreementHeader is PurchAgreementHeader)
+            {
+                PurchAgreementHeader purchAgreementHeader = agreementHeader as PurchAgreementHeader;
+                FWFTextBlockReportTextInit::newParameters(agreementHeaderTmpRecord, purchAgreementHeader).addTextsProformaAgreement(SalesPurch::Purch);
+            }
+        }
+
+        return agreementHeaderTmpRecord;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

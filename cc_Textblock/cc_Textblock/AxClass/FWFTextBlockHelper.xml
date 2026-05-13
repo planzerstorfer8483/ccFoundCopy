@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockHelper</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+class FWFTextBlockHelper
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>hasTextblock</Name>
+				<Source><![CDATA[
+    static container hasTextblock(Common _common)
+    {
+        container	ret = conNull();
+  
+        if (FWFTextBlockInstance::hasTextBlock(_common))
+        {
+            ret = ImageReference::constructForSymbol(ImageReferenceSymbol::Note).pack();
+        }
+
+        return ret;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

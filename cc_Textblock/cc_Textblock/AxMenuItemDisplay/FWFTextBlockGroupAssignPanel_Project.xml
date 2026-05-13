@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxMenuItemDisplay xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V1">
+	<Name>FWFTextBlockGroupAssignPanel_Project</Name>
+	<EnumParameter>Project</EnumParameter>
+	<EnumTypeParameter>FWFTextBlockModule</EnumTypeParameter>
+	<Label>@FWFTextBlock:ProjTextBlockGroupAssign</Label>
+	<MaintainUserLicense>Enterprise</MaintainUserLicense>
+	<Object>FWFTextBlockGroupAssignPanel</Object>
+	<ViewUserLicense>Enterprise</ViewUserLicense>
+</AxMenuItemDisplay>

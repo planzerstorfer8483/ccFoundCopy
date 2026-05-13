@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockEventHandler_Trans_PoConfirm</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// The <c>FWFTextBlockEventHandler_Trans_PoConfirm</c> class handles the functionality for extended texts on purchase orders.
+/// </summary>
+class FWFTextBlockEventHandler_Trans_PoConfirm extends FWFTextBlockEventHandler_Trans
+{    
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>construct</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Creates a new <c>FWFTextBlockEventHandler_Trans_PoConfirm</c> instance.
+    /// </summary>
+    /// <returns>The <c>FWFTextBlockEventHandler_Trans_PoConfirm</c> instance.</returns>
+    public static FWFTextBlockEventHandler_Trans_PoConfirm construct()
+    {
+        return new FWFTextBlockEventHandler_Trans_PoConfirm();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>findSourceRecord</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Find the source record from target record.
+    /// </summary>
+    /// <returns>A <c>Common</c> table.</returns>
+    protected Common findSourceRecord()
+    {
+        Common sourceRecord;
+
+        switch (targetRecord.TableId)
+        {
+            case tableNum(PurchLineHistory):
+                PurchLineHistory purchLineHistory = targetRecord as PurchLineHistory;
+                sourceRecord = purchLineHistory.purchLine();
+                break;
+
+            default:
+                sourceRecord = super();
+        }
+
+        return sourceRecord;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>runInsert</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// A new version of an purchase order was created, so copy the texts to the new version.
+    /// </summary>
+    protected void runInsert()
+    {
+        PurchLineAllVersions purchLineAllVersions;
+        PurchTableVersion purchTableVersion;
+        RecId purchTableVersionRecId = this.parmTargetRecord().RecId;
+        PurchLine purchLineSource;
+
+        while select RecId from purchTableVersion
+            where purchTableVersion.RecId == purchTableVersionRecId
+               && purchTableVersion.Proforma == NoYes::No                 //only when not proforma, otherwise texts from purchLine will be printed
+            join purchLineAllVersions
+                where purchLineAllVersions.PurchTableVersionRecId == purchTableVersion.RecId
+                join purchLineSource
+                    where purchLineSource.InventTransId == purchLineAllVersions.InventTransId
+                       //&& purchLineSource.IsModified == NoYes::Yes	//otherwise only the textblock of the edited line is copied to the new confirmation, not of each line
+        {
+            this.parmTargetRecord(purchLineAllVersions);
+            this.insertFromSourceRecord(purchLineSource);
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>arichivatePurchLine</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// A <c>PurchLine</c> table was modified and the previous data of <c>PurchLine</c> table is moved to <c>PurchLineHistory</c> table.
+    /// This method changes the reference from <c>PurchLine</c> table to <c>PurchLineHistory</c> table in <c>FWFTextBlockInstance</c> table .
+    /// </summary>
+    /// <param name = "_purchLineHistory">The <c>PurchLineHistory</c> table.</param>
+    public void arichivatePurchLine(PurchLineHistory _purchLineHistory)
+    {
+        FWFTextBlockInstance textBlockInstance;
+
+        update_recordset textBlockInstance setting RefRecId = _purchLineHistory.RecId, RefTableId = tablenum(PurchLineHistory)
+            where textBlockInstance.RefRecId == _purchLineHistory.purchLine().RecId
+               && textBlockInstance.RefTableId == tablenum(PurchLineAllVersions);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>PurchLineHistory_onInserted</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Handles the onInserted event of <c>PurchLineHistory</c> table.
+    /// </summary>
+    /// <param name="sender">The <c>PurchLineHistory</c> table that was inserted.</param>
+    /// <param name="e">The event arguments.</param>
+    [DataEventHandler(tableStr(PurchLineHistory), DataEventType::Inserted),
+        SuppressBPWarningAttribute('BPParameterNotUsed', 'No use for parameter _e')]
+    public static void PurchLineHistory_onInserted(Common _sender, DataEventArgs _e)
+    {
+        FWFTextBlockEventHandler_Trans_PoConfirm::construct().arichivatePurchLine(_sender as PurchLineHistory);
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockPurchTable_Value4LineFormControl_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(formControlStr(PurchTable, FWFTextBlockValue4Line))]
+final class FWFTextBlockPurchTable_Value4LineFormControl_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>clicked</Name>
+				<Source><![CDATA[
+    public void clicked()
+    {
+        FormControl     formButtonControl = any2Object(this) as FormControl;
+        FormDataSource  formDataSource = formButtonControl.formRun().dataSource(tableStr(PurchLine));
+        PurchLine       purchLine = formDataSource.cursor();
+        Args            args = new Args();
+
+        args.caller(element);
+        args.record(purchLine);
+        args.openMode(OpenMode::View);
+
+        next clicked();
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

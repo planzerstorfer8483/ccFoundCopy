@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockTableSetup</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[SysSetupTableAttribute(tableStr(FWFTextBlockTable))]
+[SysSetupConfigAttribute(false, 300)]
+internal final class FWFTextBlockTableSetup implements SysSetup
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>loadData</Name>
+				<Source><![CDATA[
+    [Hookable(false)]
+    public void loadData()
+    {
+        FWFTextBlockTable::initSetupRefRecId();
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

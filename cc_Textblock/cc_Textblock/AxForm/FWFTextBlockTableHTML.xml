@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxForm xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>FWFTextBlockTableHTML</Name>
+	<SourceCode>
+		<Methods xmlns="">
+			<Method>
+				<Name>classDeclaration</Name>
+				<Source><![CDATA[
+[Form]
+public class FWFTextBlockTableHTML extends FormRun
+{
+    FWFTextBlockLanguage textBlockLanguage;
+    FWFTextBlockInstance textBlockInstance;
+
+}
+]]></Source>
+			</Method>
+			<Method>
+				<Name>init</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Initializes the form.
+    /// </summary>
+    public void init()
+    {
+        Common parentBuffer;
+
+        super();
+
+        // Find buffer type
+        parentBuffer = element.args().record();
+        if(parentBuffer != null)
+        {
+            if(parentBuffer is FWFTextBlockLanguage)
+            {
+                textBlockLanguage = parentBuffer as FWFTextBlockLanguage;
+
+                // Update Html control
+                HTMLEditor.parmHtmlContent(textBlockLanguage.editValue());
+            }
+            else if (parentBuffer is FWFTextBlockInstance)
+            {
+                textBlockInstance = parentBuffer as FWFTextBlockInstance;
+
+                // Update Html control
+                HTMLEditor.parmHtmlContent(textBlockInstance.editValue());
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+		<DataSources xmlns="" />
+		<DataControls xmlns="">
+			<Control>
+				<Name>OKButton</Name>
+				<Type>CommandButton</Type>
+				<Methods>
+					<Method>
+						<Name>clicked</Name>
+						<Source><![CDATA[
+        /// <summary>
+        /// Handles the clicked event of OK button.
+        /// </summary>
+        public void clicked()
+        {
+            super();
+
+            if (textBlockLanguage.RecId)
+            {
+                textBlockLanguage.editValue(true, HTMLEditor.parmHtmlContent());
+            }
+            else if (textBlockInstance.RecId)
+            {
+                textBlockInstance.editValue(true, HTMLEditor.parmHtmlContent());
+            }
+        }
+
+]]></Source>
+					</Method>
+				</Methods>
+			</Control>
+		</DataControls>
+		<Members xmlns="" />
+	</SourceCode>
+	<DataSources />
+	<Design>
+		<Caption xmlns="">@SYS76181</Caption>
+		<DialogSize xmlns="">Large</DialogSize>
+		<Pattern xmlns="">Dialog</Pattern>
+		<PatternVersion xmlns="">1.2</PatternVersion>
+		<Style xmlns="">Dialog</Style>
+		<Controls xmlns="">
+			<AxFormControl xmlns=""
+				i:type="AxFormGroupControl">
+				<Name>ContentGroup</Name>
+				<HeightMode>SizeToAvailable</HeightMode>
+				<Pattern>Custom</Pattern>
+				<Type>Group</Type>
+				<WidthMode>SizeToAvailable</WidthMode>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl>
+						<Name>HTMLEditor</Name>
+						<AutoDeclaration>Yes</AutoDeclaration>
+						<HeightMode>SizeToAvailable</HeightMode>
+						<WidthMode>SizeToAvailable</WidthMode>
+						<FormControlExtension>
+							<Name>HTMLEditor</Name>
+							<ExtensionComponents />
+							<ExtensionProperties>
+								<AxFormControlExtensionProperty>
+									<Name>parmDataSourceName</Name>
+									<Type>String</Type>
+								</AxFormControlExtensionProperty>
+								<AxFormControlExtensionProperty>
+									<Name>parmDataFieldName</Name>
+									<Type>String</Type>
+								</AxFormControlExtensionProperty>
+								<AxFormControlExtensionProperty>
+									<Name>parmDataMethodName</Name>
+									<Type>String</Type>
+								</AxFormControlExtensionProperty>
+							</ExtensionProperties>
+						</FormControlExtension>
+					</AxFormControl>
+				</Controls>
+				<Style>DialogContent</Style>
+			</AxFormControl>
+			<AxFormControl xmlns=""
+				i:type="AxFormButtonGroupControl">
+				<Name>DialogButtonGroup</Name>
+				<Type>ButtonGroup</Type>
+				<WidthMode>SizeToAvailable</WidthMode>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormCommandButtonControl">
+						<Name>OKButton</Name>
+						<Type>CommandButton</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<Command>OK</Command>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormCommandButtonControl">
+						<Name>CancelButton</Name>
+						<Type>CommandButton</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<Command>Cancel</Command>
+						<SaveRecord>No</SaveRecord>
+					</AxFormControl>
+				</Controls>
+				<ArrangeMethod>HorizontalRight</ArrangeMethod>
+				<Style>DialogCommitContainer</Style>
+			</AxFormControl>
+		</Controls>
+	</Design>
+	<Parts />
+</AxForm>

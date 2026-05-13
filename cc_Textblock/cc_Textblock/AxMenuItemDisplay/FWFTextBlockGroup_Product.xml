@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxMenuItemDisplay xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V1">
+	<Name>FWFTextBlockGroup_Product</Name>
+	<EnumParameter>ReleasedProduct</EnumParameter>
+	<EnumTypeParameter>FWFTextBlockModule</EnumTypeParameter>
+	<HelpText>@FWFTextBlock:TextBlockGroupHelp</HelpText>
+	<Label>@FWFTextBlock:TextBlockGroup</Label>
+	<MaintainUserLicense>Enterprise</MaintainUserLicense>
+	<Object>FWFTextBlockGroup</Object>
+	<ViewUserLicense>Enterprise</ViewUserLicense>
+</AxMenuItemDisplay>

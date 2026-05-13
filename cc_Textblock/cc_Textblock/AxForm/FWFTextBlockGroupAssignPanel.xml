@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxForm xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>FWFTextBlockGroupAssignPanel</Name>
+	<SourceCode>
+		<Methods xmlns="">
+			<Method>
+				<Name>classDeclaration</Name>
+				<Source><![CDATA[
+[Form]
+public class FWFTextBlockGroupAssignPanel extends FormRun
+{
+    SysListPanelRelationTableCallback	sysListPanel;
+    FWFTextBlockModule					module;
+    str 10								groupId;
+
+}
+]]></Source>
+			</Method>
+			<Method>
+				<Name>close</Name>
+				<Source><![CDATA[
+    public void close()
+    {
+        sysListPanel.finalize();
+        super();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>selectedReferences</Name>
+				<Source><![CDATA[
+    private container selectedReferences()
+    {
+        return FWFTextBlockGroupAssign::selectedReferences(
+            FWFTextBlockGroup.Id,
+			module);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>availableReferences</Name>
+				<Source><![CDATA[
+    private container availableReferences()
+    {
+        return FWFTextBlockGroupAssign::availableReferences(
+            FWFTextBlockGroup.Id,
+            module);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>init</Name>
+				<Source><![CDATA[
+    public void init()
+    {
+        #ResAppl
+
+        tableId		dataTable;
+        fieldId		dataField;
+        int         imageId = 0;
+        container	columns = [0, 0];
+  
+        if (element.args().parmEnumType() == enumNum(FWFTextBlockModule))
+        {
+            module = element.args().parmEnum();
+        }
+
+        switch (module)
+        {
+            case FWFTextBlockModule::Customer:
+                dataTable	= tableNum(CustTable);
+                dataField	= fieldNum(CustTable, AccountNum);
+                imageId		= #ImageCustomer;
+                break;
+
+            case FWFTextBlockModule::Supplier:
+                dataTable	= tableNum(VendTable);
+                dataField	= fieldNum(VendTable, AccountNum);
+                imageId		= #ImageVendor;
+                break;
+
+            case FWFTextBlockModule::ReleasedProduct:
+                dataTable	= tablenum(InventTable);
+                dataField	= fieldnum(InventTable, ItemId);
+                imageId		= #ImageItem;
+                break;
+
+            case FWFTextBlockModule::Project:
+                dataTable	= tablenum(ProjTable);
+                dataField	= fieldnum(ProjTable, ProjId);
+                imageId		= #ImageItem;
+                break;
+
+        }
+
+        sysListPanel = SysListPanelRelationTableCallback::newForm(
+                             element,
+                             element.controlId(formControlStr(FWFTextBlockGroupAssignPanel, ListPanelGroup)),
+                             "@FWFTextBlock:AssignGroupsSelected",
+                             "@FWFTextBlock:AssignGroupsRemaining",
+                             imageId,
+							 tablenum(FWFTextBlockGroupAssign),
+                             fieldnum(FWFTextBlockGroupAssign, RefId),
+                             fieldnum(FWFTextBlockGroupAssign, GroupId),
+                             dataTable,
+                             dataField,
+                             columns,
+                             0,
+                             '',
+                             '',
+							 identifierStr(selectedReferences),
+                             identifierStr(availableReferences));
+
+        super();
+
+        if (module)
+        {
+            FWFTextBlockGroup_ds.query().dataSourceTable(tableNum(FWFTextBlockGroup)).addRange(fieldNum(FWFTextBlockGroup, Module)).value(QueryValue(module));
+        }
+
+        sysListPanel.init();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>tabChanged</Name>
+				<Source><![CDATA[
+    void tabChanged(int fromTab, int toTab)
+    {
+        #define.TabGroupOverview(1)
+        #define.TabGroupMembers(2)
+
+        groupId = fwfTextBlockGroup.Id;
+        switch (toTab)
+        {
+            case #TabGroupOverview:
+                break;
+            case #TabGroupMembers:
+                sysListPanel.parmRelationRangeValue(fwfTextBlockGroup.Id);
+                sysListPanel.parmRelationRangeRecId(fwfTextBlockGroup.RecId);
+                sysListPanel.fill();
+                break;
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>validate</Name>
+				<Source><![CDATA[
+    boolean validate(userId _userId, AddRemove _addRemove, SysListPanelRelationTable _listViewHandler)
+    {
+        return true;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+		<DataSources xmlns="">
+			<DataSource>
+				<Name>FWFTextBlockGroup</Name>
+				<Methods>
+					<Method>
+						<Name>active</Name>
+						<Source><![CDATA[
+        int active()
+        {
+            int ret;
+
+            ret = super();
+            element.tabChanged(0, tab.tab());
+            return ret;
+        }
+
+]]></Source>
+					</Method>
+				</Methods>
+				<Fields />
+			</DataSource>
+		</DataSources>
+		<DataControls xmlns="">
+			<Control>
+				<Name>Tab</Name>
+				<Type>Tab</Type>
+				<Methods>
+					<Method>
+						<Name>tabChanged</Name>
+						<Source><![CDATA[
+        void tabChanged(int fromTab, int toTab)
+        {
+            element.tabChanged(fromTab, toTab);
+            super(fromTab, toTab);
+        }
+
+]]></Source>
+					</Method>
+				</Methods>
+			</Control>
+		</DataControls>
+		<Members xmlns="" />
+	</SourceCode>
+	<AllowPreLoading>No</AllowPreLoading>
+	<DataSources>
+		<AxFormDataSource xmlns="">
+			<Name>FWFTextBlockGroup</Name>
+			<Table>FWFTextBlockGroup</Table>
+			<Fields>
+				<AxFormDataSourceField>
+					<DataField>DataAreaId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>Description</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>Id</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>Module</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>Partition</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>RecId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>TableId</DataField>
+				</AxFormDataSourceField>
+			</Fields>
+			<ReferencedDataSources />
+			<InsertAtEnd>No</InsertAtEnd>
+			<InsertIfEmpty>No</InsertIfEmpty>
+			<DataSourceLinks />
+			<DerivedDataSources />
+		</AxFormDataSource>
+	</DataSources>
+	<Design>
+		<Caption xmlns="">@FWFTextBlock:TextBlockGroup</Caption>
+		<Pattern xmlns="">Task</Pattern>
+		<PatternVersion xmlns="">1.2</PatternVersion>
+		<SetCompany xmlns="">No</SetCompany>
+		<TitleDataSource xmlns="">FWFTextBlockGroup</TitleDataSource>
+		<ViewEditMode xmlns="">Edit</ViewEditMode>
+		<Controls xmlns="">
+			<AxFormControl xmlns=""
+				i:type="AxFormActionPaneControl">
+				<Name>ActionPane</Name>
+				<HeightMode>Auto</HeightMode>
+				<Type>ActionPane</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormButtonGroupControl">
+						<Name>ActionPaneButtons</Name>
+						<HeightMode>Auto</HeightMode>
+						<Type>ButtonGroup</Type>
+						<WidthMode>Auto</WidthMode>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls />
+						<DataSource>FWFTextBlockGroup</DataSource>
+					</AxFormControl>
+				</Controls>
+			</AxFormControl>
+			<AxFormControl xmlns=""
+				i:type="AxFormTabControl">
+				<Name>Tab</Name>
+				<AutoDeclaration>Yes</AutoDeclaration>
+				<Type>Tab</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormTabPageControl">
+						<Name>GroupOverview</Name>
+						<Pattern>ToolbarList</Pattern>
+						<PatternVersion>1.2</PatternVersion>
+						<Type>TabPage</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormGridControl">
+								<Name>Grid</Name>
+								<Type>Grid</Type>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormStringControl">
+										<Name>FWFTextBlockGroup_Id</Name>
+										<Type>String</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>Id</DataField>
+										<DataSource>FWFTextBlockGroup</DataSource>
+									</AxFormControl>
+								</Controls>
+							</AxFormControl>
+						</Controls>
+						<Caption>@FWFTextBlock:TextBlockGroupPanelGroups</Caption>
+						<DataSource>FWFTextBlockGroup</DataSource>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormTabPageControl">
+						<Name>GroupMembers</Name>
+						<AutoDeclaration>Yes</AutoDeclaration>
+						<Type>TabPage</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormGroupControl">
+								<Name>ListPanelGroup</Name>
+								<ExtendedStyle>listPanel</ExtendedStyle>
+								<Type>Group</Type>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls />
+								<AllowUserSetup>Restricted</AllowUserSetup>
+								<HideIfEmpty>No</HideIfEmpty>
+							</AxFormControl>
+						</Controls>
+						<Caption>@FWFTextBlock:TextBlockGroupPanelMembers</Caption>
+					</AxFormControl>
+				</Controls>
+			</AxFormControl>
+		</Controls>
+	</Design>
+	<Parts />
+</AxForm>

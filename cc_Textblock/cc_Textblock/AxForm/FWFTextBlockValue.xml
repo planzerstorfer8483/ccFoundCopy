@@ -1,0 +1,1829 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxForm xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>FWFTextBlockValue</Name>
+	<SourceCode>
+		<Methods xmlns="">
+			<Method>
+				<Name>classDeclaration</Name>
+				<Source><![CDATA[
+[Form]
+public class FWFTextBlockValue extends FormRun
+{
+    Common              callerRecord;
+    FormRun callerFormObject;
+
+    FWFTextBlockModule  module;
+    FWFTextBlockModule  moduleCustVend;
+    FWFTextBlockModule  oldModuleCustVend;
+    str                 oldText;
+
+    int                 selectedTab;
+    LanguageId          languageId;
+
+    #define.CurrentVersion(1)
+    #localmacro.CurrentList
+        selectedTab
+    #endmacro
+
+
+}
+]]></Source>
+			</Method>
+			<Method>
+				<Name>close</Name>
+				<Source><![CDATA[
+    public void close()
+    {
+        selectedTab = TextEditTab.tab();
+    
+        xSysLastValue::saveLast(this);
+
+        super();
+
+        //FormRun callerFormObject = element.args().caller() as FormRun;
+        if (callerFormObject && formHasMethod(callerFormObject, identifierStr(fwfTextBlockInstanceFormClosed)))
+        {
+            /// Refreshes the purchTable_ds of PurchTable form resp. the salesAgreementHeader_ds of SalesAgreement form resp. the purchAgreementHeader_ds of PurchAgreement form
+            callerFormObject.fwfTextBlockInstanceFormClosed();
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>init</Name>
+				<Source><![CDATA[
+    void init()
+    {
+        Common	common = this.args().record();
+
+        if (common.TableId == tableNum(PurchLineAllVersions))
+        {
+            PurchLineAllVersions	purchLineAllVersions = common as PurchLineAllVersions;
+            if (purchLineAllVersions.IsArchived)	// if already archived, the textblocks are referenced to the PurchLineHistory
+            {
+                PurchLineHistory	purchLineHistory = PurchLineHistory::findRecId(purchLineAllVersions.RecId);
+                this.args().record(purchLineHistory);
+            }
+        }
+
+        if (common.TableId == tableNum(AgreementLineHistory))
+        {
+            AgreementLineHistory	agreementLineHistory = common as AgreementLineHistory;
+            if (agreementLineHistory.InstanceRelationType  == tableNum(AgreementLineQuantityCommitmentHistory))
+            {
+                AgreementLineQuantityCommitmentHistory agreementLineQuantityCommitmentHistory = common as AgreementLineQuantityCommitmentHistory;
+                this.args().record(agreementLineQuantityCommitmentHistory);
+            }
+            else if (agreementLineHistory.InstanceRelationType  == tableNum(AgreementLineVolumeCommitmentHistory))
+            {
+                AgreementLineVolumeCommitmentHistory agreementLineVolumeCommitmentHistory = common as AgreementLineVolumeCommitmentHistory;
+                this.args().record(agreementLineVolumeCommitmentHistory);
+            }
+        }
+
+        super();
+    
+        if (! element.args().dataset())
+        {
+            throw error(Error::missingRecord(this.name()));
+        }
+    
+    
+        xSysLastValue::getLast(this);
+        TextEditTab.tab(selectedTab);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initFromCaller</Name>
+				<Source><![CDATA[
+    public void initFromCaller()
+    {
+        boolean allowCreate;
+    
+        callerRecord = element.args().record();
+        callerFormObject = element.args().caller() as FormRun;
+    
+        SysQuery::findOrCreateRange(FWFTextBlockInstance_ds.query().dataSourceTable(tableNum(FWFTextBlockInstance)),
+                                   fieldNum(FWFTextBlockInstance, RefTableId)).value(queryValue(callerRecord.tableId));
+        SysQuery::findOrCreateRange(FWFTextBlockInstance_ds.query().dataSourceTable(tableNum(FWFTextBlockInstance)),
+                                   fieldNum(FWFTextBlockInstance, RefRecId)).value(queryValue(callerRecord.RecId));
+    
+        switch (callerRecord.TableId)
+        {
+            case tableNum(SalesTable) :
+            case tableNum(SalesAgreementHeader) :
+                module          = FWFTextBlockModule::Customer;
+                moduleCustVend  = FWFTextBlockModule::Customer;
+                allowCreate     = true;
+                break;
+    
+            case tableNum(SalesLine) :
+                module          = FWFTextBlockModule::ReleasedProduct;
+                moduleCustVend  = FWFTextBlockModule::Customer;
+                allowCreate     = true;
+                break;
+    
+            case tableNum(PurchLine) :
+                module          = FWFTextBlockModule::ReleasedProduct;
+                moduleCustVend  = FWFTextBlockModule::Supplier;
+                allowCreate     = true;
+                break;
+    
+            case tableNum(PurchTable) :
+            case tableNum(PurchAgreementHeader):
+                module          = FWFTextBlockModule::Supplier;
+                moduleCustVend  = FWFTextBlockModule::Supplier;
+                allowCreate     = true;
+                break;
+
+            case tableNum(CustInvoiceTable) :
+                module = FWFTextBlockModule::Customer;
+                moduleCustVend = FWFTextBlockModule::Customer;
+                allowCreate = true;
+                break;
+
+            case tableNum(AgreementLine) :
+                module = FWFTextBlockModule::ReleasedProduct;
+                allowCreate = true;
+
+                AgreementLine agreementLine = callerRecord as AgreementLine;
+                if (agreementLine.purchAgreementHeader())
+                {
+                    moduleCustVend  = FWFTextBlockModule::Supplier;
+                }
+                else if (agreementLine.salesAgreementHeader())
+                {
+                    moduleCustVend  = FWFTextBlockModule::Customer;
+                }
+                break;
+
+            case tableNum(AgreementLineVolumeCommitmentHistory) :
+                module = FWFTextBlockModule::ReleasedProduct;
+                allowCreate = false;
+
+                AgreementLineVolumeCommitmentHistory agreementLineVolumeCommitmentHistory = callerRecord as AgreementLineVolumeCommitmentHistory;
+                AgreementLine agreementLineVolume = AgreementLine::find(agreementLineVolumeCommitmentHistory.AgreementLine);
+                if (agreementLineVolume.purchAgreementHeader())
+                {
+                    moduleCustVend  = FWFTextBlockModule::Supplier;
+                }
+                else if (agreementLineVolume.salesAgreementHeader())
+                {
+                    moduleCustVend  = FWFTextBlockModule::Customer;
+                }
+                break;
+
+            case tableNum(AgreementLineQuantityCommitmentHistory) :
+                module = FWFTextBlockModule::ReleasedProduct;
+                allowCreate = false;
+
+                AgreementLineQuantityCommitmentHistory agreementLineQuantityCommitmentHistory = callerRecord as AgreementLineQuantityCommitmentHistory;
+                AgreementLine agreementLineQuantity = AgreementLine::find(agreementLineQuantityCommitmentHistory.AgreementLine);
+                if (agreementLineQuantity.purchAgreementHeader())
+                {
+                    moduleCustVend  = FWFTextBlockModule::Supplier;
+                }
+                else if (agreementLineQuantity.salesAgreementHeader())
+                {
+                    moduleCustVend  = FWFTextBlockModule::Customer;
+                }
+                break;
+
+            case tableNum(ProdTable) :
+            case tableNum(ReqPO) :
+                module			= FWFTextBlockModule::ReleasedProduct;
+                moduleCustVend	= FWFTextBlockModule::ReleasedProduct;
+                allowCreate     = true;
+                break;
+
+            case tableNum(BOM) :
+            case tableNum(ProdBOM) :
+                module = FWFTextBlockModule::ReleasedProduct;
+                moduleCustVend = FWFTextBlockModule::ReleasedProduct;
+                allowCreate = true;
+                break;
+
+            case tableNum(ProjInvoiceJour) :
+                module = FWFTextBlockModule::Project;
+                moduleCustVend = FWFTextBlockModule::Project;
+                allowCreate = false;
+                break;
+
+            case tableNum(ProjInvoiceItem) :
+                module = FWFTextBlockModule::ReleasedProduct;
+                moduleCustVend = FWFTextBlockModule::Project;
+                allowCreate = false;
+                break;
+
+            case tableNum(ProjProposalJour) :
+                module = FWFTextBlockModule::Project;
+                moduleCustVend = FWFTextBlockModule::Project;
+                ProjProposalJour projProposalJour = callerRecord as ProjProposalJour;
+                if (projProposalJour.LineProperty != ProjLinePropertyCode::Invoiced)
+                {
+                    allowCreate = true;
+                }
+                break;
+
+            case tableNum(ProjProposalItem) :
+                module = FWFTextBlockModule::ReleasedProduct;
+                moduleCustVend = FWFTextBlockModule::Project;
+                ProjProposalItem projProposalItem = callerRecord as ProjProposalItem;
+                if (projProposalItem.projProposalJour().LineProperty != ProjLinePropertyCode::Invoiced)
+                {
+                    allowCreate = true;
+                }
+                break;
+
+            case tableNum(SalesQuotationTable) :
+                SalesQuotationTable salesQuotationTable = callerRecord as SalesQuotationTable;
+                module          = salesQuotationTable.QuotationType == QuotationType::Sales ? FWFTextBlockModule::Customer : FWFTextBlockModule::Project;
+                moduleCustVend  = salesQuotationTable.QuotationType == QuotationType::Sales ? FWFTextBlockModule::Customer : FWFTextBlockModule::Project;
+                allowCreate     = true;
+                break;
+    
+            case tableNum(SalesQuotationLine) :
+                SalesQuotationLine salesQuotationLine = callerRecord as SalesQuotationLine;
+                module          = FWFTextBlockModule::ReleasedProduct;
+                moduleCustVend  = salesQuotationLine.salesQuotationTable().QuotationType == QuotationType::Sales ? FWFTextBlockModule::Customer : FWFTextBlockModule::Project;
+                allowCreate     = true;
+                break;
+
+            case tableNum(InventTransferJour) :
+                InventTransferJour inventTransferJour = callerRecord as InventTransferJour;
+                module          = FWFTextBlockModule::TransferOrder;
+                moduleCustVend  = FWFTextBlockModule::TransferOrder;
+                allowCreate     = true;
+                break;
+
+            case tableNum(PurchRFQCaseTable) :
+                PurchRFQCaseTable RFQCaseTable = callerRecord as PurchRFQCaseTable;
+                module          = FWFTextBlockModule::Supplier;
+                moduleCustVend  = FWFTextBlockModule::Supplier;
+                allowCreate     = true;
+                break;
+            
+            case tableNum(PurchRFQCaseLine) :
+                PurchRFQCaseLine RFQCaseLine = callerRecord as PurchRFQCaseLine;
+                module          = FWFTextBlockModule::ReleasedProduct;
+                moduleCustVend  = FWFTextBlockModule::Supplier;
+                allowCreate     = true;
+                break;
+
+            case tableNum(PurchReqTable) :
+                PurchReqTable reqTable = callerRecord as PurchReqTable;
+                module          = FWFTextBlockModule::Supplier;
+                moduleCustVend  = FWFTextBlockModule::Supplier;
+                allowCreate     = true;
+                break;
+
+            case tableNum(PurchReqLine) :
+                PurchReqLine reqLine = callerRecord as PurchReqLine;
+                module          = FWFTextBlockModule::ReleasedProduct;
+                moduleCustVend  = FWFTextBlockModule::Supplier;
+                allowCreate     = true;
+                break;
+
+            case tableNum(PurchRFQReplyTable) :
+                PurchRFQReplyTable RFQReplyTable = callerRecord as PurchRFQReplyTable;
+                module          = FWFTextBlockModule::Supplier;
+                moduleCustVend  = FWFTextBlockModule::Supplier;
+                allowCreate     = true;
+                break;
+
+            case tableNum(PurchRFQReplyLine) :
+                PurchRFQReplyLine RFQReplyLine = callerRecord as PurchRFQReplyLine;
+                module          = FWFTextBlockModule::ReleasedProduct;
+                moduleCustVend  = FWFTextBlockModule::Supplier;
+                allowCreate     = true;
+                break;
+        }
+    
+        switch (callerRecord.TableId)
+        {
+            case tableNum(SalesLine) :
+                SalesLine salesLine = callerRecord as SalesLine;
+                languageId = salesLine.salesTable().LanguageId;
+                break;
+    
+            case tableNum(SalesQuotationLine) :
+                SalesQuotationLine salesQuotationLine = callerRecord as SalesQuotationLine;
+                languageId = salesQuotationLine.salesQuotationTable().LanguageId;
+                break;
+    
+            case tableNum(PurchLine) :
+                PurchLine purchLine = callerRecord as PurchLine;
+                languageId = purchLine.purchTable().LanguageId;
+                break;
+
+            case tableNum(AgreementLine) :
+                AgreementLine agreementLine = callerRecord as AgreementLine;
+                languageId = agreementLine.agreementHeader().Language;
+                break;
+
+            case tableNum(SalesAgreementHeader) :
+                SalesAgreementHeader salesAgreementHeader = callerRecord as SalesAgreementHeader;
+                languageId = salesAgreementHeader.Language;
+                break;
+
+            case tableNum(PurchAgreementHeader) :
+                PurchAgreementHeader purchAgreementHeader = callerRecord as PurchAgreementHeader;
+                languageId = purchAgreementHeader.Language;
+                break;
+
+            default :
+                FieldId langFieldId = fieldName2id(callerRecord.TableId, identifierStr(LanguageId));
+                if (langFieldId)
+                {
+                    languageId = callerRecord.(langFieldId);
+                }
+                break;
+        }
+    
+        FWFTextBlockInstance_ds.allowCreate(allowCreate);
+        FWFTextBlockInstance_ds.allowEdit(allowCreate);
+        FWFTextBlockInstance_ds.allowDelete(allowCreate);
+        FWFTextBlockTransParm_ds.allowCreate(allowCreate);
+        FWFTextBlockTransParm_ds.allowEdit(allowCreate);
+        FWFTextBlockTransParm_ds.allowDelete(allowCreate);
+    
+        this.updateDesign();
+    
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initParmDefault</Name>
+				<Source><![CDATA[
+    void initParmDefault()
+    {
+        selectedTab = 1;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>lastValueDataAreaId</Name>
+				<Source><![CDATA[
+    dataAreaId lastValueDataAreaId()
+    {
+        return '';
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>lastValueDesignName</Name>
+				<Source><![CDATA[
+    private identifiername lastValueDesignName()
+    {
+        return '';
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>lastValueElementName</Name>
+				<Source><![CDATA[
+    private identifiername lastValueElementName()
+    {
+        return this.name();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>lastValueType</Name>
+				<Source><![CDATA[
+    private UtilElementType lastValueType()
+    {
+        return UtilElementType::Form;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>lastValueUserId</Name>
+				<Source><![CDATA[
+    private userId lastValueUserId()
+    {
+        return curuserid();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>module</Name>
+				<Source><![CDATA[
+    public FWFTextBlockModule module()
+    {
+        return module;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>pack</Name>
+				<Source><![CDATA[
+    public container pack()
+    {
+        return [#CurrentVersion,#CurrentList];
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>unpack</Name>
+				<Source><![CDATA[
+    public boolean unpack(container packedClass)
+    {
+        Integer     version     = conpeek(packedClass,1);
+    
+        switch (version)
+        {
+            case #CurrentVersion:
+                [version,#CurrentList] = packedClass;
+                break;
+            default:
+                return false;
+        }
+    
+        return true;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>updateDesign</Name>
+				<Source><![CDATA[
+    void updateDesign()
+    {
+        AgreementLine agreementLine;
+        SalesAgreementHeader salesAgreementHeader;
+        PurchAgreementHeader purchAgreementHeader;
+
+        if (element.args().dataset() == tableNum(AgreementLine))
+        {
+            agreementLine = callerRecord as AgreementLine;
+            salesAgreementHeader = agreementLine.salesAgreementHeader();
+            purchAgreementHeader = agreementLine.purchAgreementHeader();
+        }
+
+        TextTabPage.allowEdit(FWFTextBlockInstance.RecId);
+    
+        if (HTML)
+        {
+            HTML.parmHtml(FWFTextBlockValue::find(FWFTextBlockInstance.ValueRecId).htmlText());
+        }
+    
+        if (moduleCustVend || ! oldModuleCustVend)
+        {
+            switch (moduleCustVend)
+            {
+                case FWFTextBlockModule::Supplier :
+                    PrintOnSalesFormLetters.visible(false);
+                    PrintOnPurchFormLetters.visible(true);
+                    PrintOnProductionReports.visible(false);
+                    PrintOnProjectReports.visible(false);
+                    PrintOnInventoryReports.visible(false);
+                    break;
+    
+                case FWFTextBlockModule::Customer :
+                    PrintOnSalesFormLetters.visible(true);
+                    PrintOnPurchFormLetters.visible(module == FWFTextBlockModule::ReleasedProduct ||
+                                                   (module == FWFTextBlockModule::Customer && callerRecord.TableId == tableNum(SalesTable)));
+                    PrintOnProductionReports.visible(module == FWFTextBlockModule::ReleasedProduct);
+                    PrintOnProjectReports.visible(true);
+                    PrintOnInventoryReports.visible(false);
+                    FWFTextBlockTransParm_ds.object(fieldNum(FWFTextBlockTransParm, PrintOnSalesQuotation))
+                        .visible(element.args().dataset() == tableNum(SalesQuotationTable) ||
+                                 element.args().dataset() == tableNum(SalesQuotationLine));
+                    FWFTextBlockTransParm_ds.object(fieldNum(FWFTextBlockTransParm, PrintOnSalesConfirmation)).visible(element.args().dataset() != tableNum(CustInvoiceTable));
+                    FWFTextBlockTransParm_ds.object(fieldNum(FWFTextBlockTransParm, PrintOnSalesPickingList)).visible(element.args().dataset() != tableNum(CustInvoiceTable));
+                    FWFTextBlockTransParm_ds.object(fieldNum(FWFTextBlockTransParm, PrintOnSalesPackingSlip)).visible(element.args().dataset() != tableNum(CustInvoiceTable));
+                    FWFTextBlockTransParm_ds.object(fieldNum(FWFTextBlockTransParm, PrintOnSalesInvoice)).visible(element.args().dataset() != tableNum(CustInvoiceTable));
+                    FWFTextBlockTransParm_ds.object(fieldNum(FWFTextBlockTransParm, PrintOnCustFreeInvoice)).visible(element.args().dataset() == tableNum(CustInvoiceTable));
+                    FWFTextBlockTransParm_ds.object(fieldNum(FWFTextBlockTransParm, PrintOnSalesAgreement)).visible(element.args().dataset() == tableNum(SalesAgreementHeader) || salesAgreementHeader.RecId);
+                    break;
+
+                case FWFTextBlockModule::ReleasedProduct :
+                    switch (callerRecord.TableId)
+                    {
+                        case tableNum(ProdTable) :
+                            PrintOnProductionReports.visible(true);
+                            PrintOnSalesFormLetters.visible(false);
+                            PrintOnPurchFormLetters.visible(false);
+                            PrintOnProjectReports.visible(false);
+                            PrintOnInventoryReports.visible(false);
+                            break;
+
+                        case tableNum(ReqPO) :
+                            ReqPO reqPO = callerRecord as ReqPO;
+                            switch (reqPO.RefType)
+                            {
+                                case ReqRefType::ItemPlannedOrder :
+                                    PrintOnProductionReports.visible(false);
+                                    PrintOnSalesFormLetters.visible(false);
+                                    PrintOnPurchFormLetters.visible(true);
+                                    PrintOnProjectReports.visible(false);
+                                    PrintOnInventoryReports.visible(false);
+                                    break;
+
+                                case ReqRefType::BOMPlannedOrder :
+                                    PrintOnProductionReports.visible(true);
+                                    PrintOnSalesFormLetters.visible(false);
+                                    PrintOnPurchFormLetters.visible(false);
+                                    PrintOnProjectReports.visible(false);
+                                    PrintOnInventoryReports.visible(false);
+                                    break;
+
+                                default :
+                                    PrintOnProductionReports.visible(true);
+                                    PrintOnSalesFormLetters.visible(false);
+                                    PrintOnPurchFormLetters.visible(true);
+                                    PrintOnProjectReports.visible(false);
+                                    PrintOnInventoryReports.visible(false);
+                                    break;
+                            }
+
+                        case tableNum(ProdBOM) :
+                        case tableNum(BOM) :
+                            PrintOnProductionReports.visible(true);
+                            PrintOnSalesFormLetters.visible(false);
+                            PrintOnPurchFormLetters.visible(true);
+                            PrintOnProjectReports.visible(false);
+                            PrintOnInventoryReports.visible(false);
+                            break;
+
+                        case tableNum(ProjTable) :
+                            PrintOnProductionReports.visible(false);
+                            PrintOnSalesFormLetters.visible(false);
+                            PrintOnPurchFormLetters.visible(false);
+                            PrintOnProjectReports.visible(true);
+                            PrintOnInventoryReports.visible(false);
+                            break;
+                    }
+                    break;
+
+                case FWFTextBlockModule::Project :
+                    PrintOnProductionReports.visible(false);
+                    PrintOnSalesFormLetters.visible(true);
+                    PrintOnPurchFormLetters.visible(false);
+                    PrintOnProjectReports.visible(true);
+                    PrintOnInventoryReports.visible(false);
+                    break;
+
+                case FWFTextBlockModule::TransferOrder :
+                    PrintOnProductionReports.visible(false);
+                    PrintOnSalesFormLetters.visible(false);
+                    PrintOnPurchFormLetters.visible(false);
+                    PrintOnProjectReports.visible(false);
+                    PrintOnInventoryReports.visible(true);
+                    ICTabPage.visible(false);
+                    break;
+            }
+        }
+    
+        // parameter 'showWarning' is only relevant in case of general setup (FWFTextBlockUsage)
+        FWFTextBlockTransParm_ds.object(fieldNum(FWFTextBlockTransParm, ShowWarning)).visible(false);
+    
+        oldModuleCustVend = moduleCustVend;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>setTextBlockValueFromSetup</Name>
+				<Source><![CDATA[
+    public void setTextBlockValueFromSetup()
+    {
+        FWFTextBlockTable       textBlockTable;
+        FWFTextBlockLanguage    textBlockLanguage;
+        str                     text;
+        
+        textBlockTable    = FWFTextBlockTable::findNameModule(FWFTextBlockTransParm.Name, module);
+        if (textBlockTable.RecId)
+        {
+            FWFTextBlockTransParm.initFromSetupParm(FWFTextBlockTableParm::find(textBlockTable.SetupRefRecId));
+        }
+
+        textBlockLanguage = FWFTextBlockLanguage::find(textBlockTable.RecId, FWFTextBlockTransParm.LanguageId);
+        if (textBlockLanguage)
+        {
+            text = textBlockLanguage.editValue();
+        }
+        FWFTextBlockInstance.editValue(true, text);
+            
+        FWFTextBlockTransParm_ds.refresh();
+        FWFTextBlockInstance_ds.refresh();
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+		<DataSources xmlns="">
+			<DataSource>
+				<Name>FWFTextBlockInstance</Name>
+				<Methods>
+					<Method>
+						<Name>linkActive</Name>
+						<Source><![CDATA[
+        public void linkActive()
+        {
+            element.initFromCaller();
+        
+            super();
+        }
+
+]]></Source>
+					</Method>
+					<Method>
+						<Name>create</Name>
+						<Source><![CDATA[
+        public void create(boolean _append = false)
+        {
+            super(_append);
+        
+            FWFTextBlockTransParm_Name.setFocus();
+        }
+
+]]></Source>
+					</Method>
+					<Method>
+						<Name>initValue</Name>
+						<Source><![CDATA[
+        public void initValue()
+        {
+            FWFTextBlockInstance.RefTableId    = element.args().dataset();
+            FWFTextBlockInstance.RefRecId      = element.args().record().RecId;
+        
+            super();
+        }
+
+]]></Source>
+					</Method>
+					<Method>
+						<Name>active</Name>
+						<Source><![CDATA[
+        public int active()
+        {
+            int ret;
+        
+            ret = super();
+        
+            element.updateDesign();
+        
+            return ret;
+        }
+
+]]></Source>
+					</Method>
+					<Method>
+						<Name>write</Name>
+						<Source><![CDATA[
+        public void write()
+        {
+            super();
+        
+            element.updateDesign();
+
+            if (element.args().parmObject() == null)
+            {
+                FWFTextBlockInstance::updateCallerDatasource(callerRecord);
+            }
+        }
+
+]]></Source>
+					</Method>
+				</Methods>
+				<Fields />
+			</DataSource>
+			<DataSource>
+				<Name>FWFTextBlockTransParm</Name>
+				<Methods>
+					<Method>
+						<Name>initValue</Name>
+						<Source><![CDATA[
+        public void initValue()
+        {
+            super();
+        
+            FWFTextBlockTransParm.LanguageId    = languageId;
+            FWFTextBlockTransParm.SortOrder     = FWFTextBlockInstance.getNextSortOrder();
+        }
+
+]]></Source>
+					</Method>
+					<Method>
+						<Name>init</Name>
+						<Source><![CDATA[
+        public void init()
+        {
+            super();
+        
+            this.query().dataSourceTable(tableNum(FWFTextBlockTransParm)).addSortField(fieldNum(FWFTextBlockTransParm, Position));
+            this.query().dataSourceTable(tableNum(FWFTextBlockTransParm)).addSortField(fieldNum(FWFTextBlockTransParm, SortOrder));
+        }
+
+]]></Source>
+					</Method>
+					<Method>
+						<Name>write</Name>
+						<Source><![CDATA[
+        public void write()
+        {
+            super();
+        
+            FWFTextBlockInstance.SetupRecId = FWFTextBlockTransParm.RecId;
+        
+            element.updateDesign();
+        }
+
+]]></Source>
+					</Method>
+				</Methods>
+				<Fields>
+					<Field>
+						<DataField>LanguageId</DataField>
+						<Methods>
+							<Method>
+								<Name>modified</Name>
+								<Source><![CDATA[
+            /// <summary>
+            ///
+            /// </summary>
+            public void modified()
+            {
+                super();
+
+                element.setTextBlockValueFromSetup();
+            }
+
+]]></Source>
+							</Method>
+						</Methods>
+					</Field>
+					<Field>
+						<DataField>Name</DataField>
+						<Methods>
+							<Method>
+								<Name>modified</Name>
+								<Source><![CDATA[
+            public void modified()
+            {
+                super();
+
+                element.setTextBlockValueFromSetup();
+            
+                FWFTextBlockTransParm.initFromTextBlockTable(FWFTextBlockTable::findNameModule(FWFTextBlockTransParm.Name, module));
+            }
+
+]]></Source>
+							</Method>
+							<Method>
+								<Name>jumpRef</Name>
+								<Source><![CDATA[
+            public void jumpRef()
+            {
+                FWFTextBlockTransParm.jumpRef(module);
+            }
+
+]]></Source>
+							</Method>
+							<Method>
+								<Name>lookup</Name>
+								<Source><![CDATA[
+            public void lookup(FormControl _formControl, str _filterStr)
+            {
+                FWFTextBlockTable::lookup(_formControl, module);
+            }
+
+]]></Source>
+							</Method>
+						</Methods>
+					</Field>
+				</Fields>
+			</DataSource>
+		</DataSources>
+		<DataControls xmlns="">
+			<Control>
+				<Name>PreviewButton</Name>
+				<Type>Button</Type>
+				<Methods>
+					<Method>
+						<Name>clicked</Name>
+						<Source><![CDATA[
+        void clicked()
+        {
+            container   textLines;
+            str         textLine;
+            Int         i;
+        
+            super();
+        
+            if (! callerRecord || ! FWFTextBlockInstance)
+            {
+                return;
+            }
+        
+            textLines = str2con(FWFTextBlockValueSubstitutor::newParameters(
+                                callerRecord, null, FWFTextBlockInstance.plainText()).run(), '\n');
+        
+            for (i=1; i<=conLen(textLines); i++)
+            {
+                textLine = conPeek(textLines, i);
+                if (textLine)
+                {
+                    info(textLine);
+                }
+            }
+        }
+
+]]></Source>
+					</Method>
+				</Methods>
+			</Control>
+			<Control>
+				<Name>GridTextBlock</Name>
+				<Type>Grid</Type>
+				<Methods>
+					<Method>
+						<Name>lostFocus</Name>
+						<Source><![CDATA[
+        public void lostFocus()
+        {
+            super();
+        
+            if (FWFTextBlockTransParm.LanguageId && FWFTextBlockTransParm.Name && ! FWFTextBlockTransParm.RecId)
+            {
+                if (FWFTextBlockInstance_ds.validateWrite())
+                {
+                    FWFTextBlockInstance_ds.write();
+                }
+            }
+        }
+
+]]></Source>
+					</Method>
+				</Methods>
+			</Control>
+			<Control>
+				<Name>HTMEditorButtonLang</Name>
+				<Type>Button</Type>
+				<Methods>
+					<Method>
+						<Name>clicked</Name>
+						<Source><![CDATA[
+        /// <summary>
+        /// Open the <c>FWFTextBlockTableHTML</c> form to edit the text in HTML format.
+        /// </summary>
+        public void clicked()
+        {
+            super();
+    
+            FormRun formRun;
+            Args args = new Args();
+    
+            args.caller(this);
+            args.name(formstr(FWFTextBlockTableHTML));
+            args.record(FWFTextBlockInstance);
+    
+            // Initialize editor form, run and wait
+            formRun = ClassFactory.formRunClass(args);
+            formRun.init();
+            formRun.run();
+            formRun.wait();
+    
+            // Refresh FWFTextBlockInstance datasource
+            FWFTextBlockInstance_ds.research(true);
+        }
+
+]]></Source>
+					</Method>
+				</Methods>
+			</Control>
+			<Control>
+				<Name>HTMLTab</Name>
+				<Type>TabPage</Type>
+				<Methods>
+					<Method>
+						<Name>pageActivated</Name>
+						<Source><![CDATA[
+        public void pageActivated()
+        {
+            element.updateDesign();
+        
+            super();
+        }
+
+]]></Source>
+					</Method>
+				</Methods>
+			</Control>
+		</DataControls>
+		<Members xmlns="" />
+	</SourceCode>
+	<DataSources>
+		<AxFormDataSource xmlns="">
+			<Name>FWFTextBlockInstance</Name>
+			<Table>FWFTextBlockInstance</Table>
+			<Fields>
+				<AxFormDataSourceField>
+					<DataField>dataAreaId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>ICInstanceRefRecId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>RecId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>RefRecId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>RefRecIdSubLine</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>RefTableId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>SetupRecId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>TableId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>ValueRecId</DataField>
+				</AxFormDataSourceField>
+			</Fields>
+			<ReferencedDataSources />
+			<InsertIfEmpty>No</InsertIfEmpty>
+			<DataSourceLinks />
+			<DerivedDataSources />
+		</AxFormDataSource>
+		<AxFormDataSource xmlns="">
+			<Name>FWFTextBlockTransParm</Name>
+			<Table>FWFTextBlockTransParm</Table>
+			<Fields>
+				<AxFormDataSourceField>
+					<DataField>ICCopy</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>InstanceRelationType</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>LanguageId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>Name</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>Partition</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>Position</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnCustFreeInvoice</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnPurchConfirmation</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnPurchInvoice</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnPurchPackingSlip</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnPurchReceiptsList</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnSalesConfirmation</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnSalesInvoice</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnSalesPackingSlip</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnSalesPickingList</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnSalesQuotation</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>RecId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>ShowWarning</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>SortOrder</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>TableId</DataField>
+				</AxFormDataSourceField>
+			</Fields>
+			<ReferencedDataSources />
+			<JoinSource>FWFTextBlockInstance</JoinSource>
+			<LinkType>InnerJoin</LinkType>
+			<DataSourceLinks />
+			<DerivedDataSources />
+		</AxFormDataSource>
+	</DataSources>
+	<Design>
+		<Caption xmlns="">@FWFTextBlock:TextBlockHelp</Caption>
+		<HideIfEmpty xmlns="">No</HideIfEmpty>
+		<Pattern xmlns="">SimpleListDetails</Pattern>
+		<PatternVersion xmlns="">1.3</PatternVersion>
+		<SetCompany xmlns="">No</SetCompany>
+		<Style xmlns="">SimpleListDetails</Style>
+		<Controls xmlns="">
+			<AxFormControl xmlns=""
+				i:type="AxFormActionPaneControl">
+				<Name>ActionPane</Name>
+				<ElementPosition>715827882</ElementPosition>
+				<FilterExpression>%1</FilterExpression>
+				<HeightMode>Auto</HeightMode>
+				<Type>ActionPane</Type>
+				<VerticalSpacing>-1</VerticalSpacing>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormButtonGroupControl">
+						<Name>NewDeleteGroup</Name>
+						<ElementPosition>1431655764</ElementPosition>
+						<FilterExpression>%1</FilterExpression>
+						<HeightMode>Auto</HeightMode>
+						<Type>ButtonGroup</Type>
+						<VerticalSpacing>-1</VerticalSpacing>
+						<WidthMode>Auto</WidthMode>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormButtonControl">
+								<Name>PreviewButton</Name>
+								<ElementPosition>2028178999</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<HeightMode>Auto</HeightMode>
+								<HelpText>@SYS318782</HelpText>
+								<Type>Button</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<WidthMode>Auto</WidthMode>
+								<FormControlExtension
+									i:nil="true" />
+								<NeedsRecord>Yes</NeedsRecord>
+								<Text>@SYS65316</Text>
+							</AxFormControl>
+						</Controls>
+						<ArrangeMethod>Vertical</ArrangeMethod>
+						<DataSource>FWFTextBlockInstance</DataSource>
+					</AxFormControl>
+				</Controls>
+				<AlignChild>No</AlignChild>
+				<AlignChildren>No</AlignChildren>
+				<ArrangeMethod>Vertical</ArrangeMethod>
+			</AxFormControl>
+			<AxFormControl xmlns=""
+				i:type="AxFormGroupControl">
+				<Name>GridContainer</Name>
+				<AutoDeclaration>Yes</AutoDeclaration>
+				<ElementPosition>858993458</ElementPosition>
+				<FilterExpression>%1</FilterExpression>
+				<HeightMode>SizeToAvailable</HeightMode>
+				<Type>Group</Type>
+				<VerticalSpacing>-1</VerticalSpacing>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl>
+						<Name>QuickFilterControl</Name>
+						<WidthMode>SizeToAvailable</WidthMode>
+						<FormControlExtension>
+							<Name>QuickFilterControl</Name>
+							<ExtensionComponents />
+							<ExtensionProperties>
+								<AxFormControlExtensionProperty>
+									<Name>targetControlName</Name>
+									<Type>String</Type>
+									<TypeName>str</TypeName>
+									<Value>GridTextBlock</Value>
+								</AxFormControlExtensionProperty>
+								<AxFormControlExtensionProperty>
+									<Name>defaultColumnName</Name>
+									<Type>String</Type>
+									<TypeName>str</TypeName>
+									<Value>FWFTextBlockTransParm_Name</Value>
+								</AxFormControlExtensionProperty>
+								<AxFormControlExtensionProperty>
+									<Name>placeholderText</Name>
+									<Type>String</Type>
+								</AxFormControlExtensionProperty>
+							</ExtensionProperties>
+						</FormControlExtension>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormGridControl">
+						<Name>GridTextBlock</Name>
+						<AllowEdit>No</AllowEdit>
+						<ElementPosition>1431655764</ElementPosition>
+						<FilterExpression>%1</FilterExpression>
+						<Type>Grid</Type>
+						<VerticalSpacing>-1</VerticalSpacing>
+						<WidthMode>SizeToContent</WidthMode>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormStringControl">
+								<Name>FWFTextBlockTransParm_Name</Name>
+								<AutoDeclaration>Yes</AutoDeclaration>
+								<ElementPosition>1073741822</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<HeightMode>Auto</HeightMode>
+								<Type>String</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<WidthMode>Auto</WidthMode>
+								<FormControlExtension
+									i:nil="true" />
+								<DataField>Name</DataField>
+								<DataSource>FWFTextBlockTransParm</DataSource>
+								<LookupButton>Always</LookupButton>
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormStringControl">
+								<Name>FWFTextBlockTransParm_LanguageId</Name>
+								<ElementPosition>1610612733</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<HeightMode>Auto</HeightMode>
+								<Type>String</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<WidthMode>Auto</WidthMode>
+								<FormControlExtension
+									i:nil="true" />
+								<DataField>LanguageId</DataField>
+								<DataSource>FWFTextBlockTransParm</DataSource>
+							</AxFormControl>
+						</Controls>
+						<DataSource>FWFTextBlockInstance</DataSource>
+						<MultiSelect>No</MultiSelect>
+						<ShowRowLabels>No</ShowRowLabels>
+						<Style>List</Style>
+					</AxFormControl>
+				</Controls>
+				<FrameType>None</FrameType>
+				<Style>SidePanel</Style>
+			</AxFormControl>
+			<AxFormControl xmlns=""
+				i:type="AxFormGroupControl">
+				<Name>DetailsHeader</Name>
+				<Pattern>FieldsFieldGroups</Pattern>
+				<PatternVersion>1.1</PatternVersion>
+				<Type>Group</Type>
+				<WidthMode>SizeToAvailable</WidthMode>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormGroupControl">
+						<Name>Overview</Name>
+						<Type>Group</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormStringControl">
+								<Name>Overview_Name</Name>
+								<FilterExpression>%1</FilterExpression>
+								<Type>String</Type>
+								<FormControlExtension
+									i:nil="true" />
+								<DataField>Name</DataField>
+								<DataSource>FWFTextBlockTransParm</DataSource>
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormStringControl">
+								<Name>Overview_LanguageId</Name>
+								<FilterExpression>%1</FilterExpression>
+								<Type>String</Type>
+								<FormControlExtension
+									i:nil="true" />
+								<DataField>LanguageId</DataField>
+								<DataSource>FWFTextBlockTransParm</DataSource>
+							</AxFormControl>
+						</Controls>
+						<DataGroup>Overview</DataGroup>
+						<DataSource>FWFTextBlockTransParm</DataSource>
+						<FrameType>None</FrameType>
+					</AxFormControl>
+				</Controls>
+				<ColumnsMode>Fill</ColumnsMode>
+				<FrameType>None</FrameType>
+			</AxFormControl>
+			<AxFormControl xmlns=""
+				i:type="AxFormTabControl">
+				<Name>DetailsTab</Name>
+				<AlignControl>No</AlignControl>
+				<ElementPosition>1431655764</ElementPosition>
+				<FilterExpression>%1</FilterExpression>
+				<Type>Tab</Type>
+				<VerticalSpacing>-1</VerticalSpacing>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormTabPageControl">
+						<Name>TextTabPage</Name>
+						<AutoDeclaration>Yes</AutoDeclaration>
+						<ElementPosition>1073741822</ElementPosition>
+						<FilterExpression>%1</FilterExpression>
+						<HeightMode>SizeToAvailable</HeightMode>
+						<Pattern>Custom</Pattern>
+						<Type>TabPage</Type>
+						<VerticalSpacing>-1</VerticalSpacing>
+						<WidthMode>Auto</WidthMode>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormActionPaneControl">
+								<Name>ActionPaneTab</Name>
+								<Type>ActionPane</Type>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormButtonGroupControl">
+										<Name>HTMLEditorButtonGroup</Name>
+										<Type>ButtonGroup</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<Controls>
+											<AxFormControl xmlns=""
+												i:type="AxFormButtonControl">
+												<Name>HTMEditorButtonLang</Name>
+												<Type>Button</Type>
+												<FormControlExtension
+													i:nil="true" />
+												<NeedsRecord>Yes</NeedsRecord>
+												<Text>@SYS76181</Text>
+											</AxFormControl>
+										</Controls>
+										<ArrangeMethod>Vertical</ArrangeMethod>
+									</AxFormControl>
+								</Controls>
+								<Style>Strip</Style>
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormTabControl">
+								<Name>TextEditTab</Name>
+								<AlignControl>No</AlignControl>
+								<AutoDeclaration>Yes</AutoDeclaration>
+								<ElementPosition>1073741822</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<Type>Tab</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormTabPageControl">
+										<Name>TextTab</Name>
+										<ElementPosition>1073741822</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>TabPage</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<Controls>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>editValue</Name>
+												<ElementPosition>1431655764</ElementPosition>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>SizeToAvailable</HeightMode>
+												<Type>String</Type>
+												<VerticalSpacing>-1</VerticalSpacing>
+												<WidthMode>SizeToAvailable</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<DataMethod>editValue</DataMethod>
+												<DataSource>FWFTextBlockInstance</DataSource>
+												<MultiLine>Yes</MultiLine>
+												<ShowLabel>No</ShowLabel>
+											</AxFormControl>
+										</Controls>
+										<Caption>@SYS2595</Caption>
+										<Scrollbars>Auto</Scrollbars>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormTabPageControl">
+										<Name>HTMLTab</Name>
+										<ElementPosition>1610612733</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>TabPage</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<Controls>
+											<AxFormControl>
+												<Name>HTML</Name>
+												<AutoDeclaration>Yes</AutoDeclaration>
+												<HeightMode>SizeToAvailable</HeightMode>
+												<WidthMode>SizeToAvailable</WidthMode>
+												<FormControlExtension>
+													<Name>HtmlViewerControl</Name>
+													<ExtensionComponents />
+													<ExtensionProperties>
+														<AxFormControlExtensionProperty>
+															<Name>htmlField</Name>
+															<Type>String</Type>
+														</AxFormControlExtensionProperty>
+													</ExtensionProperties>
+												</FormControlExtension>
+											</AxFormControl>
+										</Controls>
+										<Caption>@SYS25809</Caption>
+										<Scrollbars>Auto</Scrollbars>
+									</AxFormControl>
+								</Controls>
+								<AlignChild>No</AlignChild>
+								<ArrangeMethod>Vertical</ArrangeMethod>
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormGroupControl">
+								<Name>InfoGroup</Name>
+								<ElementPosition>1610612733</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<HeightMode>Auto</HeightMode>
+								<Type>Group</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<WidthMode>SizeToAvailable</WidthMode>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormImageControl">
+										<Name>InfoImage</Name>
+										<ElementPosition>1073741822</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<Height>35</Height>
+										<HeightMode>Auto</HeightMode>
+										<Type>Image</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<Width>40</Width>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<BackStyle>Transparent</BackStyle>
+										<ImageLocation>AOTResource</ImageLocation>
+										<ImageResource>930</ImageResource>
+										<NormalImage>CatExternalCatalogInfoIcon</NormalImage>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormGroupControl">
+										<Name>RightGroup</Name>
+										<ElementPosition>1610612733</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>SizeToAvailable</HeightMode>
+										<Type>Group</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>SizeToAvailable</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<Controls>
+											<AxFormControl xmlns=""
+												i:type="AxFormStaticTextControl">
+												<Name>Line1</Name>
+												<ElementPosition>715827882</ElementPosition>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>Auto</HeightMode>
+												<Type>StaticText</Type>
+												<VerticalSpacingMode>Fixed</VerticalSpacingMode>
+												<WidthMode>Auto</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<Text>@FWFTextBlock:PlaceHolder01</Text>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStaticTextControl">
+												<Name>Line2</Name>
+												<ElementPosition>1073741823</ElementPosition>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>Auto</HeightMode>
+												<Type>StaticText</Type>
+												<VerticalSpacingMode>Fixed</VerticalSpacingMode>
+												<WidthMode>Auto</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<Text>@FWFTextBlock:PlaceHolder02</Text>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStaticTextControl">
+												<Name>Line3</Name>
+												<ElementPosition>1431655764</ElementPosition>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>Auto</HeightMode>
+												<Type>StaticText</Type>
+												<VerticalSpacingMode>Fixed</VerticalSpacingMode>
+												<WidthMode>Auto</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<Text>@FWFTextBlock:PlaceHolder03</Text>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStaticTextControl">
+												<Name>Line4</Name>
+												<ElementPosition>1789569705</ElementPosition>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>Auto</HeightMode>
+												<Type>StaticText</Type>
+												<VerticalSpacingMode>Fixed</VerticalSpacingMode>
+												<WidthMode>Auto</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<Text>@FWFTextBlock:PlaceHolder04</Text>
+											</AxFormControl>
+										</Controls>
+									</AxFormControl>
+								</Controls>
+								<Columns>2</Columns>
+								<Caption>@SYS58386</Caption>
+								<FrameType>None</FrameType>
+							</AxFormControl>
+						</Controls>
+						<Caption>@SYS22817</Caption>
+						<FastTabExpanded>Always</FastTabExpanded>
+						<Scrollbars>Auto</Scrollbars>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormTabPageControl">
+						<Name>PrintTabPage</Name>
+						<Pattern>FieldsFieldGroups</Pattern>
+						<PatternVersion>1.1</PatternVersion>
+						<Type>TabPage</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormGroupControl">
+								<Name>PrintOnSalesFormLetters</Name>
+								<AutoDeclaration>Yes</AutoDeclaration>
+								<Type>Group</Type>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>FormGroupControl1_PrintOnSalesQuotation</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnSalesQuotation</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>FormGroupControl1_PrintOnSalesConfirmation</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnSalesConfirmation</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>FormGroupControl1_PrintOnSalesPickingList</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnSalesPickingList</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>FormGroupControl1_PrintOnSalesPackingSlip</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnSalesPackingSlip</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>FormGroupControl1_PrintOnSalesInvoice</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnSalesInvoice</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+								</Controls>
+								<DataGroup>PrintOnSalesFormLetters</DataGroup>
+								<DataSource>FWFTextBlockTransParm</DataSource>
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormGroupControl">
+								<Name>PrintOnPurchFormLetters</Name>
+								<AutoDeclaration>Yes</AutoDeclaration>
+								<Type>Group</Type>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnPurchFormLetters_PrintOnPurchConfirmation</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnPurchConfirmation</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnPurchFormLetters_PrintOnPurchReceiptsList</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnPurchReceiptsList</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnPurchFormLetters_PrintOnPurchPackingSlip</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnPurchPackingSlip</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnPurchFormLetters_PrintOnPurchInvoice</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnPurchInvoice</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnPurchFormLetters_PrintOnPurchAgreement</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnPurchAgreement</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnPurchFormLetters_PrintOnPurchReq</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnPurchReq</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnPurchFormLetters_PrintOnPurchRFQCase</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnPurchRFQCase</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+								</Controls>
+								<DataGroup>PrintOnPurchFormLetters</DataGroup>
+								<DataSource>FWFTextBlockTransParm</DataSource>
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormGroupControl">
+								<Name>PrintOnProductionReports</Name>
+								<AutoDeclaration>Yes</AutoDeclaration>
+								<Type>Group</Type>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnProductionReports_PrintOnProdJobCard</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnProdJobCard</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnProductionReports_PrintOnProdRouteCard</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnProdRouteCard</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+								</Controls>
+								<DataGroup>PrintOnProductionReports</DataGroup>
+								<DataSource>FWFTextBlockTransParm</DataSource>
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormGroupControl">
+								<Name>PrintOnProjectReports</Name>
+								<AutoDeclaration>Yes</AutoDeclaration>
+								<Type>Group</Type>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnProjectReports_PrintOnProjQuotation</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnProjQuotation</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnProjectReports_PrintOnProjInvoice</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnProjInvoice</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+								</Controls>
+								<DataGroup>PrintOnProjectReports</DataGroup>
+								<DataSource>FWFTextBlockTransParm</DataSource>
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormGroupControl">
+								<Name>PrintOnInventoryReports</Name>
+								<AutoDeclaration>Yes</AutoDeclaration>
+								<Type>Group</Type>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnInventoryReports_PrintOnInventTransferOrder</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnInventTransferOrder</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+								</Controls>
+								<DataGroup>PrintOnInventoryReports</DataGroup>
+								<DataSource>FWFTextBlockTransParm</DataSource>
+							</AxFormControl>
+						</Controls>
+						<ColumnsMode>Fill</ColumnsMode>
+						<Caption>@SYS329014</Caption>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormTabPageControl">
+						<Name>SetupTabPage</Name>
+						<ElementPosition>1610612733</ElementPosition>
+						<FilterExpression>%1</FilterExpression>
+						<HeightMode>Auto</HeightMode>
+						<Pattern>FieldsFieldGroups</Pattern>
+						<PatternVersion>1.1</PatternVersion>
+						<Type>TabPage</Type>
+						<VerticalSpacing>-1</VerticalSpacing>
+						<WidthMode>Auto</WidthMode>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormGroupControl">
+								<Name>DisplayOptions</Name>
+								<ElementPosition>1610612733</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<Type>Group</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormIntegerControl">
+										<Name>DisplayOptions_SortOrder</Name>
+										<FilterExpression>%1</FilterExpression>
+										<Type>Integer</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>SortOrder</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormComboBoxControl">
+										<Name>DisplayOptions_Position</Name>
+										<FilterExpression>%1</FilterExpression>
+										<Type>ComboBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>Position</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+										<Items />
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>DisplayOptions_ShowWarning</Name>
+										<FilterExpression>%1</FilterExpression>
+										<Type>CheckBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>ShowWarning</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+								</Controls>
+								<DataGroup>DisplayOptions</DataGroup>
+								<DataSource>FWFTextBlockTransParm</DataSource>
+								<FrameType>None</FrameType>
+							</AxFormControl>
+						</Controls>
+						<ColumnsMode>Fill</ColumnsMode>
+						<Caption>@SYS26572</Caption>
+						<Scrollbars>Auto</Scrollbars>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormTabPageControl">
+						<Name>ICTabPage</Name>
+						<AutoDeclaration>Yes</AutoDeclaration>
+						<Pattern>FieldsFieldGroups</Pattern>
+						<PatternVersion>1.1</PatternVersion>
+						<Type>TabPage</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormGroupControl">
+								<Name>RelatedOrders</Name>
+								<ElementPosition>1610612733</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<Type>Group</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>Intercompany_ICCopy</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>ICCopy</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>Intercompany_DirectDeliveryCopy</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>DirectDeliveryCopy</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>Intercompany_RelatedPOCopy</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>RelatedPOCopy</DataField>
+										<DataSource>FWFTextBlockTransParm</DataSource>
+									</AxFormControl>
+								</Controls>
+								<DataGroup>RelatedOrders</DataGroup>
+								<DataSource>FWFTextBlockTransParm</DataSource>
+								<FrameType>None</FrameType>
+							</AxFormControl>
+						</Controls>
+						<ColumnsMode>Fill</ColumnsMode>
+						<Caption>@FWFTextBlock:CopyText</Caption>
+					</AxFormControl>
+				</Controls>
+				<AlignChild>No</AlignChild>
+				<ArrangeMethod>Vertical</ArrangeMethod>
+				<Style>FastTabs</Style>
+			</AxFormControl>
+		</Controls>
+	</Design>
+	<Parts />
+</AxForm>

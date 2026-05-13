@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockSalesQuotationTable_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(tableStr(SalesQuotationTable))]
+final class FWFTextBlockSalesQuotationTable_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>displayHasTextblock</Name>
+				<Source><![CDATA[
+    [SysClientCacheDataMethodAttribute(true)]
+    public display container displayHasTextblock()
+    {
+        return FWFTextBlockHelper::hasTextblock(this);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>modifiedField</Name>
+				<Source><![CDATA[
+    public void modifiedField(FieldId _fieldId, boolean _userInput)
+    {
+        next modifiedField(_fieldId, _userInput);
+        
+        switch (_fieldId)
+        {
+            case fieldnum(SalesQuotationTable, LanguageId):
+                this.FWFTextBlockLanguageId = this.LanguageId;
+                break;
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

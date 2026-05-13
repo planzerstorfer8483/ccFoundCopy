@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxFormExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>PurchConfirmationRequestJournal.FWFTextBlock</Name>
+	<ControlModifications />
+	<Controls>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControl1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormMenuFunctionButtonControl">
+				<Name>FWFTextBlockTransParm</Name>
+				<Type>MenuFunctionButton</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<DataSource>PurchConfirmationRequestJour</DataSource>
+				<MenuItemName>FWFTextBlockTransParm</MenuItemName>
+			</FormControl>
+			<Parent>OverviewButtonGroup</Parent>
+		</AxFormExtensionControl>
+	</Controls>
+	<DataSources />
+	<Parts />
+	<PropertyModifications />
+</AxFormExtension>

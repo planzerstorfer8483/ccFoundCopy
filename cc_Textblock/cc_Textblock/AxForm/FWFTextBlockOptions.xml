@@ -1,0 +1,1213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxForm xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>FWFTextBlockOptions</Name>
+	<SourceCode>
+		<Methods xmlns="">
+			<Method>
+				<Name>classDeclaration</Name>
+				<Source><![CDATA[
+[Form]
+public class FWFTextBlockOptions extends FormRun
+{
+    FWFTextblockUsage       caller;
+    QueryBuildRange         rangeUsage;
+
+    FWFTextBlockModule      module;
+
+    AccessType              accessType;
+    boolean                 create;
+    FieldId                 selectedDocumentFldId;
+}
+]]></Source>
+			</Method>
+			<Method>
+				<Name>closeOk</Name>
+				<Source><![CDATA[
+    public void closeOk()
+    {
+        super();
+    
+        if (accessType == AccessType::Add && create)
+        {
+            this.findOrCreate();
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>findOrCreate</Name>
+				<Source><![CDATA[
+    public FWFTextBlockUsage findOrCreate()
+    {
+        FWFTextBlockUsage       textBlockUsage;
+        FWFTextBlockSetupParm   textBlockSetupParm;
+        container               copyFields = [
+                                    fieldNum(FWFTextBlockParm, PrintOnPurchConfirmation),
+                                    fieldNum(FWFTextBlockParm, PrintOnPurchPackingSlip),
+                                    fieldNum(FWFTextBlockParm, PrintOnPurchReceiptsList),
+                                    fieldNum(FWFTextBlockParm, PrintOnPurchInvoice),
+                                    fieldNum(FWFTextBlockParm, PrintOnSalesQuotation),
+                                    fieldNum(FWFTextBlockParm, PrintOnSalesConfirmation),
+                                    fieldNum(FWFTextBlockParm, PrintOnSalesPackingSlip),
+                                    fieldNum(FWFTextBlockParm, PrintOnSalesPickingList),
+                                    fieldNum(FWFTextBlockParm, PrintOnSalesInvoice),
+									fieldNum(FWFTextBlockParm, PrintOnProdJobCard),
+                                    fieldNum(FWFTextBlockParm, PrintOnProdRouteCard),
+                                    fieldNum(FWFTextBlockParm, PrintOnProdPickList),
+                                    fieldNum(FWFTextBlockParm, PrintOnProjQuotation),
+                                    fieldNum(FWFTextBlockParm, PrintOnProjQuotationConfirm),
+                                    fieldNum(FWFTextBlockParm, PrintOnProjInvoice),
+                                    fieldNum(FWFTextBlockParm, PrintOnPurchReq),
+                                    fieldNum(FWFTextBlockParm, PrintOnPurchRFQCase)];
+        int                     i;
+    
+        ttsBegin;
+    
+        select firstonly textBlockUsage
+            where textBlockUsage.TextBlockRecId    == FWFTextBlockUsage.TextBlockRecId
+               && textBlockUsage.ProductType       == FWFTextBlockUsage.ProductType
+               && textBlockUsage.ItemCode          == FWFTextBlockUsage.ItemCode
+               && textBlockUsage.ItemRelation      == FWFTextBlockUsage.ItemRelation
+               && textBlockUsage.AccountType       == FWFTextBlockUsage.AccountType
+               && textBlockUsage.AccountCode       == FWFTextBlockUsage.AccountCode
+               && textBlockUsage.AccountRelation   == FWFTextBlockUsage.AccountRelation
+               && textBlockUsage.FromDate          == FWFTextBlockUsage.FromDate
+         join forUpdate textBlockSetupParm
+            where textBlockSetupParm.RecId == textBlockUsage.SetupRefRefId;
+    
+        if (! textBlockUsage)
+        {
+            textBlockUsage.initValue();
+    
+            textBlockUsage.InventDimId = InventDim::inventDimIdBlank();
+    
+            textBlockUsage.TextBlockRecId    = FWFTextBlockUsage.TextBlockRecId;
+            textBlockUsage.ProductType       = FWFTextBlockUsage.ProductType;
+            textBlockUsage.ItemCode          = FWFTextBlockUsage.ItemCode;
+            textBlockUsage.ItemRelation      = FWFTextBlockUsage.ItemRelation;
+            textBlockUsage.AccountType       = FWFTextBlockUsage.AccountType;
+            textBlockUsage.AccountCode       = FWFTextBlockUsage.AccountCode;
+            textBlockUsage.AccountRelation   = FWFTextBlockUsage.AccountRelation;
+    
+            textBlockUsage.FromDate          = FWFTextBlockUsage.FromDate;
+            textBlockUsage.ToDate            = FWFTextBlockUsage.ToDate;
+    
+            textBlockSetupParm.initValue();
+            textBlockSetupParm.data(FWFTextBlockSetupParm);
+            textBlockSetupParm.insert();
+    
+            textBlockUsage.SetupRefRefId     = textBlockSetupParm.RecId;
+    
+            if (! textBlockUsage.validateWrite())
+            {
+                throw error("@SYS93289");
+            }
+    
+            textBlockUsage.insert();
+        }
+        else
+        {
+            // merge all marked fields, not only selectedDocumentFldId
+            for (i = 1; i <= conLen(copyFields); i++)
+            {
+                if (FWFTextBlockSetupParm.(conPeek(copyFields, i)))
+                {
+                    textBlockSetupParm.(conPeek(copyFields, i)) = true;
+                }
+            }
+            textBlockSetupParm.update();
+        }
+    
+        ttsCommit;
+    
+        return textBlockUsage;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>init</Name>
+				<Source><![CDATA[
+    public void init()
+    {
+        super();
+    
+        caller = element.args().record();
+        rangeUsage.value(queryValue(caller.RecId));
+    
+        if (element.args().parmEnumType() == enumNum(AccessType))
+        {
+            accessType = element.args().parmEnum();
+        }
+        else
+        {
+            accessType = AccessType::Edit;
+        }
+            
+        if (accessType == AccessType::Add)
+        {
+            selectedDocumentFldId = str2int(element.args().parm());
+    
+            // BP deviation documented
+            FWFTextBlockUsage.setTmp();
+            FWFTextBlockUsage.setTmpData(element.args().record());
+    
+            FWFTextBlockSetupParm_ds.allowCreate(true);
+            FWFTextBlockSetupParm_ds.create();
+            FWFTextBlockSetupParm.(selectedDocumentFldId) = true;
+    
+            FWFTextBlockTableHeaderVend.parameters('');
+            FWFTextBlockTableHeaderCust.parameters('');
+            FWFTextBlockTableLines.parameters('');
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>updateDesign</Name>
+				<Source><![CDATA[
+    public void updateDesign()
+    {
+    
+    
+        if (FWFTextBlockUsage.ProductType == FWFTextBlockProductType::ReleasedProduct)
+        {
+            module = FWFTextBlockModule::ReleasedProduct;
+        }
+        else if (FWFTextBlockUsage.AccountType == FWFTextBlockAccountRelationType::Cust)
+        {
+            module = FWFTextBlockModule::Customer;
+        }
+        else if (FWFTextBlockUsage.AccountType == FWFTextBlockAccountRelationType::Vend)
+        {
+            module = FWFTextBlockModule::Supplier;
+        }
+    
+    
+        if (FWFTextBlockUsage.AccountType == FWFTextBlockAccountRelationType::Cust)
+        {
+            Group_AccountRelation.label("@SYS24704");
+            PrintOnPurchFormletters.visible(true);
+            PrintOnSalesFormletters.visible(true);
+            PrintOnProductionReports.visible(false);
+        }
+        else if (FWFTextBlockUsage.AccountType == FWFTextBlockAccountRelationType::Vend)
+        {
+            Group_AccountRelation.label("@SYS9455");
+            PrintOnPurchFormletters.visible(true);
+            PrintOnSalesFormletters.visible(false);
+            PrintOnProductionReports.visible(false);
+        }
+        else if (FWFTextBlockUsage.AccountType == FWFTextBlockAccountRelationType::Prod)
+        {
+            Group_AccountRelation.label("@SYS135280");
+            PrintOnPurchFormletters.visible(true);
+            PrintOnSalesFormletters.visible(true);
+            PrintOnProductionReports.visible(true);
+        }
+    
+        FWFTextBlockTableLines.visible(module == FWFTextBlockModule::ReleasedProduct);
+        FWFTextBlockTableHeaderVend.visible(module == FWFTextBlockModule::Supplier);
+        FWFTextBlockTableHeaderCust.visible(module == FWFTextBlockModule::Customer);
+    
+        this.updateFields();
+    
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>updateFields</Name>
+				<Source><![CDATA[
+    public void updateFields()
+    {
+        FWFTextBlockUsage_ds.object(fieldNum(FWFTextBlockUsage, AccountCode)).allowEdit(accessType == accessType::Add);
+        FWFTextBlockUsage_ds.object(fieldNum(FWFTextBlockUsage, AccountRelation)).allowEdit(
+            accessType == accessType::Add && FWFTextBlockUsage.AccountCode != TableGroupAll::All);
+        FWFTextBlockUsage_ds.object(fieldNum(FWFTextBlockUsage, AccountRelation)).skip(
+            accessType == accessType::Add && FWFTextBlockUsage.AccountCode != TableGroupAll::All);
+    
+        FWFTextBlockUsage_ds.object(fieldNum(FWFTextBlockUsage, ItemCode)).allowEdit(accessType == accessType::Add);
+        FWFTextBlockUsage_ds.object(fieldNum(FWFTextBlockUsage, ItemRelation)).allowEdit(
+            accessType == accessType::Add && FWFTextBlockUsage.ItemCode != TableGroupAll::All);
+        FWFTextBlockUsage_ds.object(fieldNum(FWFTextBlockUsage, ItemRelation)).skip(
+            accessType == accessType::Add && FWFTextBlockUsage.ItemCode != TableGroupAll::All);
+    
+        FWFTextBlockUsage_ds.object(fieldNum(FWFTextBlockUsage, ItemCode)).visible(module == FWFTextBlockModule::ReleasedProduct);
+        FWFTextBlockUsage_ds.object(fieldNum(FWFTextBlockUsage, ItemRelation)).visible(module == FWFTextBlockModule::ReleasedProduct);
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+		<DataSources xmlns="">
+			<DataSource>
+				<Name>FWFTextBlockSetupParm</Name>
+				<Methods>
+					<Method>
+						<Name>write</Name>
+						<Source><![CDATA[
+        public void write()
+        {
+            if (AccessType == AccessType::Add)
+            {
+                return;
+            }
+        
+            super();
+        }
+
+]]></Source>
+					</Method>
+				</Methods>
+				<Fields />
+			</DataSource>
+			<DataSource>
+				<Name>FWFTextBlockUsage</Name>
+				<Methods>
+					<Method>
+						<Name>executeQuery</Name>
+						<Source><![CDATA[
+        public void executeQuery()
+        {
+            super();
+        
+            if (AccessType == AccessType::Add)
+            {
+                return;
+            }
+        
+            FWFTextBlockSetupParm_ds.executeQuery();
+        }
+
+]]></Source>
+					</Method>
+					<Method>
+						<Name>active</Name>
+						<Source><![CDATA[
+        public int active()
+        {
+            int ret;
+        
+            ret = super();
+        
+            element.updateDesign();
+        
+            return ret;
+        }
+
+]]></Source>
+					</Method>
+					<Method>
+						<Name>init</Name>
+						<Source><![CDATA[
+        public void init()
+        {
+            super();
+        
+            rangeUsage = this.queryBuildDataSource().addRange(fieldNum(FWFTextblockUsage, RecId));
+        }
+
+]]></Source>
+					</Method>
+					<Method>
+						<Name>linkActive</Name>
+						<Source><![CDATA[
+        public void linkActive()
+        {
+            super();
+        
+            caller = element.args().record();
+            rangeUsage.value(queryValue(caller.RecId));
+        }
+
+]]></Source>
+					</Method>
+				</Methods>
+				<Fields>
+					<Field>
+						<DataField>AccountCode</DataField>
+						<Methods>
+							<Method>
+								<Name>modified</Name>
+								<Source><![CDATA[
+            public void modified()
+            {
+                super();
+            
+                element.updateFields();
+            }
+
+]]></Source>
+							</Method>
+						</Methods>
+					</Field>
+					<Field>
+						<DataField>ItemCode</DataField>
+						<Methods>
+							<Method>
+								<Name>modified</Name>
+								<Source><![CDATA[
+            public void modified()
+            {
+                super();
+            
+                element.updateFields();
+            }
+
+]]></Source>
+							</Method>
+						</Methods>
+					</Field>
+					<Field>
+						<DataField>TextBlockRecId</DataField>
+						<Methods>
+							<Method>
+								<Name>lookupReference</Name>
+								<Source><![CDATA[
+            public Common lookupReference(FormReferenceControl _formReferenceControl)
+            {
+                return FWFTextBlockTable::lookupReference(_formReferenceControl, module);
+            }
+
+]]></Source>
+							</Method>
+						</Methods>
+					</Field>
+				</Fields>
+			</DataSource>
+		</DataSources>
+		<DataControls xmlns="">
+			<Control>
+				<Name>CommandButtonCreate</Name>
+				<Type>CommandButton</Type>
+				<Methods>
+					<Method>
+						<Name>clicked</Name>
+						<Source><![CDATA[
+        /// <summary>
+        ///
+        /// </summary>
+        public void clicked()
+        {
+            super();
+
+            create = true;
+        }
+
+]]></Source>
+					</Method>
+				</Methods>
+			</Control>
+		</DataControls>
+		<Members xmlns="" />
+	</SourceCode>
+	<DataSources>
+		<AxFormDataSource xmlns="">
+			<Name>FWFTextBlockSetupParm</Name>
+			<Table>FWFTextBlockSetupParm</Table>
+			<Fields>
+				<AxFormDataSourceField>
+					<DataField>dataAreaId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>ICCopy</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>InstanceRelationType</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>Position</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnPurchConfirmation</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnPurchInvoice</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnPurchPackingSlip</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnPurchReceiptsList</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnSalesConfirmation</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnSalesInvoice</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnSalesPackingSlip</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnSalesPickingList</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnSalesQuotation</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>RecId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>relationType</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>ShowWarning</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>SortOrder</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>TableId</DataField>
+				</AxFormDataSourceField>
+			</Fields>
+			<ReferencedDataSources />
+			<JoinSource>FWFTextBlockUsage</JoinSource>
+			<LinkType>Passive</LinkType>
+			<AllowCheck>No</AllowCheck>
+			<AllowCreate>No</AllowCreate>
+			<AllowDelete>No</AllowDelete>
+			<InsertIfEmpty>No</InsertIfEmpty>
+			<DataSourceLinks />
+			<DerivedDataSources />
+		</AxFormDataSource>
+		<AxFormDataSource xmlns="">
+			<Name>FWFTextBlockUsage</Name>
+			<Table>FWFTextBlockUsage</Table>
+			<Fields>
+				<AxFormDataSourceField>
+					<DataField>AccountCode</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>AccountRelation</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>AccountType</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>dataAreaId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>FromDate</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>InventDimId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>ItemCode</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>ItemRelation</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>modifiedDateTime</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>ProductType</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>RecId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>SetupRefRefId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>TableId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>TextBlockRecId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>ToDate</DataField>
+				</AxFormDataSourceField>
+			</Fields>
+			<ReferencedDataSources />
+			<AllowCheck>No</AllowCheck>
+			<AllowCreate>No</AllowCreate>
+			<AllowDelete>No</AllowDelete>
+			<InsertIfEmpty>No</InsertIfEmpty>
+			<DataSourceLinks />
+			<DerivedDataSources />
+		</AxFormDataSource>
+	</DataSources>
+	<Design>
+		<Caption xmlns="">@SYS321</Caption>
+		<DataSource xmlns="">FWFTextBlockUsage</DataSource>
+		<HeightMode xmlns="">Column</HeightMode>
+		<Pattern xmlns="">DialogFastTabs</Pattern>
+		<PatternVersion xmlns="">1.0</PatternVersion>
+		<StatusBarStyle xmlns="">Simple</StatusBarStyle>
+		<Style xmlns="">Dialog</Style>
+		<WidthMode xmlns="">Column</WidthMode>
+		<Controls xmlns="">
+			<AxFormControl xmlns=""
+				i:type="AxFormActionPaneControl">
+				<Name>ActionPane</Name>
+				<ElementPosition>715827882</ElementPosition>
+				<FilterExpression>%1</FilterExpression>
+				<HeightMode>Auto</HeightMode>
+				<Type>ActionPane</Type>
+				<VerticalSpacing>-1</VerticalSpacing>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormActionPaneTabControl">
+						<Name>ActionPaneTab</Name>
+						<ElementPosition>1431655764</ElementPosition>
+						<FilterExpression>%1</FilterExpression>
+						<HeightMode>Auto</HeightMode>
+						<Type>ActionPaneTab</Type>
+						<VerticalSpacing>-1</VerticalSpacing>
+						<WidthMode>Auto</WidthMode>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormButtonGroupControl">
+								<Name>ButtonGroup</Name>
+								<ElementPosition>1431655764</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<HeightMode>Auto</HeightMode>
+								<Type>ButtonGroup</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<WidthMode>Auto</WidthMode>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormMenuFunctionButtonControl">
+										<Name>FWFTextBlockTableLines</Name>
+										<AutoDeclaration>Yes</AutoDeclaration>
+										<ElementPosition>858993458</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>MenuFunctionButton</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<Visible>No</Visible>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<MenuItemName>FWFTextBlockTable_Product</MenuItemName>
+										<NeedsRecord>Yes</NeedsRecord>
+										<Parameters>HidePane</Parameters>
+										<Text>@SYS2713</Text>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormMenuFunctionButtonControl">
+										<Name>FWFTextBlockTableHeaderCust</Name>
+										<AutoDeclaration>Yes</AutoDeclaration>
+										<ElementPosition>1288490187</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>MenuFunctionButton</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<Visible>No</Visible>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<MenuItemName>FWFTextBlockTable_Customer</MenuItemName>
+										<NeedsRecord>Yes</NeedsRecord>
+										<Parameters>HidePane</Parameters>
+										<Text>@SYS2713</Text>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormMenuFunctionButtonControl">
+										<Name>FWFTextBlockTableHeaderVend</Name>
+										<AutoDeclaration>Yes</AutoDeclaration>
+										<ElementPosition>1717986916</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>MenuFunctionButton</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<Visible>No</Visible>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<MenuItemName>FWFTextBlockTable_Supplier</MenuItemName>
+										<NeedsRecord>Yes</NeedsRecord>
+										<Parameters>HidePane</Parameters>
+										<Text>@SYS2713</Text>
+									</AxFormControl>
+								</Controls>
+								<ArrangeMethod>Vertical</ArrangeMethod>
+							</AxFormControl>
+						</Controls>
+						<AlignChild>No</AlignChild>
+						<AlignChildren>No</AlignChildren>
+						<ArrangeMethod>Vertical</ArrangeMethod>
+					</AxFormControl>
+				</Controls>
+				<AlignChild>No</AlignChild>
+				<AlignChildren>No</AlignChildren>
+				<ArrangeMethod>Vertical</ArrangeMethod>
+				<DataSource>FWFTextBlockUsage</DataSource>
+				<Style>Strip</Style>
+			</AxFormControl>
+			<AxFormControl xmlns=""
+				i:type="AxFormTabControl">
+				<Name>Tab</Name>
+				<AlignControl>No</AlignControl>
+				<ElementPosition>1431655764</ElementPosition>
+				<FilterExpression>%1</FilterExpression>
+				<Type>Tab</Type>
+				<VerticalSpacing>-1</VerticalSpacing>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormTabPageControl">
+						<Name>TabPageText</Name>
+						<ElementPosition>715827882</ElementPosition>
+						<FilterExpression>%1</FilterExpression>
+						<HeightMode>Auto</HeightMode>
+						<Pattern>FieldsFieldGroups</Pattern>
+						<PatternVersion>1.1</PatternVersion>
+						<Type>TabPage</Type>
+						<VerticalSpacing>-1</VerticalSpacing>
+						<WidthMode>Auto</WidthMode>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormReferenceGroupControl">
+								<Name>FWFTextBlockUsage_TextBlockRecId</Name>
+								<ElementPosition>1431655764</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<Type>ReferenceGroup</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls />
+								<DataSource>FWFTextBlockUsage</DataSource>
+								<ReferenceField>TextBlockRecId</ReferenceField>
+								<ReplacementFieldGroup>AutoLookup</ReplacementFieldGroup>
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormStringControl">
+								<Name>defaultText</Name>
+								<ElementPosition>1789569705</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<Type>String</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<FormControlExtension
+									i:nil="true" />
+								<CacheDataMethod>Yes</CacheDataMethod>
+								<DataMethod>defaultText</DataMethod>
+								<DataSource>FWFTextBlockUsage</DataSource>
+								<MultiLine>Yes</MultiLine>
+							</AxFormControl>
+						</Controls>
+						<ColumnsMode>Fill</ColumnsMode>
+						<Caption>@SYS35893</Caption>
+						<DataSource>FWFTextBlockUsage</DataSource>
+						<FastTabExpanded>Yes</FastTabExpanded>
+						<Scrollbars>Auto</Scrollbars>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormTabPageControl">
+						<Name>TabPageIdent</Name>
+						<ElementPosition>1073741823</ElementPosition>
+						<FilterExpression>%1</FilterExpression>
+						<HeightMode>Auto</HeightMode>
+						<Pattern>FieldsFieldGroups</Pattern>
+						<PatternVersion>1.1</PatternVersion>
+						<Type>TabPage</Type>
+						<VerticalSpacing>-1</VerticalSpacing>
+						<WidthMode>Auto</WidthMode>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormGroupControl">
+								<Name>GroupIdentification</Name>
+								<ElementPosition>1073741822</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<Type>Group</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormComboBoxControl">
+										<Name>Group_AccountType</Name>
+										<ElementPosition>477218588</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<Type>ComboBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<Visible>No</Visible>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>AccountType</DataField>
+										<DataSource>FWFTextBlockUsage</DataSource>
+										<Items />
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormComboBoxControl">
+										<Name>Group_AccountCode</Name>
+										<AutoDeclaration>Yes</AutoDeclaration>
+										<ElementPosition>715827882</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<Type>ComboBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>AccountCode</DataField>
+										<DataSource>FWFTextBlockUsage</DataSource>
+										<Items />
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormStringControl">
+										<Name>Group_AccountRelation</Name>
+										<AutoDeclaration>Yes</AutoDeclaration>
+										<ElementPosition>954437176</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<Type>String</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>AccountRelation</DataField>
+										<DataSource>FWFTextBlockUsage</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormComboBoxControl">
+										<Name>Group_ItemCode</Name>
+										<ElementPosition>1193046470</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<Type>ComboBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>ItemCode</DataField>
+										<DataSource>FWFTextBlockUsage</DataSource>
+										<Items />
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormStringControl">
+										<Name>Group_ItemRelation</Name>
+										<ElementPosition>1431655764</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<Type>String</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>ItemRelation</DataField>
+										<DataSource>FWFTextBlockUsage</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormDateControl">
+										<Name>Group_FromDate</Name>
+										<ElementPosition>1670265058</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<Type>Date</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<Visible>No</Visible>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>FromDate</DataField>
+										<DataSource>FWFTextBlockUsage</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormDateControl">
+										<Name>Group_ToDate</Name>
+										<ElementPosition>1908874352</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<Type>Date</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<Visible>No</Visible>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>ToDate</DataField>
+										<DataSource>FWFTextBlockUsage</DataSource>
+									</AxFormControl>
+								</Controls>
+								<DataGroup>Identification</DataGroup>
+								<DataSource>FWFTextBlockUsage</DataSource>
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormGroupControl">
+								<Name>GroupDate</Name>
+								<ElementPosition>1610612733</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<Type>Group</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormDateControl">
+										<Name>FWFTextBlockUsage_FromDate</Name>
+										<ElementPosition>1073741822</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<Type>Date</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>FromDate</DataField>
+										<DataSource>FWFTextBlockUsage</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormDateControl">
+										<Name>FWFTextBlockUsage_ToDate</Name>
+										<ElementPosition>1610612733</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<Type>Date</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>ToDate</DataField>
+										<DataSource>FWFTextBlockUsage</DataSource>
+									</AxFormControl>
+								</Controls>
+								<Caption>@SYS7402</Caption>
+								<DataSource>FWFTextBlockUsage</DataSource>
+							</AxFormControl>
+						</Controls>
+						<ColumnsMode>Fill</ColumnsMode>
+						<Caption>@SYS80392</Caption>
+						<FastTabExpanded>Yes</FastTabExpanded>
+						<Scrollbars>Auto</Scrollbars>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormTabPageControl">
+						<Name>TabPageDocuments</Name>
+						<ElementPosition>1431655764</ElementPosition>
+						<FilterExpression>%1</FilterExpression>
+						<HeightMode>Auto</HeightMode>
+						<Pattern>FieldsFieldGroups</Pattern>
+						<PatternVersion>1.1</PatternVersion>
+						<Type>TabPage</Type>
+						<VerticalSpacing>-1</VerticalSpacing>
+						<WidthMode>Auto</WidthMode>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormGroupControl">
+								<Name>PrintOnPurchFormletters</Name>
+								<AutoDeclaration>Yes</AutoDeclaration>
+								<ElementPosition>1073741822</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<Type>Group</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnPurchFormletters_PrintOnPurchConfirmation</Name>
+										<FilterExpression>%1</FilterExpression>
+										<Type>CheckBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnPurchConfirmation</DataField>
+										<DataSource>FWFTextBlockSetupParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnPurchFormletters_PrintOnPurchReceiptsList</Name>
+										<FilterExpression>%1</FilterExpression>
+										<Type>CheckBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnPurchReceiptsList</DataField>
+										<DataSource>FWFTextBlockSetupParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnPurchFormletters_PrintOnPurchPackingSlip</Name>
+										<FilterExpression>%1</FilterExpression>
+										<Type>CheckBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnPurchPackingSlip</DataField>
+										<DataSource>FWFTextBlockSetupParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnPurchFormletters_PrintOnPurchInvoice</Name>
+										<FilterExpression>%1</FilterExpression>
+										<Type>CheckBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnPurchInvoice</DataField>
+										<DataSource>FWFTextBlockSetupParm</DataSource>
+									</AxFormControl>
+								</Controls>
+								<DataGroup>PrintOnPurchFormLetters</DataGroup>
+								<DataSource>FWFTextBlockSetupParm</DataSource>
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormGroupControl">
+								<Name>PrintOnSalesFormletters</Name>
+								<AutoDeclaration>Yes</AutoDeclaration>
+								<ElementPosition>1610612733</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<Type>Group</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnSalesFormletters_PrintOnSalesQuotation</Name>
+										<FilterExpression>%1</FilterExpression>
+										<Type>CheckBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnSalesQuotation</DataField>
+										<DataSource>FWFTextBlockSetupParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnSalesFormletters_PrintOnSalesConfirmation</Name>
+										<FilterExpression>%1</FilterExpression>
+										<Type>CheckBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnSalesConfirmation</DataField>
+										<DataSource>FWFTextBlockSetupParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnSalesFormletters_PrintOnSalesPickingList</Name>
+										<FilterExpression>%1</FilterExpression>
+										<Type>CheckBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnSalesPickingList</DataField>
+										<DataSource>FWFTextBlockSetupParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnSalesFormletters_PrintOnSalesPackingSlip</Name>
+										<FilterExpression>%1</FilterExpression>
+										<Type>CheckBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnSalesPackingSlip</DataField>
+										<DataSource>FWFTextBlockSetupParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnSalesFormletters_PrintOnSalesInvoice</Name>
+										<FilterExpression>%1</FilterExpression>
+										<Type>CheckBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnSalesInvoice</DataField>
+										<DataSource>FWFTextBlockSetupParm</DataSource>
+									</AxFormControl>
+								</Controls>
+								<DataGroup>PrintOnSalesFormLetters</DataGroup>
+								<DataSource>FWFTextBlockSetupParm</DataSource>
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormGroupControl">
+								<Name>PrintOnProductionReports</Name>
+								<AutoDeclaration>Yes</AutoDeclaration>
+								<Type>Group</Type>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnProductionReports_PrintOnProdJobCard</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnProdJobCard</DataField>
+										<DataSource>FWFTextBlockSetupParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnProductionReports_PrintOnProdRouteCard</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnProdRouteCard</DataField>
+										<DataSource>FWFTextBlockSetupParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>PrintOnProductionReports_PrintOnProdPickList</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>PrintOnProdPickList</DataField>
+										<DataSource>FWFTextBlockSetupParm</DataSource>
+									</AxFormControl>
+								</Controls>
+								<DataGroup>PrintOnProductionReports</DataGroup>
+								<DataSource>FWFTextBlockSetupParm</DataSource>
+							</AxFormControl>
+						</Controls>
+						<ColumnsMode>Fill</ColumnsMode>
+						<Caption>@SYS54210</Caption>
+						<DataSource>FWFTextBlockSetupParm</DataSource>
+						<FastTabExpanded>Yes</FastTabExpanded>
+						<Scrollbars>Auto</Scrollbars>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormTabPageControl">
+						<Name>TabPageOptions</Name>
+						<ElementPosition>1789569705</ElementPosition>
+						<FilterExpression>%1</FilterExpression>
+						<HeightMode>Auto</HeightMode>
+						<Pattern>FieldsFieldGroups</Pattern>
+						<PatternVersion>1.1</PatternVersion>
+						<Type>TabPage</Type>
+						<VerticalSpacing>-1</VerticalSpacing>
+						<WidthMode>Auto</WidthMode>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormGroupControl">
+								<Name>DisplayOptions</Name>
+								<ElementPosition>1073741822</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<Type>Group</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormIntegerControl">
+										<Name>DisplayOptions_SortOrder</Name>
+										<FilterExpression>%1</FilterExpression>
+										<Type>Integer</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>SortOrder</DataField>
+										<DataSource>FWFTextBlockSetupParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormComboBoxControl">
+										<Name>DisplayOptions_Position</Name>
+										<FilterExpression>%1</FilterExpression>
+										<Type>ComboBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>Position</DataField>
+										<DataSource>FWFTextBlockSetupParm</DataSource>
+										<Items />
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>DisplayOptions_ShowWarning</Name>
+										<FilterExpression>%1</FilterExpression>
+										<Type>CheckBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>ShowWarning</DataField>
+										<DataSource>FWFTextBlockSetupParm</DataSource>
+									</AxFormControl>
+								</Controls>
+								<Caption>@SYS26572</Caption>
+								<DataGroup>DisplayOptions</DataGroup>
+								<DataSource>FWFTextBlockSetupParm</DataSource>
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormGroupControl">
+								<Name>RelatedOrders</Name>
+								<ElementPosition>1610612733</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<Type>Group</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>Intercompany_ICCopy</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>ICCopy</DataField>
+										<DataSource>FWFTextBlockSetupParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>Intercompany_DirectDeliveryCopy</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>DirectDeliveryCopy</DataField>
+										<DataSource>FWFTextBlockSetupParm</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>Intercompany_RelatedPOCopy</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>RelatedPOCopy</DataField>
+										<DataSource>FWFTextBlockSetupParm</DataSource>
+									</AxFormControl>
+								</Controls>
+								<DataGroup>RelatedOrders</DataGroup>
+								<DataSource>FWFTextBlockSetupParm</DataSource>
+							</AxFormControl>
+						</Controls>
+						<ColumnsMode>Fill</ColumnsMode>
+						<Caption>@SYS321</Caption>
+						<DataSource>FWFTextBlockSetupParm</DataSource>
+						<Scrollbars>Auto</Scrollbars>
+					</AxFormControl>
+				</Controls>
+				<AlignChild>No</AlignChild>
+				<ArrangeMethod>Vertical</ArrangeMethod>
+				<DataSource>FWFTextBlockUsage</DataSource>
+				<Style>FastTabs</Style>
+			</AxFormControl>
+			<AxFormControl xmlns=""
+				i:type="AxFormButtonGroupControl">
+				<Name>FormButtonGroupControl1</Name>
+				<Type>ButtonGroup</Type>
+				<WidthMode>SizeToAvailable</WidthMode>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormCommandButtonControl">
+						<Name>CommandButtonCreate</Name>
+						<Type>CommandButton</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<Command>OK</Command>
+						<DefaultButton>Yes</DefaultButton>
+						<Text>@SYS112171</Text>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormCommandButtonControl">
+						<Name>CommandButtonCancel</Name>
+						<Type>CommandButton</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<Command>Cancel</Command>
+						<SaveRecord>No</SaveRecord>
+					</AxFormControl>
+				</Controls>
+				<ArrangeMethod>HorizontalRight</ArrangeMethod>
+				<Style>DialogCommitContainer</Style>
+			</AxFormControl>
+		</Controls>
+	</Design>
+	<Parts />
+</AxForm>

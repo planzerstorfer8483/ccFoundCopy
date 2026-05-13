@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockTreeNav</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+// SCTH 2014-04-09, FWI Foundation - 63943 Simplify form letter notes -->
+class FWFTextBlockTreeNav
+{
+    FormTreeControl                 treeCtrl;
+    Imagelist                       imagelist;
+
+    Array                           moduleList;
+    FWFTextBlockAccountFilterType   accountTypeFilter;
+    boolean                         hasFilter;
+    
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>createFilterRange</Name>
+				<Source><![CDATA[
+    public void createFilterRange(QueryBuildDataSource    _dsTextBlockParm)
+    {
+        FWFTextBlockAccountRelationType accountRelationType;
+    
+        int                             idx;
+        FieldId                         fieldNumParm;
+        LabelString                     labelDesc;
+    
+        for (idx = 1; idx <= moduleList.lastIndex(); idx++)
+        {
+            [accountRelationType, fieldNumParm, labelDesc] = moduleList.value(idx);
+            _dsTextBlockParm.addRange(fieldNumParm);
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>createIconList</Name>
+				<Source><![CDATA[
+    public Imagelist createIconList()
+    {
+        imagelist = new Imagelist( Imagelist::smallIconWidth() , Imagelist::smallIconHeight() );
+    
+        imagelist.add( new Image(3479));    // accounts payable
+        imagelist.add( new Image(3480));    // accounts receivable
+        imagelist.add( new Image(1017));    // document
+    
+        return imagelist;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>getModule</Name>
+				<Source><![CDATA[
+    public container getModule(int _idx)
+    {
+        return moduleList.value(_idx);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initModules</Name>
+				<Source><![CDATA[
+    public void initModules()
+    {
+        moduleList = new Array(Types::Container);
+    
+        moduleList.value( 1, [FWFTextBlockAccountRelationType::Vend, fieldNum(FWFTextBlockParm, PrintOnPurchConfirmation),    "@SYS301622"]);
+        moduleList.value( 2, [FWFTextBlockAccountRelationType::Vend, fieldNum(FWFTextBlockParm, PrintOnPurchPackingSlip),     "@SYS333386"]);
+        moduleList.value( 3, [FWFTextBlockAccountRelationType::Vend, fieldNum(FWFTextBlockParm, PrintOnPurchReceiptsList),    "@SYS25756"]);
+        moduleList.value( 4, [FWFTextBlockAccountRelationType::Vend, fieldNum(FWFTextBlockParm, PrintOnPurchInvoice),         "@SYS14204"]);
+        moduleList.value( 5, [FWFTextBlockAccountRelationType::Vend, fieldNum(FWFTextBlockParm, PrintOnPurchAgreement),       "@SYS190134"]);
+                                                                                                                              
+        moduleList.value( 6, [FWFTextBlockAccountRelationType::Cust, fieldNum(FWFTextBlockParm, PrintOnSalesQuotation),       "@SYS5864"]);
+        moduleList.value( 7, [FWFTextBlockAccountRelationType::Cust, fieldNum(FWFTextBlockParm, PrintOnSalesConfirmation),    "@SYS301622"]);
+        moduleList.value( 8, [FWFTextBlockAccountRelationType::Cust, fieldNum(FWFTextBlockParm, PrintOnSalesPackingSlip),     "@SYS11549"]);
+        moduleList.value( 9, [FWFTextBlockAccountRelationType::Cust, fieldNum(FWFTextBlockParm, PrintOnSalesPickingList),     "@SYS77792"]);
+        moduleList.value(10, [FWFTextBlockAccountRelationType::Cust, fieldNum(FWFTextBlockParm, PrintOnSalesInvoice),         "@SYS14204"]);
+        moduleList.value(11, [FWFTextBlockAccountRelationType::Cust, fieldNum(FWFTextBlockParm, PrintOnCustFreeInvoice),      "@SYS23028"]);
+        moduleList.value(12, [FWFTextBlockAccountRelationType::Cust, fieldNum(FWFTextBlockParm, PrintOnSalesAgreement),       "@SYS101267"]);
+                                                                                                                              
+        moduleList.value(13, [FWFTextBlockAccountRelationType::Prod, fieldNum(FWFTextBlockParm, PrintOnProdJobCard),		  "@SYS21235"]);
+        moduleList.value(14, [FWFTextBlockAccountRelationType::Prod, fieldNum(FWFTextBlockParm, PrintOnProdRouteCard),		  "@SYS21234"]);
+        moduleList.value(15, [FWFTextBlockAccountRelationType::Prod, fieldNum(FWFTextBlockParm, PrintOnProdPickList),		  "@SYS77792"]);
+                                                                                                                              
+        moduleList.value(16, [FWFTextBlockAccountRelationType::Proj, fieldNum(FWFTextBlockParm, PrintOnProjQuotation),		  "@SYS84941"]);
+        moduleList.value(17, [FWFTextBlockAccountRelationType::Proj, fieldNum(FWFTextBlockParm, PrintOnProjQuotationConfirm), "@FWFTextBlock:PrintOnProjQuotationConfirm"]);
+        moduleList.value(18, [FWFTextBlockAccountRelationType::Proj, fieldNum(FWFTextBlockParm, PrintOnProjInvoice),		  "@SYS342618"]);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initTree</Name>
+				<Source><![CDATA[
+    public void initTree()
+    {
+        this.createIconList();
+        this.initModules();
+    
+        //treeCtrl.setImagelist(imagelist);  //is obsolete
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>isRelationInFilter</Name>
+				<Source><![CDATA[
+    private boolean isRelationInFilter(FWFTextBlockAccountRelationType _accountTypeRelation, FWFTextBlockAccountFilterType _accountTypeFilter)
+    {
+        boolean ret = false;
+
+        switch (_accountTypeFilter)
+        {
+            case FWFTextBlockAccountFilterType::Cust :
+                if (_accountTypeRelation == FWFTextBlockAccountRelationType::Cust ||
+                    _accountTypeRelation == FWFTextBlockAccountRelationType::Vend ||
+                    _accountTypeRelation == FWFTextBlockAccountRelationType::Prod)
+                {
+                    ret = true;
+                }
+                break;
+
+            case FWFTextBlockAccountFilterType::Vend :
+                if (_accountTypeRelation == FWFTextBlockAccountRelationType::Vend)
+                {
+                    ret = true;
+                }
+                break;
+
+            case FWFTextBlockAccountFilterType::Proj :
+                if (_accountTypeRelation == FWFTextBlockAccountRelationType::Proj)
+                {
+                    ret = true;
+                }
+                break;
+        }
+  
+        return ret;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmAccountTypeFilter</Name>
+				<Source><![CDATA[
+    public FWFTextBlockAccountFilterType parmAccountTypeFilter(FWFTextBlockAccountFilterType _accountTypeFilter = accountTypeFilter)
+    {
+        accountTypeFilter = _accountTypeFilter;
+        hasFilter = true;
+    
+        return accountTypeFilter;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmTreeCtrl</Name>
+				<Source><![CDATA[
+    public FormTreeControl parmTreeCtrl(FormTreeControl _treeCtrl = treeCtrl)
+    {
+        treeCtrl = _treeCtrl;
+    
+        return treeCtrl;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>redrawTree</Name>
+				<Source><![CDATA[
+    public void redrawTree()
+    {
+        FormTreeItem                    formTreeItem;
+    
+        int                             nodeIndex, firstNodeIndex, iconIdx;
+        int                             idx;
+        FWFTextBlockAccountRelationType accountRelationType, accountRelationTypePrev;
+        FieldId                         fieldNumParm;
+        LabelString                     labelDesc, labelHeader;
+    
+        treeCtrl.lockWindowUpdate(true);
+    
+        treeCtrl.deleteAll();
+    
+        for (idx = 1; idx <= moduleList.lastIndex(); idx++)
+        {
+            [accountRelationType, fieldNumParm, labelDesc] = moduleList.value(idx);
+    
+            if (hasFilter && !this.isRelationInFilter(accountRelationType, accountTypeFilter))
+            {
+                continue;
+            }
+    
+            if (! firstNodeIndex || accountRelationType != accountRelationTypePrev)
+            {
+                switch (accountRelationType)
+                {
+                    case FWFTextBlockAccountRelationType::Vend:
+                        labelHeader = "@SYS108576";
+                        iconIdx = 0;
+                        break;
+    
+                    case FWFTextBlockAccountRelationType::Cust:
+                        labelHeader = "@SYS107971";
+                        iconIdx = 1;
+                        break;
+
+                    case FWFTextBlockAccountRelationType::Prod:
+                        labelHeader = "@SYS334143";
+                        iconIdx = 2;
+                        break;
+
+                    case FWFTextBlockAccountRelationType::Proj:
+                        labelHeader = "@SYS334296";
+                        iconIdx = 3;
+                        break;
+                }
+    
+                // BP deviation documented
+                formTreeItem = new FormTreeItem(
+                        strFmt('%1 - %2', "@SYS9941", labelHeader),
+                        iconIdx,
+                        -1,
+                        0);
+    
+                nodeIndex = treeCtrl.addItem(0, 0, formTreeItem);
+    
+                if (! firstNodeIndex)
+                {
+                    firstNodeIndex = nodeIndex;
+                }
+            }
+    
+            // BP deviation documented
+            formTreeItem = new FormTreeItem(
+                        labelDesc,
+                        2,
+                        -1,
+                        idx);
+    
+            treeCtrl.addItem(nodeIndex, 0, formTreeItem);
+    
+            accountRelationTypePrev = accountRelationType;
+        }
+    
+        treeCtrl.lockWindowUpdate(false);
+    
+        SysFormTreeControl::expandTree(treeCtrl, firstNodeIndex, 3, 0);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>setFilterRange</Name>
+				<Source><![CDATA[
+    public void setFilterRange(
+        QueryBuildDataSource    _dsTextBlockParm,
+        FieldId                 _selectedFld
+        )
+    {
+        FWFTextBlockAccountRelationType accountRelationType;
+        int                             idx;
+        FieldId                         fieldNumParm;
+        LabelString                     labelDesc;
+    
+        for (idx = 1; idx <= moduleList.lastIndex(); idx++)
+        {
+            [accountRelationType, fieldNumParm, labelDesc] = moduleList.value(idx);
+    
+            if (_selectedFld <= 0)
+            {
+                _dsTextBlockParm.rangeField(fieldNumParm).value(queryValue(-1));
+            }
+            else if (fieldNumParm == _selectedFld)
+            {
+                _dsTextBlockParm.rangeField(fieldNumParm).value(queryValue(NoYes::Yes));
+            }
+            else
+            {
+                _dsTextBlockParm.rangeField(fieldNumParm).value(SysQuery::valueUnlimited());
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>construct</Name>
+				<Source><![CDATA[
+    public static FWFTextBlockTreeNav construct()
+    {
+        return new FWFTextBlockTreeNav();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>newTreeView</Name>
+				<Source><![CDATA[
+    public static FWFTextBlockTreeNav newTreeView(
+        FormTreeControl     _treeCtrl
+        )
+    {
+        FWFTextBlockTreeNav     treeNav = FWFTextBlockTreeNav::construct();
+    
+        treeNav.parmTreeCtrl(_treeCtrl);
+    
+        return treeNav;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

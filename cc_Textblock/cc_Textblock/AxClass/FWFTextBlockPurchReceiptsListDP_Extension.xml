@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockPurchReceiptsListDP_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of <c>PurchReceiptsListDP</c> for text block management
+/// </summary>
+[ExtensionOf(classStr(PurchReceiptsListDP))]
+final class FWFTextBlockPurchReceiptsListDP_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>initializePurchaseReceiptsListHeader</Name>
+				<Source><![CDATA[
+    protected PurchReceiptsListHeaderTmp initializePurchaseReceiptsListHeader(VendReceiptsListJour _vendReceiptsListJour)
+    {
+        PurchReceiptsListHeaderTmp purchReceiptsListHeaderTmpCreated = next initializePurchaseReceiptsListHeader(_vendReceiptsListJour);
+
+        FWFTextBlockReportTextInit::newParameters(purchReceiptsListHeaderTmpCreated, _vendReceiptsListJour).addTexts();
+
+        return purchReceiptsListHeaderTmpCreated;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initializePurchaseReceiptsListLine</Name>
+				<Source><![CDATA[
+    protected PurchReceiptsListDetailsTmp initializePurchaseReceiptsListLine(PurchReceiptsListHeaderTmp _purchReceiptsListHeaderTmp, VendReceiptsListJour _vendReceiptsListJour, VendReceiptsListTrans _vendReceiptsListTrans, InventDim _vendReceiptsListTransInventDim)
+    {
+        PurchReceiptsListDetailsTmp purchReceiptsListDetailsTmpCreated = next initializePurchaseReceiptsListLine(_purchReceiptsListHeaderTmp, _vendReceiptsListJour, _vendReceiptsListTrans, _vendReceiptsListTransInventDim);
+
+        FWFTextBlockReportTextInit::newParameters(purchReceiptsListDetailsTmpCreated, _vendReceiptsListTrans).addTexts();
+
+        return purchReceiptsListDetailsTmpCreated;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

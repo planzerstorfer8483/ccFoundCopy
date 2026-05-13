@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockWmsPickingList_OrderPickDP_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of <c>WmsPickingList_OrderPickDP</c> for text block management
+/// </summary>
+[ExtensionOf(classStr(WmsPickingList_OrderPickDP))]
+final class FWFTextBlockWmsPickingList_OrderPickDP_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>initPickingListOrderPickTmp</Name>
+				<Source><![CDATA[
+    protected void initPickingListOrderPickTmp(WMSPickingList_OrderPickTmp _pickingListOrderPickTmp, WMSOrderTrans _orderTrans)
+    {
+        next initPickingListOrderPickTmp(_pickingListOrderPickTmp, _orderTrans);
+
+        if (this.wmsPickingList_OrderPickTmp.ItemId)
+        {
+            FWFTextBlockReportTextInit::newParameters(this.wmsPickingList_OrderPickTmp, _orderTrans.wmsOrder()).addTexts();
+        }
+        else
+        {
+            FWFTextBlockReportTextInit::newParameters(this.wmsPickingList_OrderPickTmp, this.wmsPickingRoute).addTexts();
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

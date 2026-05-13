@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxTable xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockTransParm</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+public class FWFTextBlockTransParm extends FWFTextBlockParm
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>jumpRef</Name>
+				<Source><![CDATA[
+    public void jumpRef(FWFTextBlockModule _module)
+    {
+        Args                args;
+        FormRun             formRun;
+        FWFTextBlockTable   textBlockTable;
+        ;
+    
+        textBlockTable = FWFTextBlockTable::findNameModule(this.Name, _module);
+    
+        args = new Args(formstr(FWFTextBlockTable));
+        args.lookupRecord(textBlockTable);
+        formRun = classfactory.formRunClass(args);
+        formRun.init();
+        formRun.run();
+        formRun.wait();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>find</Name>
+				<Source><![CDATA[
+    public static FWFTextBlockTransParm find(
+        RecId       _recId,
+        boolean     _forUpdate = false)
+    {
+        FWFTextBlockTransParm  parm;
+    
+        parm.selectForUpdate(_forUpdate);
+    
+        if (_recId)
+        {
+            select firstonly parm
+                where parm.RecId == _recId;
+        }
+    
+        return parm;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initFromPurchSalesAgreement</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Initializes some fields depending on <c>Common</c> table parameter.
+    /// </summary>
+    /// <param name = "_target">A <c>Common</c> table. Table should be <c>AgreementLine</c>, <c>SalesAgreementHeader</c> or <c>PurchAgreementHeader</c> table.</param>
+    public void initFromPurchSalesAgreement(Common _target)
+    {
+        AgreementLine agreementLine;
+        SalesAgreementHeader salesAgreementHeader;
+        PurchAgreementHeader purchAgreementHeader;
+
+        if (_target.TableId == tableNum(AgreementLine))
+        {
+            agreementLine = AgreementLine::find(_target.RecId);
+            salesAgreementHeader = agreementLine.salesAgreementHeader();
+            purchAgreementHeader = agreementLine.purchAgreementHeader();
+        }
+
+        if (_target.TableId == tableNum(SalesAgreementHeader) || salesAgreementHeader)
+        {
+            this.PrintOnSalesConfirmation = NoYes::No;
+            this.PrintOnSalesInvoice = NoYes::No;
+            this.PrintOnSalesPackingSlip = NoYes::No;
+            this.PrintOnSalesPickingList = NoYes::No;
+        }
+
+        if (_target.TableId == tableNum(PurchAgreementHeader) || purchAgreementHeader)
+        {
+            this.PrintOnPurchConfirmation = NoYes::No;
+            this.PrintOnPurchInvoice = NoYes::No;
+            this.PrintOnPurchPackingSlip = NoYes::No;
+            this.PrintOnPurchReceiptsList = NoYes::No;
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+	<DeveloperDocumentation>@FWFTextBlock:TextBlockTransParmDevDoc</DeveloperDocumentation>
+	<Label>@FWFTextBlock:TextBlockSetup</Label>
+	<TableGroup>Main</TableGroup>
+	<CacheLookup>Found</CacheLookup>
+	<Extends>FWFTextBlockParm</Extends>
+	<SaveDataPerCompany>No</SaveDataPerCompany>
+	<SupportInheritance>Yes</SupportInheritance>
+	<DeleteActions />
+	<FieldGroups>
+		<AxTableFieldGroup>
+			<Name>AutoReport</Name>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>LanguageId</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>Name</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoLookup</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoIdentification</Name>
+			<AutoPopulate>Yes</AutoPopulate>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoSummary</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoBrowse</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>Overview</Name>
+			<Label>@SYS9039</Label>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>Name</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>LanguageId</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+	</FieldGroups>
+	<Fields>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>LanguageId</Name>
+			<AllowEdit>No</AllowEdit>
+			<ExtendedDataType>LanguageId</ExtendedDataType>
+			<IgnoreEDTRelation>Yes</IgnoreEDTRelation>
+			<Mandatory>Yes</Mandatory>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>Name</Name>
+			<AllowEdit>No</AllowEdit>
+			<ExtendedDataType>FWFTextBlockName</ExtendedDataType>
+			<Mandatory>Yes</Mandatory>
+		</AxTableField>
+	</Fields>
+	<FullTextIndexes />
+	<Indexes />
+	<Mappings />
+	<Relations>
+		<AxTableRelation xmlns=""
+			i:type="AxTableRelationForeignKey">
+			<Name>FWFTextBlockParm</Name>
+			<Cardinality>ZeroOne</Cardinality>
+			<OnDelete>Cascade</OnDelete>
+			<RelatedTable>FWFTextBlockParm</RelatedTable>
+			<RelatedTableCardinality>ExactlyOne</RelatedTableCardinality>
+			<RelatedTableRole>FWFTextBlockParm</RelatedTableRole>
+			<RelationshipType>Specialization</RelationshipType>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>RecId</Name>
+					<Field>RecId</Field>
+					<RelatedField>RecId</RelatedField>
+				</AxTableRelationConstraint>
+			</Constraints>
+			<Index>RecId</Index>
+		</AxTableRelation>
+		<AxTableRelation>
+			<Name>FWFTextBlockTable</Name>
+			<Cardinality>ZeroMore</Cardinality>
+			<RelatedTable>FWFTextBlockTable</RelatedTable>
+			<RelatedTableCardinality>ExactlyOne</RelatedTableCardinality>
+			<RelatedTableRole>FWFTextBlockTable</RelatedTableRole>
+			<RelationshipType>Association</RelationshipType>
+			<Validate>No</Validate>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>Name</Name>
+					<Field>Name</Field>
+					<RelatedField>Name</RelatedField>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+		<AxTableRelation xmlns=""
+			i:type="AxTableRelationForeignKey">
+			<Name>LanguageTable</Name>
+			<Cardinality>ZeroMore</Cardinality>
+			<OnDelete>Restricted</OnDelete>
+			<RelatedTable>LanguageTable</RelatedTable>
+			<RelatedTableCardinality>ExactlyOne</RelatedTableCardinality>
+			<RelatedTableRole>LanguageTable</RelatedTableRole>
+			<RelationshipType>Association</RelationshipType>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>LanguageId</Name>
+					<Field>LanguageId</Field>
+					<RelatedField>LanguageId</RelatedField>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+		<AxTableRelation>
+			<Name>FWFTextBlockInstance</Name>
+			<Cardinality>ExactlyOne</Cardinality>
+			<OnDelete>Cascade</OnDelete>
+			<RelatedTable>FWFTextBlockInstance</RelatedTable>
+			<RelatedTableCardinality>ExactlyOne</RelatedTableCardinality>
+			<RelationshipType>Association</RelationshipType>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>RecId</Name>
+					<Field>RecId</Field>
+					<RelatedField>SetupRecId</RelatedField>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+	</Relations>
+	<StateMachines />
+</AxTable>

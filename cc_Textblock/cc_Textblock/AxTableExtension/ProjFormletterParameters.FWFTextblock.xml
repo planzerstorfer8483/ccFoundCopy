@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxTableExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>ProjFormletterParameters.FWFTextblock</Name>
+	<FieldGroupExtensions />
+	<FieldGroups>
+		<AxTableFieldGroup>
+			<Name>FWFTextBlockQuotation</Name>
+			<Label>@FWFTextBlock:TextBlockSubMenuLabel</Label>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>FWFTextBlockQuotationCopyingHeader</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>FWFTextBlockQuotationCopyingLine</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+	</FieldGroups>
+	<FieldModifications />
+	<Fields>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>FWFTextBlockQuotationCopyingHeader</Name>
+			<ExtendedDataType>FWFTextBlockCopyingHeader</ExtendedDataType>
+			<IgnoreEDTRelation>Yes</IgnoreEDTRelation>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>FWFTextBlockQuotationCopyingLine</Name>
+			<ExtendedDataType>FWFTextBlockCopyingLine</ExtendedDataType>
+			<IgnoreEDTRelation>Yes</IgnoreEDTRelation>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+	</Fields>
+	<FullTextIndexes />
+	<Indexes />
+	<Mappings />
+	<PropertyModifications />
+	<RelationExtensions />
+	<RelationModifications />
+	<Relations />
+</AxTableExtension>

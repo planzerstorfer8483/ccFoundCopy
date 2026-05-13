@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockFreeTextInvoiceDP_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of <c>FreeTextInvoiceDP</c> for text block management
+/// </summary>
+[ExtensionOf(classStr(FreeTextInvoiceDP))]
+final class FWFTextBlockFreeTextInvoiceDP_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>insertIntoFreeTextInvoiceHeaderFooterTmp</Name>
+				<Source><![CDATA[
+    protected void insertIntoFreeTextInvoiceHeaderFooterTmp(CustInvoiceJour _custInvoiceJour, CompanyInfo _companyInfo)
+    {
+        next insertIntoFreeTextInvoiceHeaderFooterTmp(_custInvoiceJour, _companyInfo);
+
+        FWFTextBlockReportTextInit::newParameters(freeTextInvoiceHeaderFooterTmp, _custInvoiceJour).addTexts();
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

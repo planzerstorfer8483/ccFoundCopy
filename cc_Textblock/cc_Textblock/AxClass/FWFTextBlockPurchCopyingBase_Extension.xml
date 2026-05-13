@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockPurchCopyingBase_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(classStr(PurchCopyingBase))]
+final class FWFTextBlockPurchCopyingBase_Extension
+{
+    public NoYes   copyHeaderTB;
+    public NoYes   copyLineTB;
+
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>initParameters</Name>
+				<Source><![CDATA[
+    public void initParameters(PurchCopyingContract _contract)
+    {
+        next initParameters(_contract);
+
+        this.parmCopyHeaderTextBlock(_contract.parmCopyHeaderTextBlock());
+        this.parmCopyLineTextBlock(_contract.parmCopyLineTextBlock());
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>getPurchCopyingContract</Name>
+				<Source><![CDATA[
+    public PurchCopyingContract getPurchCopyingContract()
+    {
+        PurchCopyingContract contract = next getPurchCopyingContract();
+
+        contract.parmCopyHeaderTextBlock(this.parmCopyHeaderTextBlock());
+        contract.parmCopyLineTextBlock(this.parmCopyLineTextBlock());
+
+        return contract;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmCopyHeaderTextBlock</Name>
+				<Source><![CDATA[
+    public NoYes parmCopyHeaderTextBlock(NoYes _copyHeaderTB = copyHeaderTB)
+    {
+        copyHeaderTB = _copyHeaderTB;
+        return copyHeaderTB;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmCopyLineTextBlock</Name>
+				<Source><![CDATA[
+    public NoYes parmCopyLineTextBlock(NoYes _copyLineTB = copyLineTB)
+    {
+        copyLineTB = _copyLineTB;
+        return copyLineTB;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

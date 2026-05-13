@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockPSAManageInvoiceDP_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(classStr(PSAManageInvoiceDP))]
+final class FWFTextBlockPSAManageInvoiceDP_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>initPSAManageInvoiceTmp</Name>
+				<Source><![CDATA[
+    protected void initPSAManageInvoiceTmp(TableId _tableID)
+    {
+        FWFTextBlockReportTextInit textBlockReportTextInitHeader, textBlockReportTextInitLine;
+        
+        next initPSAManageInvoiceTmp(_tableID);
+        
+        textBlockReportTextInitHeader = FWFTextBlockReportTextInit::newParameters(this.tmpPSAManageInvoice, this.projInvoiceJour);
+        textBlockReportTextInitHeader.insTexts();
+        
+        if (_tableID == tableNum(ProjInvoiceItem))
+        {
+            textBlockReportTextInitHeader.parmSource(this.projInvoiceItem);
+            textBlockReportTextInitHeader.insLineTexts();
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

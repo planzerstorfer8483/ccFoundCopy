@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxFormExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>VendTable.FWFTextBlock</Name>
+	<ControlModifications />
+	<Controls>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControlfosamcnn1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormMenuFunctionButtonControl">
+				<Name>FWFTextBlockUsageEx_Supplier</Name>
+				<Type>MenuFunctionButton</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Big>Yes</Big>
+				<MenuItemName>FWFTextBlockUsageEx_Supplier</MenuItemName>
+				<MultiSelect>Yes</MultiSelect>
+			</FormControl>
+			<Parent>PurchaseRelatedInformation</Parent>
+			<PositionType>AfterItem</PositionType>
+			<PreviousSibling>PurchaseOrders</PreviousSibling>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControlixxmbtvz1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormMenuButtonControl">
+				<Name>FWFTextBlock</Name>
+				<HelpText>@FWFTextBlock:TextBlock</HelpText>
+				<Type>MenuButton</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormMenuFunctionButtonControl">
+						<Name>FWFTextBlockUsage_Supplier</Name>
+						<Type>MenuFunctionButton</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<DataSource>VendTable</DataSource>
+						<MenuItemName>FWFTextBlockUsage_Supplier</MenuItemName>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormMenuFunctionButtonControl">
+						<Name>FWFTextBlockUsage_Product</Name>
+						<Type>MenuFunctionButton</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<DataSource>VendTable</DataSource>
+						<MenuItemName>FWFTextBlockUsage_Product_Supplier</MenuItemName>
+					</AxFormControl>
+				</Controls>
+				<ImageLocation>EmbeddedResource</ImageLocation>
+				<NormalImage>10042</NormalImage>
+				<Text>@SYS24752</Text>
+			</FormControl>
+			<Parent>PurchaseRelatedInformation</Parent>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControlzwftnjkv1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormMenuFunctionButtonControl">
+				<Name>FWFTextBlockGroupAssignment_Supplier</Name>
+				<Type>MenuFunctionButton</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<MenuItemName>FWFTextBlockGroupAssignment_Supplier</MenuItemName>
+			</FormControl>
+			<Parent>VendorSetup</Parent>
+		</AxFormExtensionControl>
+	</Controls>
+	<DataSourceModifications />
+	<DataSourceReferences />
+	<DataSources />
+	<Parts />
+	<PropertyModifications />
+</AxFormExtension>

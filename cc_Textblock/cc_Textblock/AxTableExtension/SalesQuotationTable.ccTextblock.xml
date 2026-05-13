@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxTableExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>SalesQuotationTable.ccTextblock</Name>
+	<FieldGroupExtensions>
+		<AxTableFieldGroupExtension>
+			<Name>HeaderToLineUpdate</Name>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>FWFTextBlockLanguageId</DataField>
+					<PositionType>AfterItem</PositionType>
+					<PreviousSibling>LanguageId</PreviousSibling>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroupExtension>
+	</FieldGroupExtensions>
+	<FieldGroups />
+	<FieldModifications />
+	<Fields>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>FWFTextBlockLanguageId</Name>
+			<AllowEdit>No</AllowEdit>
+			<AllowEditOnCreate>No</AllowEditOnCreate>
+			<ExtendedDataType>LanguageId</ExtendedDataType>
+			<IgnoreEDTRelation>Yes</IgnoreEDTRelation>
+			<Visible>No</Visible>
+		</AxTableField>
+	</Fields>
+	<FullTextIndexes />
+	<Indexes />
+	<Mappings />
+	<PropertyModifications />
+	<RelationExtensions />
+	<RelationModifications />
+	<Relations />
+</AxTableExtension>

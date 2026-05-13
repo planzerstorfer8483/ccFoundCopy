@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxFormExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>VendOpenTransReverse.FWFVendInvoice</Name>
+	<ControlModifications />
+	<Controls>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControl45o4wp101</Name>
+			<FormControl xmlns=""
+				i:type="AxFormDateControl">
+				<Name>FWFVendInvoice_VendTrans_FWFVendInvoiceDate</Name>
+				<Type>Date</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<DataField>FWFVendInvoiceDate</DataField>
+				<DataSource>VendTrans</DataSource>
+			</FormControl>
+			<Parent>InvoiceGroup</Parent>
+			<PositionType>AfterItem</PositionType>
+			<PreviousSibling>InvoiceGroup_TaxInvoicePurchId</PreviousSibling>
+		</AxFormExtensionControl>
+	</Controls>
+	<DataSources />
+	<Parts />
+	<PropertyModifications />
+</AxFormExtension>

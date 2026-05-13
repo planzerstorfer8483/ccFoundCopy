@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxFormExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>CustFormletterParameters.ccTextblock</Name>
+	<ControlModifications />
+	<Controls>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControldi1x4s3b1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormGroupControl">
+				<Name>FWFTextBlock</Name>
+				<Type>Group</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormCheckBoxControl">
+						<Name>FWFTextBlock_FWFTextBlockOrderCopyingHeader</Name>
+						<Type>CheckBox</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<DataField>FWFTextBlockOrderCopyingHeader</DataField>
+						<DataSource>CustFormletterParameters</DataSource>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormCheckBoxControl">
+						<Name>FWFTextBlock_FWFTextBlockOrderCopyingLine</Name>
+						<Type>CheckBox</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<DataField>FWFTextBlockOrderCopyingLine</DataField>
+						<DataSource>CustFormletterParameters</DataSource>
+					</AxFormControl>
+				</Controls>
+				<DataGroup>FWFTextBlockOrder</DataGroup>
+				<DataSource>CustFormletterParameters</DataSource>
+			</FormControl>
+			<Parent>GeneralGroup</Parent>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControl5a4wdlds1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormGroupControl">
+				<Name>FWFTextBlockQuotation</Name>
+				<Type>Group</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormCheckBoxControl">
+						<Name>FWFTextBlockQuotation_FWFTextBlockQuotationCopyingHeader</Name>
+						<Type>CheckBox</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<DataField>FWFTextBlockQuotationCopyingHeader</DataField>
+						<DataSource>CustFormletterParameters</DataSource>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormCheckBoxControl">
+						<Name>FWFTextBlockQuotation_FWFTextBlockQuotationCopyingLine</Name>
+						<Type>CheckBox</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<DataField>FWFTextBlockQuotationCopyingLine</DataField>
+						<DataSource>CustFormletterParameters</DataSource>
+					</AxFormControl>
+				</Controls>
+				<DataGroup>FWFTextBlockQuotation</DataGroup>
+				<DataSource>CustFormletterParameters</DataSource>
+			</FormControl>
+			<Parent>QuotationBody</Parent>
+		</AxFormExtensionControl>
+	</Controls>
+	<DataSourceModifications />
+	<DataSourceReferences />
+	<DataSources />
+	<Parts />
+	<PropertyModifications />
+</AxFormExtension>

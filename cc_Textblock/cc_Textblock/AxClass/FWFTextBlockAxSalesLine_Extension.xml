@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockAxSalesLine_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(classStr(AxSalesLine))]
+final class FWFTextBlockAxSalesLine_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>setTableFields</Name>
+				<Source><![CDATA[
+    protected void setTableFields()
+    {
+        next setTableFields();
+
+        this.setFWFTextBlockReInitRequired();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>setFWFTextBlockReInitRequired</Name>
+				<Source><![CDATA[
+    private void setFWFTextBlockReInitRequired()
+    {
+        if (this.isMethodExecuted(funcname(), fieldnum(SalesLine, FWFTextBlockReInitRequired)))
+        {
+            return;
+        }
+
+        this.setAxSalesTableFields();
+
+        if (this.isAxSalesTableFieldsSet() || this.axSalesTable().isFieldModified(fieldnum(SalesTable, FWFTextBlockLanguageId)))
+        {
+            this.parmFWFTextBlockReInitRequired(true);
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmFWFTextBlockReInitRequired</Name>
+				<Source><![CDATA[
+    public NoYesId parmFWFTextBlockReInitRequired(NoYesId _reInitTB = NoYes::No)
+    {
+        if (!prmisDefault(_reInitTB))
+        {
+            this.setField(fieldNum(SalesLine, FWFTextBlockReInitRequired), _reInitTB);
+        }
+
+        return salesLine.FWFTextBlockReInitRequired;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

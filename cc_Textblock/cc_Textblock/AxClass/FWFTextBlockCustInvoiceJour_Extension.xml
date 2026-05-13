@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockCustInvoiceJour_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(tableStr(CustInvoiceJour))]
+final class FWFTextBlockCustInvoiceJour_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>displayHasTextblock</Name>
+				<Source><![CDATA[
+    [SysClientCacheDataMethodAttribute(true)]
+    public display container displayHasTextblock()
+    {
+        return FWFTextBlockHelper::hasTextblock(this);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>fwfTextBlockValueAbove</Name>
+				<Source><![CDATA[
+    str fwfTextBlockValueAbove()
+    {
+        FWFTextBlockInstance    instanceTrans;
+        FWFTextBlockParm        instanceParm;
+        FWFTextBlockValue       value;
+        str						textBlock;
+    
+        while select RefRecId from instanceTrans
+            order by instanceParm.SortOrder
+            where instanceTrans.RefRecId   == this.RecId
+               && instanceTrans.RefTableId == this.TableId
+        join TextBlock from value
+            where value.RecId == instanceTrans.ValueRecId
+        join SortOrder from instanceParm
+            where instanceParm.RecId	== instanceTrans.SetupRecId
+               && instanceParm.Position == FWFTextBlockPosition::Above
+        {
+            if (textBlock)
+            {
+                textBlock += System.Environment::NewLine;
+            }
+			
+			textBlock += value.textBlock;
+        }
+
+        return textBlock;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>fwfTextBlockValueBelow</Name>
+				<Source><![CDATA[
+    str fwfTextBlockValueBelow()
+    {
+        FWFTextBlockInstance    instanceTrans;
+        FWFTextBlockParm        instanceParm;
+        FWFTextBlockValue       value;
+        str						textBlock;
+    
+        while select RefRecId from instanceTrans
+            order by instanceParm.SortOrder
+            where instanceTrans.RefRecId   == this.RecId
+               && instanceTrans.RefTableId == this.TableId
+        join TextBlock from value
+            where value.RecId == instanceTrans.ValueRecId
+        join SortOrder from instanceParm
+            where instanceParm.RecId	== instanceTrans.SetupRecId
+               && instanceParm.Position == FWFTextBlockPosition::Below
+        {
+            if (textBlock)
+            {
+                textBlock += System.Environment::NewLine;
+            }
+
+            textBlock += value.textBlock;
+        }
+
+        return textBlock;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

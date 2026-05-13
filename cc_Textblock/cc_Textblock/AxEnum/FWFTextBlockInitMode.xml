@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxEnum xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockInitMode</Name>
+	<Help>@FWFTextBlock:InitModeHelp</Help>
+	<Label>@SYS8722</Label>
+	<EnumValues>
+		<AxEnumValue>
+			<Name>HeaderAndLine</Name>
+			<Label>@SYS2690</Label>
+		</AxEnumValue>
+		<AxEnumValue>
+			<Name>Header</Name>
+			<Label>@SYS28004</Label>
+			<Value>1</Value>
+		</AxEnumValue>
+		<AxEnumValue>
+			<Name>Line</Name>
+			<Label>@SYS9103</Label>
+			<Value>2</Value>
+		</AxEnumValue>
+	</EnumValues>
+</AxEnum>

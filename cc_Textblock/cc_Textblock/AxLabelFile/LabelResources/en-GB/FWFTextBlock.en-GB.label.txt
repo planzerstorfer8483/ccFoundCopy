@@ -1,0 +1,180 @@
+﻿AccountFilterType=Customer or vendor or both (GAB)
+ ;New Comment
+AccountFilterTypeGAB=GAB
+ ;New Comment
+AccountFilterTypeHelp=Filter type of text block entry
+ ;New Comment
+AccountRelation=Relation
+AccountRelationType=Relation type
+AccountRelationTypeHelp=Relation type of text block entry
+ ;New Comment
+AddCust=Add customers
+AddProd=Add products
+AddProj=Add projects
+AddVend=Add vendors
+AllTextBlocks=All textblocks
+ ;New Comment
+AssignExtendedFormLetterNotes=Assign extended form letter notes
+ ;New Comment
+AssignExtendedFormLetterNotesHelp=Assign extended form letter notes
+ ;New Comment
+AssignExtendedFormLetterNotesLang=Assign extended form letter notes with language
+AssignGroupsRemaining=Remaining members
+AssignGroupsSelected=Selected members
+AssignTextBlockPosition=Lines
+AssignTextBlockPositionDetails=Line details
+CaptionCust=Customers
+CaptionProd=Products
+CaptionProj=Projects
+CaptionTextTranslation=Text / Translation
+CaptionVend=Vendors
+CopyExtendedFormLetterNotes=Copy
+CopyText=Copy text
+ ;New Comment
+CopyTextDirectDelivery=Direct delivery
+CopyTextDirectDeliveryHelp=Copy text during direct delivery order creation
+CopyTextHelp=Copy text during order creation
+ ;New Comment
+CopyTextIntercompany=Intercompany
+CopyTextIntercompanyHelp=Copy text during intercompany order creation
+CopyTextRelatedPO=Related PO
+CopyTextRelatedPOHelp=Copy text during related purchase order creation
+CustAssignExtendedFormLetterNotes=Assign extended form letter notes for customers
+ ;New Comment
+CustAssignment=Assignment to customers
+ ;New Comment
+CustTextBlockGroupAssign=Assign groups to customers
+CustVendAssignExtendedFormLetterNotes=Assign extended form letter notes for customers or vendors
+ ;New Comment
+ErrorTextBlockCannotBeUsedMsg=Textblock is defined für %1 '%2' and cannot be used
+ ;New Comment
+ErrorValidationMsg=Validation of record failed, for table '%1' at function '%2'
+ ;New Comment
+HashCode=Hashcode
+ ;New Comment
+HashCodeHelp=Hashcode for the textblock
+ ;New Comment
+hasTextBlock=Textblock available
+hasTextBlockHelp=Shows if there are textblocks available for the record.
+HeaderFooter=Header/Footer
+ ;New Comment
+InitModeHelp=Does prompt exist?
+ ;New Comment
+InventoryDocuments=Inventory documents
+ModuleHelp=Specifies the module on which the form notes refer
+ ;New Comment
+NewLabel0=Label files created on 05/23/2016 00:51:14 for label file Id FWFTextBlock and language en-GB
+ ;Label file comment - see above label
+PlaceHolder01=Placeholders for fields, methods and attributes are supported to generate dynamic texts
+ ;New Comment
+Placeholder02=e.g. Field: {inventTable.ItemId}, Method: {custTable.name()}, Attribute: {inventTable.[Color]}
+ ;New Comment
+Placeholder03=Tables: Supported Tables: Jour (CustConfirmJour, CustInvoiceJour, ...), Trans (CustConfirmTrans, CustInvoiceTrans, ...), Source (SalesLine, PurchLine, ...)
+ ;New Comment
+PlaceHolder04=CustTable, VendTable, InventTable, SalesTable, SalesLine, PurchTable, PurchLine, SalesQuotationTable, SalesQuotationLine
+ ;New Comment
+PositionAbove=Above
+ ;New Comment
+PositionBelow=Below
+ ;New Comment
+PositionHelp=Position of the text
+ ;New Comment
+PrintNoteOnDocumentHelp=Print notes on selected document?
+ ;New Comment
+PrintOnProjQuotationConfirm=Project quotation confirmation
+ProdAssignExtendedFormLetterNotes=Assign extended form letter notes for products
+ ;New Comment
+ProdTextBlockGroupAssign=Assign groups to products
+ProductionDocuments=Production documents
+ProductTypeHelp=Specifies the type of the product
+ ;New Comment
+ProjAssignExtendedFormLetterNotes=Assign extended form letter notes for projects
+ProjectDocuments=Project documents
+ProjTextBlockGroupAssign=Assign groups to projects
+ReInitLanguageChgInfo=Changing the language to '%1' reinitialized the extended form letter notes.
+ReInitOnLanguageChg=Reinitialize extended form notes
+RelatedFormLetterNotes=Related form letter notes
+ ;New Comment
+SalesCopyingHeader=Copy header texts
+SalesCopyingHeaderHelp=Should the extended form letter notes of the selected headers be copied?
+SalesCopyingLine=Copy line texts
+SalesCopyingLineHelp=Should the extended form letter notes of the selected lines be copied?
+SalesDocuments=Sales documents
+ ;New Comment
+SelectAccountType=Select customer or vendor
+ ;New Comment
+ShowWarning=Show warning
+ ;New Comment
+ShowWarningHelp=Show warning when creating an order
+ ;New Comment
+TextBlock=Extended form letter notes
+ ;New Comment
+TextBlockComposite=Extended form letter notes composite
+TextBlockCustMaintain=Text block maintain (Sales)
+ ;New Comment
+TextBlockEntityMaintain=Maintain extended form letter notes
+TextBlockEntityView=View extended form letter notes
+TextBlockGroup=Groups for extended formletter notes
+TextBlockGroupAssign=Assign groups
+TextBlockGroupAssignDevDoc=The FWFTextBlockGroupAssign table contains the assignment of customers, vendors and items to groups.
+TextBlockGroupAssignInsertError=%1 '%2' is already assign to group '%3'.
+TextBlockGroupAssignMaintain=Maintain group assignment
+TextBlockGroupAssignView=View group assignment
+TextBlockGroupDevDoc=The FWFTextBlockGroup table contains the groups for extended form notes
+TextBlockGroupHelp=Groups for extended formletter notes
+TextBlockGroupMaintain=Maintain groups for extended formletter notes
+TextBlockGroupPanelGroups=Groups
+TextBlockGroupPanelMembers=Members
+TextBlockGroupView=View groups for extended formletter notes
+TextBlockHelp=Extended form letter notes
+ ;New Comment
+TextBlockInstanceDevDoc=The FWFTextBlockInstance table contains all the references
+ ;New Comment
+TextBlockLanguageDevDoc=The FWFTextBlockLanguage table contains the translations of the references
+ ;New Comment
+TextBlockNameHelp=Textblock name
+ ;New Comment
+TextBlockParentRowId=Parent row id
+TextBlockParmDevDoc=The FWFTextBlockParm table contains the text block setup
+ ;New Comment
+TextBlockProjMaintain=Text block maintain (Project)
+TextBlockPurchCopyDefaultValues=Set up default values ​​for copying text.
+TextBlockReferenceId=Reference id
+TextBlockRowId=Row id
+TextBlockSetup=Text block setup
+ ;New Comment
+TextBlockSetupGroupMaintain=Maintain setup groups
+TextBlockSetupGroups=Setup groups
+TextBlockSetupGroupsCust=Setup groups for customers
+TextBlockSetupGroupsProd=Setup groups for products
+TextBlockSetupGroupsProj=Setup groups for projects
+TextBlockSetupGroupsVend=Setup groups for vendors
+TextBlockSetupGroupView=View setup groups
+TextBlockSetupHelp=Setup for printing
+ ;New Comment
+TextBlockSetupParmDevDoc=The FWFTextBlockSetupParm table contains the text block setup
+ ;New Comment
+TextBlockSubMenuLabel=COSMO Extended form letter notes
+TextBlockTableDevDoc=The FWFTextBlockTable table contains the extended form notes
+ ;New Comment
+TextBlockTransferOrderFeature=COSMO Extended form letter notes - Transfer oder
+TextBlockTransferOrderFeatureSummary=This feature enables the possibility to add (predefined) text blocks on transfer order history.
+TextBlockTransferOrderMaintain=Maintain extended form letter notes on transfer orders
+TextBlockTransParmDevDoc=The FWFTextBlockTransParm table contains the text block setup
+ ;New Comment
+TextBlockUsageDevDoc=The FWFTextBlockUsage table contains the extended form letter notes
+ ;New Comment
+TextBlockUsageEntityMaintain=Maintain composite extended form letter notes
+TextBlockUsageTmpDevDoc=The FWFTextBlockUsageTmp table contains the extended form letter notes
+ ;New Comment
+TextBlockUsateEntityView=View composite extended form letter notes
+TextBlockValueDevDoc=The FWFTextBlockValue table contains the extended form letter notes
+ ;New Comment
+TextBlockVendMaintain=Text block maintain (Purch)
+ ;New Comment
+VendAssignExtendedFormLetterNotes=Assign extended form letter notes for vendors
+ ;New Comment
+VendAssignment=Assignment to supplier
+ ;New Comment
+VendTextBlockGroupAssign=Assign groups to vendors
+WarningRecordMissing=The '%1' record has not yet been saved. Extended formletter notes can only be edited after saving.

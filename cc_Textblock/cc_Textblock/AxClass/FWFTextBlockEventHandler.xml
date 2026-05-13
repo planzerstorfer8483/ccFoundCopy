@@ -1,0 +1,662 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockEventHandler</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Handles events related with tables and forms used by text block management
+/// </summary>
+abstract class FWFTextBlockEventHandler
+{
+    Common          targetRecord;
+    Common          targetRecordOrig;
+    EventLogType    eventType;
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>parmEventType</Name>
+				<Source><![CDATA[
+    public EventLogType parmEventType(EventLogType _eventType = eventType)
+    {
+        eventType = _eventType;
+    
+        return eventType;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmTargetRecord</Name>
+				<Source><![CDATA[
+    public Common parmTargetRecord(Common _targetRecord = targetRecord)
+    {
+        targetRecord     = _targetRecord;
+        targetRecordOrig = _targetRecord.orig();
+    
+        return targetRecord;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>run</Name>
+				<Source><![CDATA[
+    public void run()
+    {
+        ttsBegin;
+    
+        switch (eventType)
+        {
+            case EventLogType::Insert :
+                this.runInsert();
+                break;
+    
+            case EventLogType::Delete :
+                this.runDelete();
+                break;
+    
+            case EventLogType::Update :
+                this.runUpdate();
+                break;
+    
+            default :
+                throw error(Error::wrongUseOfFunction(funcName()));
+        }
+    
+        ttsCommit;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>runDelete</Name>
+				<Source><![CDATA[
+    protected void runDelete()
+    {
+        FWFTextBlockInstance instance;
+    
+        instance.skipDeleteActions(true);
+
+        delete_from instance
+            where instance.RefRecId   == targetRecord.RecId
+               && instance.RefTableId == targetRecord.TableId;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>runInsert</Name>
+				<Source><![CDATA[
+    protected void runInsert()
+    {
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>runUpdate</Name>
+				<Source><![CDATA[
+    protected void runUpdate()
+    {
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>newParameters</Name>
+				<Source><![CDATA[
+    public static FWFTextBlockEventHandler newParameters(Common _common, EventLogType _type)
+    {
+        FWFTextBlockEventHandler handler;
+    
+        switch (_common.TableId)
+        {
+            case tableNum(SalesTable) :
+            case tableNum(SalesLine) :
+            case tableNum(SalesQuotationTable) :
+            case tableNum(SalesQuotationLine) :
+            case tableNum(CustInvoiceTable) :
+            case tableNum(SalesAgreementHeader) :
+            case tableNum(AgreementLineQuantityCommitment) :
+            case tableNum(AgreementLineVolumeCommitment) :
+            case tableNum(AgreementLine) :  // for delete event, e.g. deletion via PurchPurchaseAgreementLineV2Entity
+            case tableNum(BOM) :
+                handler = FWFTextBlockEventHandler_Setup::construct();
+                break;
+    
+            case tableNum(CustQuotationJour) :
+            case tableNum(CustQuotationTrans) :
+            case tableNum(CustQuotationConfirmJour) :
+            case tableNum(CustQuotationConfirmTrans) :
+            case tableNum(WMSPickingRoute) :
+            case tableNum(WMSOrder) :
+            case tableNum(WMSOrderTrans) :
+            case tableNum(CustPackingSlipJour) :
+            case tableNum(CustPackingSlipTrans) :
+            case tableNum(CustInvoiceJour) :
+            case tableNum(CustInvoiceTrans) :
+            case tableNum(CustConfirmJour) :
+            case tableNum(CustConfirmTrans) :
+            case tableNum(VendReceiptsListJour) :
+            case tableNum(VendReceiptsListTrans) :
+            case tableNum(VendPackingSlipJour) :
+            case tableNum(VendPackingSlipTrans) :
+            case tableNum(VendInvoiceJour) :
+            case tableNum(VendInvoiceTrans) :
+            case tableNum(VendPurchOrderJour) :
+            case tableNum(PurchAgreementHeaderHistory) :
+            case tableNum(SalesAgreementHeaderHistory) :
+            case tableNum(AgreementLineQuantityCommitmentHistory) :
+            case tableNum(AgreementLineVolumeCommitmentHistory ) :
+            case tableNum(ReqTrans) :
+            case tableNum(ProjInvoiceJour) :
+            case tableNum(ProjInvoiceItem) :
+            case tableNum(VendRFQJour) :
+            case tableNum(VendRFQTrans) :
+            case tableNum(PurchRFQTable) :
+            case tableNum(PurchRFQLine) :
+            case tableNum(PurchRFQReplyLinePurchLine) :
+            case tableNum(PurchRFQReplyLinePurchAgreementLine) :
+            case tableNum(PurchRFQReplyTable) :
+            case tableNum(PurchRFQReplyLine) :
+                handler = FWFTextBlockEventHandler_Trans::construct();
+                break;
+
+            case tableNum(PurchReqTable) :
+            case tableNum(PurchReqLine) :
+                if (_type == EventLogType ::Update)
+                {
+                    handler = FWFTextBlockEventHandler_Trans::construct();
+                }
+                else
+                {
+                    handler = FWFTextBlockEventHandler_Setup::construct();
+                }
+                break;
+
+            case tableNum(ProjProposalItem) :
+            case tableNum(ProjProposalTransTable) :
+                ProjProposalItem		projProposalItem;
+                if (_common.TableId == tableNum(ProjProposalTransTable))
+                {
+                    handler = FWFTextBlockEventHandler_Setup::construct();
+                }
+                else
+                {
+                    projProposalItem = _common as ProjProposalItem;
+                    if (projProposalItem.ItemType == ProjItemType::Project			||	// item requirement (Artikelbedarf)
+                        projProposalItem.ItemType == ProjItemType::SalesOrder		||	// sales order (Auftrag)
+                        projProposalItem.ItemType == ProjItemType::PurchOrder		||	// purchase order (Bestellung)
+                        projProposalItem.ItemType == ProjItemType::Production		||	// production
+                        projProposalItem.ItemType == ProjItemType::ProdLine			||	// production line
+                        projProposalItem.ItemType == ProjItemType::BeginningBalance ||	// beginning balance
+                        projProposalItem.ItemType == ProjItemType::VendorInvoice)		// vendor invoice
+                    {
+                        handler = FWFTextBlockEventHandler_Trans::construct();
+                    }
+                    else if (projProposalItem.ItemType == ProjItemType::InventJournal)	// inventory journal (Artikelerfassung)
+                    {
+                        handler = FWFTextBlockEventHandler_Setup::construct();
+                    }
+                }
+                break;
+
+            case tableNum(PurchTableVersion):
+                handler = FWFTextBlockEventHandler_Trans_PoConfirm::construct();
+                break;
+
+            case tableNum(ProdTable) :
+                ProdTable prodTable = _common as ProdTable;
+                if (prodTable.FWFTextBlockReqPOFromRefRecId ||																	  // from planned order
+                    (prodTable.InventRefType == InventRefType::Sales && prodTable.InventRefId && prodTable.InventRefTransId) ||   // directly from sales order
+                    (prodTable.InventRefType == InventRefType::ProdLine && prodTable.InventRefId && prodTable.InventRefTransId))  // sub-production
+                {
+                    handler = FWFTextBlockEventHandler_Trans::construct();
+                }
+                else
+                {
+                    handler = FWFTextBlockEventHandler_Setup::construct();
+                }
+                break;
+
+            case tableNum(PurchTable) :
+                PurchTable purchTable = _common as PurchTable;
+                if (PurchRFQTable::findRecId(purchTable.FWFTextBlockPurchRFQTableFromRefRecId)) // request for quotation
+                {
+                    handler = FWFTextBlockEventHandler_Trans::construct();
+                }
+                else
+                {
+                    handler = FWFTextBlockEventHandler_Setup::construct();
+                }
+                break;
+
+            case tableNum(PurchLine) :
+                PurchLine purchLine = _common as PurchLine;
+                if (purchLine.FWFTextBlockReqPOFromRefRecId ||																   // from planned order
+                   (purchLine.ItemRefType == InventRefType::Sales && purchLine.InventRefId && purchLine.InventRefTransId) ||   // directly from sales order
+                    purchLine.PurchReqId)                                                                                      // purchase requisition
+                {
+                    handler = FWFTextBlockEventHandler_Trans::construct();
+                }
+                else
+                {
+                    handler = FWFTextBlockEventHandler_Setup::construct();
+                }
+                break;
+
+            case tableNum(ReqPO) :
+                ReqPO reqPO = _common as ReqPO;
+                if (reqPO.FWFTextBlockSalesLineFromRefRecId || reqPO.FWFTextBlockProdBOMFromRefRecId)
+                {
+                    handler = FWFTextBlockEventHandler_Trans::construct();
+                }
+                else
+                {
+                    handler = FWFTextBlockEventHandler_Setup::construct();
+                }
+                break;
+
+            case tableNum(ProdBOM) :
+                ProdBOM	prodBOM = _common as ProdBOM;
+                if (prodBOM.BOMRefRecId)
+                {
+                    handler = FWFTextBlockEventHandler_Trans::construct();
+                }
+                else
+                {
+                    handler = FWFTextBlockEventHandler_Setup::construct();
+                }
+                break;
+
+            case tableNum(PurchRFQCaseTable) :
+                PurchRFQCaseTable RFQCaseTable = _common as PurchRFQCaseTable;
+                if (RFQCaseTable.RFQType == PurchRFQType::PurchReq)
+                {
+                    handler = FWFTextBlockEventHandler_Trans::construct();
+                }
+                else
+                {
+                    handler = FWFTextBlockEventHandler_Setup::construct();
+                }
+                break;
+
+            case tableNum(PurchRFQCaseLine) :
+                PurchRFQCaseLine RFQCaseLine = _common as PurchRFQCaseLine;
+                if (RFQCaseLine.RFQType == PurchRFQType::PurchReq)
+                {
+                    handler = FWFTextBlockEventHandler_Trans::construct();
+                }
+                else
+                {
+                    handler = FWFTextBlockEventHandler_Setup::construct();
+                }
+                break;
+
+            case tableNum(PurchAgreementHeader) :
+                PurchAgreementHeader purchAgreementHeader = _common as PurchAgreementHeader;
+                if (PurchRFQTable::findRecId(purchAgreementHeader.FWFTextBlockPurchRFQTableFromRefRecId)) // request for quotation
+                {
+                    handler = FWFTextBlockEventHandler_Trans::construct();
+                }
+                else
+                {
+                    handler = FWFTextBlockEventHandler_Setup::construct();
+                }
+                break;
+
+            default :
+                EventHandlerResult resultTBEventHandler = EventHandlerResult::newSingleResponse();
+                FWFTextBlockEventHandler::isValidForTargetDelegate(_common, resultTBEventHandler);
+                if (resultTBEventHandler.hasResult())
+                {
+                    handler = resultTBEventHandler.result();
+                    break;
+                }
+                throw error(error::wrongUseOfFunction(funcName()));
+        }
+    
+        handler.parmTargetRecord(_common);
+        handler.parmEventType(_type);
+    
+        if (_common is AgreementLineQuantityCommitment ||
+            _common is AgreementLineVolumeCommitment)
+        {
+            handler.parmTargetRecord(AgreementLine::find(_common.RecId));
+            if (! handler.parmTargetRecord())
+            {
+                handler.parmTargetRecord(_common);
+            }
+        }
+
+        if (_common is PurchRFQReplyLinePurchLine)
+        {
+            PurchRFQReplyLinePurchLine  RFQReplyLinePurchLine = _common as PurchRFQReplyLinePurchLine;
+            handler.parmTargetRecord(PurchLine::findRecId(RFQReplyLinePurchLine.PurchLine));
+        }
+
+        if (_common is PurchRFQReplyLinePurchAgreementLine)
+        {
+            PurchRFQReplyLinePurchAgreementLine RFQReplyLinePurchAgreementLine = _common as PurchRFQReplyLinePurchAgreementLine;
+            handler.parmTargetRecord(AgreementLine::find(RFQReplyLinePurchAgreementLine.PurchAgreementLine));
+        }
+
+        return handler;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>isValidForTargetDelegate</Name>
+				<Source><![CDATA[
+    static delegate void isValidForTargetDelegate(Common _common, EventHandlerResult _result)
+    {
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>onDelete</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Handles the text block after deleting some records.
+    /// </summary>
+    /// <param name = "_ppArgs">The <c>Common</c> table.</param>
+    [PostHandlerFor(tableStr(CustInvoiceJour), tableMethodStr(CustInvoiceJour, delete)),
+        PostHandlerFor(tableStr(PurchLine), tableMethodStr(PurchLine, delete)),
+        PostHandlerFor(tableStr(PurchTable), tableMethodStr(PurchTable, delete)),
+        PostHandlerFor(tableStr(SalesLine), tableMethodStr(SalesLine, delete)),
+        PostHandlerFor(tableStr(SalesQuotationLine), tableMethodStr(SalesQuotationLine, delete)),
+        PostHandlerFor(tableStr(SalesQuotationTable), tableMethodStr(SalesQuotationTable, delete)),
+        PostHandlerFor(tableStr(SalesTable), tableMethodStr(SalesTable, delete)),
+        PostHandlerFor(tableStr(VendPurchOrderJour), tableMethodStr(VendPurchOrderJour, delete)),
+        PostHandlerFor(tableStr(WMSOrder), tableMethodStr(WMSOrder, delete)),
+        PostHandlerFor(tableStr(WMSPickingRoute), tableMethodStr(WMSPickingRoute, delete)),
+        PostHandlerFor(tableStr(CustInvoiceTrans), tableMethodStr(CustInvoiceTrans, delete)),
+        PostHandlerFor(tableStr(VendInvoiceTrans), tableMethodStr(VendInvoiceTrans, delete)),
+        PostHandlerFor(tableStr(AgreementLine), tableMethodStr(AgreementLine, delete)),
+        PostHandlerFor(tableStr(ProdTable), tableMethodStr(ProdTable, delete)),
+        PostHandlerFor(tableStr(ReqPO), tableMethodStr(ReqPO, delete)),
+        PostHandlerFor(tableStr(PurchReqTable), tableMethodStr(PurchReqTable, delete)),
+        PostHandlerFor(tableStr(PurchReqLine), tableMethodStr(PurchReqLine, delete)),
+        PostHandlerFor(tableStr(PurchRFQCaseTable), tableMethodStr(PurchRFQCaseTable, delete)),
+        PostHandlerFor(tableStr(PurchRFQCaseLine), tableMethodStr(PurchRFQCaseLine, delete))]
+    static public void onDelete(XppPrePostArgs _ppArgs)
+    {
+        FWFTextBlockEventHandler handler;
+    
+        handler = FWFTextBlockEventHandler::newParameters(_ppArgs.getThis(), EventLogType::Delete);
+        handler.run();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>onDeleted</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Handles the onDeleted event of some tables.
+    /// </summary>
+    /// <param name="_sender">The <c>Common</c> table.</param>
+    /// <param name="_e">The event arguments.</param>
+    [DataEventHandler(tableStr(CustPackingSlipJour), DataEventType::Deleted),
+        DataEventHandler(tableStr(CustPackingSlipTrans), DataEventType::Deleted),
+        DataEventHandler(tableStr(CustConfirmTrans), DataEventType::Deleted),
+        DataEventHandler(tableStr(CustConfirmJour), DataEventType::Deleted),
+        DataEventHandler(tableStr(VendReceiptsListTrans), DataEventType::Deleted),
+        DataEventHandler(tableStr(VendReceiptsListJour), DataEventType::Deleted),
+        DataEventHandler(tableStr(VendPackingSlipTrans), DataEventType::Deleted),
+        DataEventHandler(tableStr(VendPackingSlipJour), DataEventType::Deleted),
+        DataEventHandler(tableStr(VendInvoiceJour), DataEventType::Deleted),
+        DataEventHandler(tableStr(CustQuotationJour), DataEventType::Deleted),
+        DataEventHandler(tableStr(CustQuotationTrans), DataEventType::Deleted),
+        DataEventHandler(tableStr(CustQuotationConfirmJour), DataEventType::Deleted),
+        DataEventHandler(tableStr(CustQuotationConfirmTrans), DataEventType::Deleted),
+        DataEventHandler(tableStr(CustInvoiceTable), DataEventType::Deleted),
+        DataEventHandler(tablestr(PurchAgreementHeader), DataEventType::Deleted),
+        DataEventHandler(tableStr(SalesAgreementHeader), DataEventType::Deleted),
+        DataEventHandler(tableStr(ProdBOM), DataEventType::Deleted),
+        DataEventHandler(tableStr(BOM), DataEventType::Deleted),
+        DataEventHandler(tableStr(ProjProposalJour), DataEventType::Deleted),
+        DataEventHandler(tableStr(ProjProposalItem), DataEventType::Deleted),
+        DataEventHandler(tableStr(ProjInvoiceJour), DataEventType::Deleted),
+        DataEventHandler(tableStr(ProjInvoiceItem), DataEventType::Deleted),
+        DataEventHandler(tableStr(VendRFQJour), DataEventType::Deleted),
+        DataEventHandler(tableStr(VendRFQTrans), DataEventType::Deleted),
+        SuppressBPWarningAttribute('BPParameterNotUsed', 'No use for parameter _e')]
+    public static void onDeleted(Common _sender, DataEventArgs _e)
+    {
+        FWFTextBlockEventHandler    handler;
+
+        handler = FWFTextBlockEventHandler::newParameters(_sender, EventLogType::Delete);
+        handler.run();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>onInsert</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Handles the text block after inserting into some tables.
+    /// </summary>
+    /// <param name = "_ppArgs">The <c>Common</c> table.</param>
+    [PostHandlerFor(tableStr(CustConfirmJour), tableMethodStr(CustConfirmJour, insert)),
+        PostHandlerFor(tableStr(CustPackingSlipJour), tableMethodStr(CustPackingSlipJour, insert)),
+        PostHandlerFor(tableStr(CustPackingSlipTrans), tableMethodStr(CustPackingSlipTrans, insert)),
+        PostHandlerFor(tableStr(CustQuotationJour), tableMethodStr(CustQuotationJour, insert)),
+        PostHandlerFor(tableStr(PurchTable), tableMethodStr(PurchTable, insert)),
+        PostHandlerFor(tableStr(SalesLine), tableMethodStr(SalesLine, insert)),
+        PostHandlerFor(tableStr(SalesQuotationLine), tableMethodStr(SalesQuotationLine, insert)),
+        PostHandlerFor(tableStr(SalesQuotationTable), tableMethodStr(SalesQuotationTable, insert)),
+        PostHandlerFor(tableStr(SalesTable), tableMethodStr(SalesTable, insert)),
+        PostHandlerFor(tableStr(VendInvoiceJour), tableMethodStr(VendInvoiceJour, insert)),
+        PostHandlerFor(tableStr(VendInvoiceTrans), tableMethodStr(VendInvoiceTrans, insert)),
+        PostHandlerFor(tableStr(VendPackingSlipJour), tableMethodStr(VendPackingSlipJour, insert)),
+        PostHandlerFor(tableStr(VendPackingSlipTrans), tableMethodStr(VendPackingSlipTrans, insert)),
+        PostHandlerFor(tableStr(WMSOrder), tableMethodStr(WMSOrder, insert)),
+        PostHandlerFor(tableStr(WMSPickingRoute), tableMethodStr(WMSPickingRoute, insert)),
+        PostHandlerFor(tableStr(AgreementLine), tableMethodStr(AgreementLine, insert)),
+        PostHandlerFor(tableStr(ProdTable), tableMethodStr(ProdTable, insert)),
+        PostHandlerFor(tableStr(ProjProposalItem), tableMethodStr(ProjProposalItem, insert)),
+        PostHandlerFor(tableStr(ProjInvoiceJour), tableMethodStr(ProjInvoiceJour, insert)),
+        PostHandlerFor(tableStr(ProjInvoiceItem), tableMethodStr(ProjInvoiceItem, insert)),
+        PostHandlerFor(tableStr(PurchReqTable), tableMethodStr(PurchReqTable, insert)),
+        PostHandlerFor(tableStr(PurchReqLine), tableMethodStr(PurchReqLine, insert)),
+        PostHandlerFor(tableStr(PurchRFQCaseLine), tableMethodStr(PurchRFQCaseLine, insert)),
+        PostHandlerFor(tableStr(VendRFQJour), tableMethodStr(VendRFQJour, insert)),
+        PostHandlerFor(tableStr(PurchRFQReplyTable), tableMethodStr(PurchRFQReplyTable, insert)),
+        PostHandlerFor(tableStr(PurchRFQReplyLine), tableMethodStr(PurchRFQReplyLine, insert))]
+    static public void onInsert(XppPrePostArgs _ppArgs)
+    {
+        FWFTextBlockEventHandler handler;
+    
+        handler = FWFTextBlockEventHandler::newParameters(_ppArgs.getThis(), EventLogType::Insert);
+        handler.run();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>onInserted</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Handles the onInserted event of some tables.
+    /// </summary>
+    /// <param name="_sender">The <c>Common</c> table.</param>
+    /// <param name="_e">The event arguments.</param>
+    [DataEventHandler(tableStr(CustConfirmTrans), DataEventType::Inserted),
+        DataEventHandler(tableStr(VendReceiptsListTrans), DataEventType::Inserted),
+        DataEventHandler(tableStr(VendReceiptsListJour), DataEventType::Inserted),
+        DataEventHandler(tableStr(CustQuotationTrans), DataEventType::Inserted),
+        DataEventHandler(tableStr(CustQuotationConfirmJour), DataEventType::Inserted),
+        DataEventHandler(tableStr(CustQuotationConfirmTrans), DataEventType::Inserted),
+        DataEventHandler(tableStr(VendPurchOrderJour), DataEventType::Inserted),
+        DataEventHandler(tableStr(PurchTableVersion), DataEventType::Inserted),
+        DataEventHandler(tableStr(CustInvoiceTable), DataEventType::Inserted),
+        DataEventHandler(tableStr(PurchAgreementHeader), DataEventType::Inserted),
+        DataEventHandler(tableStr(SalesAgreementHeader), DataEventType::Inserted),
+        DataEventHandler(tableStr(PurchAgreementHeaderHistory), DataEventType::Inserted),
+        DataEventHandler(tableStr(SalesAgreementHeaderHistory), DataEventType::Inserted),
+        DataEventHandler(tableStr(AgreementLineQuantityCommitmentHistory), DataEventType::Inserted),
+        DataEventHandler(tablestr(AgreementLineVolumeCommitmentHistory), DataEventType::Inserted),
+        DataEventHandler(tableStr(ProdBOM), DataEventType::Inserted),
+        DataEventHandler(tableStr(BOM), DataEventType::Inserted),
+        DataEventHandler(tableStr(ReqTrans), DataEventType::Inserted),
+        DataEventHandler(tableStr(ProjProposalTransTable), DataEventType::Inserted),
+        DataEventHandler(tableStr(ReqPO), DataEventType::Inserted),
+        DataEventHandler(tableStr(PurchLine), DataEventType::Inserted),
+        DataEventHandler(tableStr(VendRFQTrans), DataEventType::Inserted),
+        DataEventHandler(tableStr(PurchRFQTable), DataEventType::Inserted),
+        DataEventHandler(tableStr(PurchRFQLine), DataEventType::Inserted),
+        DataEventHandler(tableStr(PurchRFQCaseTable), DataEventType::Inserted),
+        DataEventHandler(tableStr(PurchRFQReplyLinePurchAgreementLine), DataEventType::Inserted),
+        DataEventHandler(tableStr(PurchRFQReplyLinePurchLine), DataEventType::Inserted),
+        SuppressBPWarningAttribute('BPParameterNotUsed', 'No use for parameter _e')]
+    public static void onInserted(Common _sender, DataEventArgs _e)
+    {
+        FWFTextBlockEventHandler handler;
+
+        handler = FWFTextBlockEventHandler::newParameters(_sender, EventLogType::Insert);
+        handler.run();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>onUpdated</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Handles the onUpdated event of some tables.
+    /// </summary>
+    /// <param name = "_sender">The <c>Common</c> table.</param>
+    /// <param name = "_e">'The event arguments.</param>
+    [DataEventHandler(tableStr(PurchAgreementHeader), DataEventType::Updated),
+        DataEventHandler(tableStr(SalesAgreementHeader), DataEventType::Updated),
+        DataEventHandler(tableStr(PurchReqLine), DataEventType::Updated),
+        SuppressBPWarningAttribute('BPParameterNotUsed', 'No use for parameter _e')]
+    public static void onUpdated(Common _sender, DataEventArgs _e)
+    {
+        FWFTextBlockEventHandler handler;
+
+        handler = FWFTextBlockEventHandler::newParameters(_sender, EventLogType::Update);
+        handler.run();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>onUpdate</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Handles the text block after updating some tables.
+    /// </summary>
+    /// <param name = "_ppArgs">The <c>Common</c> table.</param>
+    [PreHandlerFor(tableStr(PurchLine), tableMethodStr(PurchLine, update)),
+        PreHandlerFor(tableStr(PurchTable), tableMethodStr(PurchTable, update)),
+        PreHandlerFor(tableStr(SalesLine), tableMethodStr(SalesLine, update)),
+        PreHandlerFor(tableStr(SalesQuotationLine), tableMethodStr(SalesQuotationLine, update)),
+        PreHandlerFor(tableStr(SalesQuotationTable), tableMethodStr(SalesQuotationTable, update)),
+        PreHandlerFor(tableStr(SalesTable), tableMethodStr(SalesTable, update)),
+        PreHandlerFor(tableStr(CustInvoiceTable), tableMethodStr(CustInvoiceTable, update)),
+        PreHandlerFor(tableStr(AgreementLine), tableMethodStr(AgreementLine, update)),
+        PreHandlerFor(tableStr(ProdTable), tableMethodStr(ProdTable, update)),
+        PreHandlerFor(tableStr(ReqPO), tableMethodStr(ReqPO, update)),
+        PreHandlerFor(tableStr(ProdBOM), tableMethodStr(ProdBOM, update))]
+    static public void onUpdate(XppPrePostArgs _ppArgs)
+    {
+        FWFTextBlockEventHandler handler;
+    
+        handler = FWFTextBlockEventHandler::newParameters(_ppArgs.getThis(), EventLogType::Update);
+        handler.run();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>CustQuotationJour_Post_initFromSalesQuotationTable</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Initializes the <c>CustQuotationJour</c> table with <c>SalesQuotationTable</c> table.
+    /// </summary>
+    /// <param name="_args">The event arguments.</param>
+    [PostHandlerFor(tableStr(CustQuotationJour), tableMethodStr(CustQuotationJour, initFromSalesQuotationTable))]
+    public static void CustQuotationJour_Post_initFromSalesQuotationTable(XppPrePostArgs _args)
+    {
+        CustQuotationJour       custQuotationJour = _args.getThis() as CustQuotationJour;
+        SalesQuotationTable     salesQuotationTable = _args.getArg(identifierStr(_salesQuotationTable)) as SalesQuotationTable;
+
+        custQuotationJour.FWFTextBlockQuotationIdFrom = salesQuotationTable.QuotationId;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>SalesLine_Post_initFromSalesQuotationLine</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Initializes the <c>SalesLine</c> table with <c>SalesQuotationLine</c> table.
+    /// </summary>
+    /// <param name="_args">The event arguments.</param>
+    [PostHandlerFor(tableStr(SalesLine), tableMethodStr(SalesLine, initFromSalesQuotationLine))]
+    public static void SalesLine_Post_initFromSalesQuotationLine(XppPrePostArgs _args)
+    {
+        SalesLine           salesLine = _args.getThis() as SalesLine;
+        SalesQuotationLine  salesQuotationLine = _args.getArg(identifierStr(_salesQuotationLine)) as SalesQuotationLine;
+        SalesQuotationLine	salesQuotationLineCheck;
+
+        // to ensure it's not a fake RecId in case of project quotation
+        salesQuotationLineCheck = SalesQuotationLine::findRecId(salesQuotationLine.RecId);
+        if (!salesQuotationLineCheck)
+        {
+            salesQuotationLine = SalesQuotationLine::findInventTransId(salesQuotationLine.InventTransId);
+        }
+
+        salesLine.FWFTextBlockQuotationLineRefRecId = salesQuotationLine.RecId;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>CustQuotationConfirmJour_Post_initFromSalesQuotationTable</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Initializes the <c>CustQuotationConfirmJour</c> table with <c>SalesQuotationTable</c> table.
+    /// </summary>
+    /// <param name="_args">The event arguments.</param>
+    [PostHandlerFor(tableStr(CustQuotationConfirmJour), tableMethodStr(CustQuotationConfirmJour, initFromSalesQuotationTable))]
+    public static void CustQuotationConfirmJour_Post_initFromSalesQuotationTable(XppPrePostArgs _args)
+    {
+        CustQuotationConfirmJour custQuotationConfirmJour = _args.getThis() as CustQuotationConfirmJour;
+        SalesQuotationTable salesQuotationTable = _args.getArg(identifierStr(_salesQuotationTable)) as SalesQuotationTable;
+
+        custQuotationConfirmJour.FWFTextBlockQuotationIdFrom = salesQuotationTable.QuotationId;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>getDefaultLanguageId</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Returns the default language id. This is primary the language id of legal entity, secondary the system langauge id.
+    /// </summary>
+    /// <returns>The <c>LanguageId</c> value.</returns>
+    public LanguageId getDefaultLanguageId()
+    {
+        LanguageId languageId = CompanyInfo::find().LanguageId;
+        ;
+        if (!languageId)
+        {
+            languageId = SystemParameters::find().SystemLanguageId;
+        }
+    
+        return languageId;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

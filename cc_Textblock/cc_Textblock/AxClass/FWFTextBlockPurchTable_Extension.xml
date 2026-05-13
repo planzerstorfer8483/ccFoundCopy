@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockPurchTable_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(tableStr(PurchTable))]
+final class FWFTextBlockPurchTable_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>displayHasTextblock</Name>
+				<Source><![CDATA[
+    [SysClientCacheDataMethodAttribute(true)]
+    public display container displayHasTextblock()
+    {
+        return FWFTextBlockHelper::hasTextblock(this);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initFromPurchRFQTable</Name>
+				<Source><![CDATA[
+    public void initFromPurchRFQTable(PurchRFQTable    _purchRFQTable)
+    {
+        next initFromPurchRFQTable(_purchRFQTable);
+
+        this.FWFTextBlockPurchRFQTableFromRefRecId = _purchRFQTable.RecId;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>modifiedField</Name>
+				<Source><![CDATA[
+    public void modifiedField(FieldId _fieldId)
+    {
+        next modifiedField(_fieldId);
+
+        switch (_fieldId)
+        {
+            case fieldNum(PurchTable, LanguageId):
+                this.FWFTextBlockLanguageId = this.LanguageId;
+                break;
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

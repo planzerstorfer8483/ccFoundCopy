@@ -1,0 +1,845 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxTable xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockParm</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+public abstract class FWFTextBlockParm extends common
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>initFromSetupParm</Name>
+				<Source><![CDATA[
+    public void initFromSetupParm(
+        FWFTextBlockParm    _textBlockSetupParm
+        )
+    {
+        this.Position                    = _textBlockSetupParm.Position;
+        this.ShowWarning                 = _textBlockSetupParm.ShowWarning;
+        this.SortOrder                   = _textBlockSetupParm.SortOrder;
+                                         
+        this.PrintOnPurchConfirmation    = _textBlockSetupParm.PrintOnPurchConfirmation;
+        this.PrintOnPurchInvoice         = _textBlockSetupParm.PrintOnPurchInvoice;
+        this.PrintOnPurchPackingSlip     = _textBlockSetupParm.PrintOnPurchPackingSlip;
+        this.PrintOnPurchReceiptsList    = _textBlockSetupParm.PrintOnPurchReceiptsList;
+        this.PrintOnSalesConfirmation    = _textBlockSetupParm.PrintOnSalesConfirmation;
+        this.PrintOnSalesInvoice         = _textBlockSetupParm.PrintOnSalesInvoice;
+        this.PrintOnSalesPackingSlip     = _textBlockSetupParm.PrintOnSalesPackingSlip;
+        this.PrintOnSalesPickingList     = _textBlockSetupParm.PrintOnSalesPickingList;
+        this.PrintOnSalesQuotation       = _textBlockSetupParm.PrintOnSalesQuotation;
+        this.PrintOnCustFreeInvoice      = _textBlockSetupParm.PrintOnCustFreeInvoice;
+        this.ICCopy                      = _textBlockSetupParm.ICCopy;
+        this.DirectDeliveryCopy		     = _textBlockSetupParm.DirectDeliveryCopy;
+        this.RelatedPOCopy			     = _textBlockSetupParm.RelatedPOCopy;
+                                         
+        this.PrintOnSalesAgreement       = _textBlockSetupParm.PrintOnSalesAgreement;
+        this.PrintOnPurchAgreement       = _textBlockSetupParm.PrintOnPurchAgreement;
+
+        this.PrintOnProdJobCard		     = _textBlockSetupParm.PrintOnProdJobCard;
+        this.PrintOnProdRouteCard	     = _textBlockSetupParm.PrintOnProdRouteCard;
+        this.PrintOnProdPickList	     = _textBlockSetupParm.PrintOnProdPickList;
+
+        this.PrintOnProjQuotation	     = _textBlockSetupParm.PrintOnProjQuotation;
+        this.PrintOnProjQuotationConfirm = _textBlockSetupParm.PrintOnProjQuotationConfirm;
+        this.PrintOnProjInvoice 	     = _textBlockSetupParm.PrintOnProjInvoice;
+
+        this.PrintOnInventTransferOrder  = _textBlockSetupParm.PrintOnInventTransferOrder;
+
+        this.PrintOnPurchReq             = _textBlockSetupParm.PrintOnPurchReq;
+        this.PrintOnPurchRFQCase         = _textBlockSetupParm.PrintOnPurchRFQCase;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initFromTextBlockTable</Name>
+				<Source><![CDATA[
+    public void initFromTextBlockTable(FWFTextBlockTable _table)
+    {
+        this.ICCopy				= _table.ICCopy;
+        this.DirectDeliveryCopy = _table.DirectDeliveryCopy;
+        this.RelatedPOCopy		= _table.RelatedPOCopy;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initValue</Name>
+				<Source><![CDATA[
+    public void initValue()
+    {
+        super();
+    
+        this.Position   = FWFTextBlockPosition::Above;
+        this.SortOrder  = 1;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>isValidForTarget</Name>
+				<Source><![CDATA[
+    public boolean isValidForTarget(Common _target, boolean _showWarning = false)
+    {
+        boolean ret = false;
+		
+        if (_showWarning && this.ShowWarning)
+        {
+            return true;
+        }
+    
+        switch (_target.TableId)
+        {
+            case tableNum(SalesQuotationTable) :
+            case tableNum(SalesQuotationLine) :
+                SalesQuotationTable	quotationTable;
+                SalesQuotationLine	quotationLine;
+                if (_target.TableId == tableNum(SalesQuotationTable))
+                {
+                    quotationTable = _target as SalesQuotationTable;
+                }
+                else
+                {
+                    quotationLine  = _target as SalesQuotationLine;
+                }
+
+                if (quotationTable)
+                {
+                    if (quotationTable.QuotationType == QuotationType::Project)
+                    {
+                        ret = this.PrintOnProjQuotation ||
+                              this.PrintOnProjQuotationConfirm;
+                    }
+                    else
+                    {
+                        ret = this.PrintOnSalesQuotation    ||
+                              this.PrintOnSalesConfirmation ||
+                              this.PrintOnSalesInvoice      ||
+                              this.PrintOnSalesPackingSlip  ||
+                              this.PrintOnSalesPickingList;
+                    }
+                }
+
+                if (quotationLine)
+                {
+                    if (quotationLine.QuotationType == QuotationType::Project)
+                    {
+                        if (quotationLine.ProjTransType  == QuotationProjTransType::Item)
+                        {
+                            ret = this.PrintOnProjQuotation ||
+                                  this.PrintOnProjQuotationConfirm;
+                        }
+                    }
+                    else
+                    {
+                        ret = this.PrintOnSalesQuotation    ||
+                              this.PrintOnSalesConfirmation ||
+                              this.PrintOnSalesInvoice      ||
+                              this.PrintOnSalesPackingSlip  ||
+                              this.PrintOnSalesPickingList;
+                    }
+                }
+                break;
+    
+            case tableNum(SalesTable) :
+            case tableNum(SalesLine) :
+                ret = this.PrintOnSalesConfirmation ||
+                      this.PrintOnSalesInvoice      ||
+                      this.PrintOnSalesPackingSlip  ||
+                      this.PrintOnSalesPickingList;
+                break;
+    
+            case tableNum(PurchTable) :
+            case tableNum(PurchLine) :
+                ret = this.PrintOnPurchConfirmation ||
+                      this.PrintOnPurchInvoice      ||
+                      this.PrintOnPurchPackingSlip  ||
+                      this.PrintOnPurchReceiptsList;
+                break;
+
+            case tableNum(PurchLineAllVersions):
+                ret = this.PrintOnPurchConfirmation;
+                break;
+    
+            case tableNum(CustQuotationJour) :
+            case tableNum(CustQuotationTrans) :
+                CustQuotationJour	quotationJour;
+                CustQuotationTrans	quotationTrans;
+                if (_target.TableId == tableNum(CustQuotationJour))
+                {
+                    quotationJour = _target as CustQuotationJour;
+                }
+                else
+                {
+                    quotationTrans = _target as CustQuotationTrans;
+                }
+
+                if (quotationJour)
+                {
+                    if (quotationJour.QuotationType == QuotationType::Project)
+                    {
+                        ret = this.PrintOnProjQuotation;
+                    }
+                    else
+                    {
+                        ret = this.PrintOnSalesQuotation;
+                    }
+                }
+
+                if (quotationTrans)
+                {
+                    quotationJour = quotationTrans.custQuotationJour();
+                    if ((quotationJour && quotationJour.QuotationType  == QuotationType::Project) || quotationTrans.AccountType == LedgerJournalACType::Project)
+                    {
+                        if (quotationTrans.ProjTransType  == QuotationProjTransType::Item)
+                        {
+                            ret = this.PrintOnProjQuotation;
+                        }
+                    }
+                    else
+                    {
+                        ret = this.PrintOnSalesQuotation;
+                    }
+                }
+                break;
+    
+            case tableNum(WMSPickingRoute) :
+            case tableNum(WMSOrder) :
+            case tableNum(WMSOrderTrans) :
+                ret = this.PrintOnSalesPickingList;
+                break;
+    
+            case tableNum(CustPackingSlipJour) :
+            case tableNum(CustPackingSlipTrans) :
+                ret = this.PrintOnSalesPackingSlip;
+                break;
+    
+            case tableNum(CustInvoiceJour) :
+            case tableNum(CustInvoiceTrans) :
+                ret = this.PrintOnSalesInvoice ||
+                      this.PrintOnCustFreeInvoice;
+                break;
+    
+            case tableNum(CustConfirmJour) :
+            case tableNum(CustConfirmTrans) :
+                ret = this.PrintOnSalesConfirmation;
+                break;
+
+            case tableNum(CustQuotationConfirmJour):
+            case tableNum(CustQuotationConfirmTrans) :
+                CustQuotationConfirmJour	quotationConfirmJour;
+                CustQuotationConfirmTrans	quotationConfirmTrans;
+                if (_target.TableId == tableNum(CustQuotationConfirmJour))
+                {
+                    quotationConfirmJour = _target as CustQuotationConfirmJour;
+                }
+                else
+                {
+                    quotationConfirmTrans = _target as CustQuotationConfirmTrans;                    
+                }
+
+                if (quotationConfirmJour)
+                {
+                    if (quotationConfirmJour.QuotationType  == QuotationType::Project)
+                    {
+                        ret = this.PrintOnProjQuotationConfirm;
+                    }
+                    else 
+                    {
+                        ret = this.PrintOnSalesQuotation;
+                    }
+                }
+
+                if (quotationConfirmTrans)
+                {
+                    quotationConfirmJour  = quotationConfirmTrans.custQuotationConfirmJour();
+                    if ((quotationConfirmJour && quotationConfirmJour.QuotationType == QuotationType::Project) || quotationConfirmTrans.AccountType == LedgerJournalACType::Project)
+                    {
+                        if (quotationConfirmTrans.ProjTransType == QuotationProjTransType::Item)
+                        {
+                            ret = this.PrintOnProjQuotationConfirm;
+                        }
+                    }
+                    else
+                    {
+                        ret = this.PrintOnSalesQuotation;
+                    }
+                }
+                break;
+
+            case tableNum(VendPurchOrderJour) :
+                ret = this.PrintOnPurchConfirmation;
+                break;
+    
+            case tableNum(VendReceiptsListTrans) :
+                ret = this.PrintOnPurchReceiptsList;
+                break;
+    
+            case tableNum(VendReceiptsListJour) :
+            case tableNum(VendReceiptsListTrans) :
+                ret = this.PrintOnPurchReceiptsList;
+                break;
+    
+            case tableNum(VendPackingSlipJour) :
+            case tableNum(VendPackingSlipTrans) :
+                ret = this.PrintOnPurchPackingSlip;
+                break;
+    
+            case tableNum(VendInvoiceJour) :
+            case tableNum(VendInvoiceTrans) :
+                ret = this.PrintOnPurchInvoice;
+                break;
+
+            case tableNum(CustInvoiceTable):
+                ret = this.PrintOnCustFreeInvoice;
+                break;
+
+            case tableNum(SalesAgreementHeader) :
+            case tableNum(SalesAgreementHeaderHistory) :
+                ret = this.PrintOnSalesAgreement;
+                break;
+
+            case tableNum(PurchAgreementHeader) :
+            case tableNum(PurchAgreementHeaderHistory) :
+                ret = this.PrintOnPurchAgreement;
+                break;
+
+            case tableNum(AgreementLine) :
+                AgreementLine agreementLine = _target as AgreementLine;
+
+                if (agreementLine.salesAgreementHeader())
+                {
+                    ret = this.PrintOnSalesAgreement;
+                }
+                else if (agreementLine.purchAgreementHeader())
+                {
+                    ret = this.PrintOnPurchAgreement;
+                }
+                break;
+
+            case tableNum(AgreementLineQuantityCommitmentHistory) :
+            case tableNum(AgreementLineVolumeCommitmentHistory) :
+                AgreementLineHistory agreementLineHist = _target as AgreementLineHistory;
+                AgreementLine agreementLineHistLine = AgreementLine::find(agreementLineHist.AgreementLine);
+
+                if (agreementLineHistLine.salesAgreementHeader())
+                {
+                    ret = this.PrintOnSalesAgreement;
+                }
+                else if (agreementLineHistLine.purchAgreementHeader())
+                {
+                    ret = this.PrintOnPurchAgreement;
+                }
+                break;
+
+            case tableNum(ProdTable) :
+                ret = this.PrintOnProdJobCard ||
+                      this.PrintOnProdRouteCard ||
+                      this.PrintOnProdPickList;
+                break;
+
+            case tableNum(ReqPO) :
+                ret = this.PrintOnProdJobCard		||
+                      this.PrintOnProdRouteCard		||
+                      this.PrintOnPurchAgreement	||
+                      this.PrintOnPurchConfirmation ||
+                      this.PrintOnPurchInvoice		||
+                      this.PrintOnPurchPackingSlip	||
+                      this.PrintOnPurchReceiptsList;
+                break;
+
+            case tableNum(ProdBOM) :
+                ret = this.PrintOnProdPickList;
+                break;
+
+            case tableNum(BOM) :
+                ret = this.PrintOnProdJobCard ||
+                      this.PrintOnProdRouteCard ||
+                      this.PrintOnProdPickList;
+                break;
+
+            case tableNum(ProjProposalJour) :
+            case tableNum(ProjProposalItem) :
+            case tableNum(ProjInvoiceJour) :
+            case tableNum(ProjInvoiceItem) :
+                ret = this.PrintOnProjInvoice;
+                break;
+
+            case tableNum(InventTransferJour) :
+                ret = this.PrintOnInventTransferOrder;
+                break;
+
+            case tableNum(PurchReqTable) :
+            case tableNum(PurchReqLine) :
+                ret = this.PrintOnPurchReq;
+                break;
+
+            case tableNum(PurchRFQCaseTable) :
+            case tableNum(PurchRFQCaseLine) :
+            case tableNum(PurchRFQTable) :
+            case tableNum(PurchRFQLine) :
+            case tableNum(PurchRFQReplyTable) :
+            case tableNum(PurchRFQReplyLine) :
+                ret = this.PrintOnPurchRFQCase;
+                break;
+
+            case tableNum(VendRFQJour) :
+            case tableNum(VendRFQTrans) :
+                VendRFQJour RFQJour;
+                if (_target.TableId == tableNum(VendRFQJour))
+                {
+                    RFQJour = _target as VendRFQJour;
+                }
+                else if (_target.TableId == tableNum(VendRFQTrans))
+                {
+                    VendRFQTrans RFQTrans = _target as VendRFQTrans;
+                    RFQJour = VendRFQJour::find(RFQTrans.RFQId);
+                }
+                LanguageId  languageId = RFQJour.LanguageId ? RFQJour.LanguageId : VendTable::find(RFQJour.VendAccount).languageId();
+                ret = this.PrintOnPurchRFQCase;
+                if (ret && this.TableId == tableNum(FWFTextBlockTransParm))
+                {
+                    FWFTextBlockTransParm transParm = this as FWFTextBlockTransParm;
+                    ret = transParm.LanguageId == languageId;
+                }
+                break;
+        }
+    
+        return ret;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>find</Name>
+				<Source><![CDATA[
+    public static FWFTextBlockParm find(
+        RecId       _recId,
+        boolean     _update = false)
+    {
+        FWFTextBlockParm  parm;
+    
+        parm.selectForUpdate(_update);
+    
+        if (_recId)
+        {
+            select firstonly parm
+                where parm.RecId == _recId;
+        }
+    
+        return parm;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+	<DeveloperDocumentation>@FWFTextBlock:TextBlockParmDevDoc</DeveloperDocumentation>
+	<Label>@FWFTextBlock:TextBlockSetup</Label>
+	<TitleField1>InstanceRelationType</TitleField1>
+	<TitleField2>SortOrder</TitleField2>
+	<Abstract>Yes</Abstract>
+	<CacheLookup>NotInTTS</CacheLookup>
+	<InstanceRelationType>InstanceRelationType</InstanceRelationType>
+	<SaveDataPerCompany>No</SaveDataPerCompany>
+	<SupportInheritance>Yes</SupportInheritance>
+	<DeleteActions />
+	<FieldGroups>
+		<AxTableFieldGroup>
+			<Name>AutoReport</Name>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnSalesQuotation</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnSalesPickingList</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>SortOrder</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnSalesPackingSlip</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnPurchReceiptsList</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnSalesInvoice</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnPurchPackingSlip</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnSalesConfirmation</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnPurchInvoice</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>Position</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoLookup</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoIdentification</Name>
+			<AutoPopulate>Yes</AutoPopulate>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoSummary</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoBrowse</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>DisplayOptions</Name>
+			<Label>@SYS26572</Label>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>SortOrder</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>Position</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>ShowWarning</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>RelatedOrders</Name>
+			<Label>@FWFTextBlock:CopyText</Label>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>ICCopy</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>DirectDeliveryCopy</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>RelatedPOCopy</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>PrintOnPurchFormLetters</Name>
+			<Label>@SYS335584</Label>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnPurchConfirmation</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnPurchReceiptsList</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnPurchPackingSlip</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnPurchInvoice</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnPurchAgreement</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnPurchReq</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnPurchRFQCase</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>PrintOnSalesFormLetters</Name>
+			<Label>@FWFTextBlock:SalesDocuments</Label>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnSalesQuotation</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnSalesConfirmation</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnSalesPickingList</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnSalesPackingSlip</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnSalesInvoice</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnCustFreeInvoice</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnSalesAgreement</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>PrintOnProductionReports</Name>
+			<Label>@FWFTextBlock:ProductionDocuments</Label>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnProdJobCard</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnProdRouteCard</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnProdPickList</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>PrintOnProjectReports</Name>
+			<Label>@FWFTextBlock:ProjectDocuments</Label>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnProjQuotation</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnProjQuotationConfirm</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnProjInvoice</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>PrintOnInventoryReports</Name>
+			<Label>@FWFTextBlock:InventoryDocuments</Label>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>PrintOnInventTransferOrder</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+	</FieldGroups>
+	<Fields>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>ICCopy</Name>
+			<ExtendedDataType>FWFTextBlockICCopy</ExtendedDataType>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldInt64">
+			<Name>InstanceRelationType</Name>
+			<AllowEdit>No</AllowEdit>
+			<AllowEditOnCreate>No</AllowEditOnCreate>
+			<ExtendedDataType>RelationType</ExtendedDataType>
+			<Visible>No</Visible>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>Position</Name>
+			<EnumType>FWFTextBlockPosition</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>PrintOnPurchConfirmation</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS301622</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>PrintOnPurchInvoice</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS14204</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>PrintOnPurchPackingSlip</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS333386</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>PrintOnPurchReceiptsList</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS25756</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>PrintOnSalesConfirmation</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS301622</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>PrintOnSalesInvoice</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS14204</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>PrintOnSalesPackingSlip</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS11549</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>PrintOnSalesPickingList</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS77792</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>PrintOnSalesQuotation</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS5864</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>ShowWarning</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:ShowWarningHelp</HelpText>
+			<Label>@FWFTextBlock:ShowWarning</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldInt">
+			<Name>SortOrder</Name>
+			<ExtendedDataType>Counter</ExtendedDataType>
+			<Label>@SYS72898</Label>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>PrintOnCustFreeInvoice</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS23028</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>PrintOnPurchAgreement</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS190134</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>PrintOnSalesAgreement</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS101267</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>PrintOnProdJobCard</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS21235</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>PrintOnProdRouteCard</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS21234</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>PrintOnProdPickList</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS77792</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>DirectDeliveryCopy</Name>
+			<ExtendedDataType>FWFTextBlockDirectDeliveryCopy</ExtendedDataType>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>RelatedPOCopy</Name>
+			<ExtendedDataType>FWFTextBlockRelatedPOCopy</ExtendedDataType>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>PrintOnProjQuotation</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS84941</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>PrintOnProjInvoice</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS342618</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>PrintOnInventTransferOrder</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS78286</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>PrintOnPurchReq</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS109808</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>PrintOnPurchRFQCase</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS134396</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>PrintOnProjQuotationConfirm</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@FWFTextBlock:PrintOnProjQuotationConfirm</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+	</Fields>
+	<FullTextIndexes />
+	<Indexes />
+	<Mappings />
+	<Relations />
+	<StateMachines />
+</AxTable>

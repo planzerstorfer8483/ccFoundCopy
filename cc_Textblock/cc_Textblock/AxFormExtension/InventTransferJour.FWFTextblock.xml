@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxFormExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>InventTransferJour.FWFTextblock</Name>
+	<ControlModifications />
+	<Controls>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControl3wnvrjwa1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormActionPaneControl">
+				<Name>ActionPaneHeaderOverview</Name>
+				<Type>ActionPane</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormActionPaneTabControl">
+						<Name>ActionPaneTabHeaderOverview</Name>
+						<Type>ActionPaneTab</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormButtonGroupControl">
+								<Name>ButtonGroupHeaderOverview</Name>
+								<Type>ButtonGroup</Type>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormMenuFunctionButtonControl">
+										<Name>FWFTextBlockValue</Name>
+										<Type>MenuFunctionButton</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<Big>Yes</Big>
+										<DataSource>InventTransferJour</DataSource>
+										<MenuItemName>FWFTextBlockValue</MenuItemName>
+										<NeedsRecord>Yes</NeedsRecord>
+									</AxFormControl>
+								</Controls>
+							</AxFormControl>
+						</Controls>
+					</AxFormControl>
+				</Controls>
+				<Style>Strip</Style>
+			</FormControl>
+			<Parent>TabHeaderOverview</Parent>
+			<PositionType>Begin</PositionType>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>Copynssnh2fm1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormImageControl">
+				<Name>ccHasTextblock</Name>
+				<HelpText>@FWFTextBlock:hasTextBlockHelp</HelpText>
+				<Type>Image</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<CacheDataMethod>Yes</CacheDataMethod>
+				<DataMethod>FWFTextBlockInventTransferJour_Extension.displayHasTextblock</DataMethod>
+				<DataSource>InventTransferJour</DataSource>
+				<Label>@FWFTextBlock:hasTextBlock</Label>
+			</FormControl>
+			<Parent>GridHeader</Parent>
+			<PositionType>Begin</PositionType>
+		</AxFormExtensionControl>
+	</Controls>
+	<DataSourceModifications />
+	<DataSourceReferences />
+	<DataSources />
+	<Parts />
+	<PropertyModifications />
+</AxFormExtension>

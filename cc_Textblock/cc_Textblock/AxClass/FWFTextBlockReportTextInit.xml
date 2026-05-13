@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockReportTextInit</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+class FWFTextBlockReportTextInit
+{
+    public const str        FieldNameHeaderText = identifierStr(FWFTextBlockHeaderText);
+    public const str        FieldNameFooterText = identifierStr(FWFTextBlockFooterText);
+    public const str        FieldNameHeaderTextLine = identifierStr(FWFTextBlockHeaderTextLine);
+    public const str        FieldNameFooterTextLine = identifierStr(FWFTextBlockFooterTextLine);
+
+    Common                  target;
+    Common                  source;
+    FieldId                 fieldNoHeaderText;
+    FieldId                 fieldNoFooterText;
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>addTexts</Name>
+				<Source><![CDATA[
+    public void addTexts()
+    {
+        FWFTextBlockInstance    instanceTrans;
+        FWFTextBlockParm        instanceParm;
+        FWFTextBlockValue       value;
+    
+        if (! fieldNoHeaderText && ! fieldNoFooterText)
+        {
+            return;
+        }
+    
+        // TEST SQLs: Set breakpoint in DP.processReport() at end
+        // -------------------------------------------------------
+        // Always:
+        //   set transaction isolation level read uncommitted
+        // Always before first run:
+        //   truncate table PURCHPURCHASEORDERHEADER (table depending on the document!)
+        //   truncate table PURCHPURCHASEORDERTMP
+        // Purchase order confirmation
+        //   select FWFHEADERTEXT, FWFFOOTERTEXT, * from PURCHPURCHASEORDERHEADER
+        //   select FWFHEADERTEXT, FWFFOOTERTEXT, * from PURCHPURCHASEORDERTMP
+        // Purch receipt list
+        //   select FWFHEADERTEXT, FWFFOOTERTEXT, * from PURCHRECEIPTSLISTHEADERTMP
+        //   select FWFHEADERTEXT, FWFFOOTERTEXT, * from PURCHRECEIPTSLISTDETAILSTMP
+        // ...
+    
+        while select RefRecId from instanceTrans
+            order by instanceParm.Position, instanceParm.SortOrder
+            where instanceTrans.RefRecId        == source.RecId
+               && instanceTrans.RefTableId      == source.TableId
+        join TextBlock from value
+            where value.RecId == instanceTrans.ValueRecId
+        join SortOrder, Position from instanceParm
+            where instanceParm.RecId == instanceTrans.SetupRecId
+        {
+            if (instanceParm.Position == FWFTextBlockPosition::Above)
+            {
+                if (fieldNoHeaderText)
+                {
+                    target.(fieldNoHeaderText) = value.htmlText(target.(fieldNoHeaderText));
+                }
+            }
+            else
+            {
+                if (fieldNoFooterText)
+                {
+                    target.(fieldNoFooterText) = value.htmlText(target.(fieldNoFooterText));
+                }
+            }
+        }
+    
+        if ((target.(fieldNoHeaderText) || target.(fieldNoFooterText)) && target.RecId)
+        {
+            ttsBegin;
+            target.selectForUpdate(true);
+            target.update();
+            ttsCommit;
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>addTextsTransferOrder</Name>
+				<Source><![CDATA[
+    public void addTextsTransferOrder()
+    {
+        FWFTextBlockInstance    instanceTrans;
+        FWFTextBlockParm        instanceParm;
+        FWFTextBlockValue       value;
+    
+        if (! fieldNoHeaderText && ! fieldNoFooterText)
+        {
+            return;
+        }
+    
+        while select RefRecId from instanceTrans
+            order by instanceParm.Position, instanceParm.SortOrder
+            where instanceTrans.RefRecId        == source.RecId
+               && instanceTrans.RefTableId      == source.TableId
+        join TextBlock from value
+            where value.RecId == instanceTrans.ValueRecId
+        join SortOrder, Position from instanceParm
+            where instanceParm.RecId == instanceTrans.SetupRecId
+			   && instanceParm.PrintOnInventTransferOrder
+        {
+            if (instanceParm.Position == FWFTextBlockPosition::Above)
+            {
+                if (fieldNoHeaderText)
+                {
+                    target.(fieldNoHeaderText) = value.htmlText(target.(fieldNoHeaderText));
+                }
+            }
+            else
+            {
+                if (fieldNoFooterText)
+                {
+                    target.(fieldNoFooterText) = value.htmlText(target.(fieldNoFooterText));
+                }
+            }
+        }
+    
+        if ((target.(fieldNoHeaderText) || target.(fieldNoFooterText)) && target.RecId)
+        {
+            ttsBegin;
+            target.selectForUpdate(true);
+            target.update();
+            ttsCommit;
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>addTextsProformaAgreement</Name>
+				<Source><![CDATA[
+    public void addTextsProformaAgreement(SalesPurch _salesPurch)
+    {
+        FWFTextBlockInstance    instanceTrans;
+        FWFTextBlockParm        instanceParm;
+        FWFTextBlockValue       value;
+    
+        if (! fieldNoHeaderText && ! fieldNoFooterText)
+        {
+            return;
+        }
+    
+        while select RefRecId from instanceTrans
+            order by instanceParm.Position, instanceParm.SortOrder
+            where instanceTrans.RefRecId        == source.RecId
+               && instanceTrans.RefTableId      == source.TableId
+        join TextBlock from value
+            where value.RecId == instanceTrans.ValueRecId
+        join SortOrder, Position from instanceParm
+            where instanceParm.RecId == instanceTrans.SetupRecId
+            && ((_salesPurch == SalesPurch::Sales && instanceParm.PrintOnSalesAgreement) || (_salesPurch == SalesPurch::Purch && instanceParm.PrintOnPurchAgreement))
+        {
+            if (instanceParm.Position == FWFTextBlockPosition::Above)
+            {
+                if (fieldNoHeaderText)
+                {
+                    target.(fieldNoHeaderText) = value.htmlText(target.(fieldNoHeaderText));
+                }
+            }
+            else
+            {
+                if (fieldNoFooterText)
+                {
+                    target.(fieldNoFooterText) = value.htmlText(target.(fieldNoFooterText));
+                }
+            }
+        }
+    
+        if ((target.(fieldNoHeaderText) || target.(fieldNoFooterText)) && target.RecId)
+        {
+            ttsBegin;
+            target.selectForUpdate(true);
+            target.update();
+            ttsCommit;
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>addTextsProductionPaper</Name>
+				<Source><![CDATA[
+    public void addTextsProductionPaper(ProdJournalType	_prodJournalType)
+    {
+        FWFTextBlockInstance    instanceTrans;
+        FWFTextBlockParm        instanceParm;
+        FWFTextBlockValue       value;
+    
+        if (! fieldNoHeaderText && ! fieldNoFooterText)
+        {
+            return;
+        }
+    
+        while select RefRecId from instanceTrans
+            order by instanceParm.Position, instanceParm.SortOrder
+            where instanceTrans.RefRecId        == source.RecId
+               && instanceTrans.RefTableId      == source.TableId
+        join TextBlock from value
+            where value.RecId == instanceTrans.ValueRecId
+        join SortOrder, Position from instanceParm
+            where instanceParm.RecId == instanceTrans.SetupRecId
+            && ((_prodJournalType == ProdJournalType::JobCard   && instanceParm.PrintOnProdJobCard)
+            ||  (_prodJournalType == ProdJournalType::RouteCard && instanceParm.PrintOnProdRouteCard)
+            ||  (_prodJournalType == ProdJournalType::Picklist  && instanceParm.PrintOnProdPickList))
+        {
+            if (instanceParm.Position == FWFTextBlockPosition::Above)
+            {
+                if (fieldNoHeaderText)
+                {
+                    target.(fieldNoHeaderText) = value.htmlText(target.(fieldNoHeaderText));
+                }
+            }
+            else
+            {
+                if (fieldNoFooterText)
+                {
+                    target.(fieldNoFooterText) = value.htmlText(target.(fieldNoFooterText));
+                }
+            }
+        }
+    
+        if ((target.(fieldNoHeaderText) || target.(fieldNoFooterText)) && target.RecId)
+        {
+            ttsBegin;
+            target.selectForUpdate(true);
+            target.update();
+            ttsCommit;
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>insTexts</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Adds extendes texts to report data provider table. Existing texts will be clear before.
+    /// </summary>
+    public void insTexts()
+    {
+        this.initParameters();
+
+        this.clearTexts();
+
+        this.addTexts();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>clearTexts</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Clears the 2 fields for header and footer text in target table.
+    /// </summary>
+    public void clearTexts()
+    {
+        if (fieldNoHeaderText && fieldNoFooterText)
+        {
+            target.(fieldNoHeaderText) = '';
+            target.(fieldNoFooterText) = '';
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>addLineTexts</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Adds extendes texts to report data provider table for lines. This method should be used, when there is only 1 table in report data
+    /// provider for both header and lines.
+    /// </summary>
+    public void addLineTexts()
+    {
+        this.initParametersForLine();
+
+        this.addTexts();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>insLineTexts</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Adds extendes texts to report data provider table for lines. Existing text will be cleared before. This method should be used, when there 
+    /// is only 1 table in report data provider for both header and lines.
+    /// </summary>
+    public void insLineTexts()
+    {
+        this.initParametersForLine();
+
+        this.clearTexts();
+
+        this.addLineTexts();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initParametersForLine</Name>
+				<Source><![CDATA[
+    private void initParametersForLine()
+    {
+        fieldNoHeaderText = fieldName2id(target.TableId, FWFTextBlockReportTextInit::FieldNameHeaderTextLine);
+        fieldNoFooterText = fieldName2id(target.TableId, FWFTextBlockReportTextInit::FieldNameFooterTextLine);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initParameters</Name>
+				<Source><![CDATA[
+    private void initParameters()
+    {
+        fieldNoHeaderText = fieldName2id(target.TableId, FWFTextBlockReportTextInit::FieldNameHeaderText);
+        fieldNoFooterText = fieldName2id(target.TableId, FWFTextBlockReportTextInit::FieldNameFooterText);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmFieldNoFooterText</Name>
+				<Source><![CDATA[
+    public FieldId parmFieldNoFooterText(FieldId _fieldNoFooterText = fieldNoFooterText)
+    {
+        fieldNoFooterText = _fieldNoFooterText;
+    
+        return fieldNoFooterText;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmFieldNoHeaderText</Name>
+				<Source><![CDATA[
+    public FieldId parmFieldNoHeaderText(FieldId _fieldNoHeaderText = fieldNoHeaderText)
+    {
+        fieldNoHeaderText = _fieldNoHeaderText;
+    
+        return fieldNoHeaderText;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmSource</Name>
+				<Source><![CDATA[
+    public Common parmSource(Common _source = source)
+    {
+        source = _source;
+    
+        return source;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmTarget</Name>
+				<Source><![CDATA[
+    public Common parmTarget(Common _target = target)
+    {
+        target = _target;
+    
+        return target;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>construct</Name>
+				<Source><![CDATA[
+    public static FWFTextBlockReportTextInit construct()
+    {
+        return new FWFTextBlockReportTextInit();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>newParameters</Name>
+				<Source><![CDATA[
+    static FWFTextBlockReportTextInit newParameters(Common _target, Common _source)
+    {
+        FWFTextBlockReportTextInit init = FWFTextBlockReportTextInit::construct();
+    
+        init.parmSource(_source);
+        init.parmTarget(_target);
+        init.initParameters();
+    
+        return init;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>newParametersPoConform</Name>
+				<Source><![CDATA[
+    static FWFTextBlockReportTextInit newParametersPoConform(Common _target, PurchLineAllVersions _source, boolean _isProforma)
+    {
+        Common source;
+
+        if (_isProforma)
+        {
+            source = PurchLine::findRecId(_source.RecId);
+        }
+        else
+        {
+            if (_source.IsArchived)
+            {
+                source = PurchLineHistory::findRecId(_source.RecId);
+            }
+            else
+            {
+                source = _source;
+            }
+        }
+
+        return FWFTextBlockReportTextInit::newParameters(_target, source);
+
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

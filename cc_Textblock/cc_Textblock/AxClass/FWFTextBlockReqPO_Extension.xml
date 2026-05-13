@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockReqPO_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(tableStr(ReqPO))]
+final class FWFTextBlockReqPO_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>initFromIssue</Name>
+				<Source><![CDATA[
+    public void initFromIssue(
+        ReqTrans        _issueReqTrans,
+        ReqSetupDim     _setupDim)
+    {
+        next initFromIssue(_issueReqTrans, _setupDim);
+
+        ReqGroup reqGroup = ReqGroup::find(_issueReqTrans.inventTable().ReqGroupId);
+
+        if (reqGroup.CovRule == ReqCovType::Req && reqGroup.FWFTextBlockCopyFromSalesOrder)
+        {
+            if (_issueReqTrans.RefType == ReqRefType::Sales)
+            {
+                this.FWFTextBlockSalesLineFromRefRecId	= InventTransOriginSalesLine::salesLine(_issueReqTrans.InventTransOrigin).RecId;
+            }
+            else if (_issueReqTrans.RefType == ReqRefType::ProdLine || _issueReqTrans.RefType == ReqRefType::PmfFormulaLine)
+            {
+                this.FWFTextBlockProdBOMFromRefRecId = InventTransOriginProdBOM::prodBOM(_issueReqTrans.InventTransOrigin).RecId;
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>displayHasTextblock</Name>
+				<Source><![CDATA[
+    [SysClientCacheDataMethodAttribute(true)]
+    public display container displayHasTextblock()
+    {
+        return FWFTextBlockHelper::hasTextblock(this);
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxEnum xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockAccountRelationType</Name>
+	<Help>@FWFTextBlock:AccountRelationTypeHelp</Help>
+	<Label>@FWFTextBlock:AccountRelationType</Label>
+	<EnumValues>
+		<AxEnumValue>
+			<Name>Cust</Name>
+			<Label>@SYS24704</Label>
+		</AxEnumValue>
+		<AxEnumValue>
+			<Name>Vend</Name>
+			<Label>@SYS8079</Label>
+			<Value>1</Value>
+		</AxEnumValue>
+		<AxEnumValue>
+			<Name>Prod</Name>
+			<Label>@SYS89639</Label>
+			<Value>2</Value>
+		</AxEnumValue>
+		<AxEnumValue>
+			<Name>Proj</Name>
+			<Label>@SYS36368</Label>
+			<Value>3</Value>
+		</AxEnumValue>
+	</EnumValues>
+</AxEnum>

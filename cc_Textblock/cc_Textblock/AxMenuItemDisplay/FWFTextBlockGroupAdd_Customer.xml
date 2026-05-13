@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxMenuItemDisplay xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V1">
+	<Name>FWFTextBlockGroupAdd_Customer</Name>
+	<Label>@SYS124603</Label>
+	<MaintainUserLicense>Activity</MaintainUserLicense>
+	<NormalImage>Add</NormalImage>
+	<Object>FWFTextBlockGroupAdd_Customer</Object>
+	<OpenMode>View</OpenMode>
+	<ViewUserLicense>Universal</ViewUserLicense>
+</AxMenuItemDisplay>

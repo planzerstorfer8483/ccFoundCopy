@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockReqCalcScheduleItem_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(classStr(ReqCalcScheduleItem))]
+final class FWFTextBlockReqCalcScheduleItem_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>main</Name>
+				<Source><![CDATA[
+    public static void main(Args _args)
+    {
+        ReqTrans	reqTrans = _args.record() as ReqTrans;
+        ProdBOM		prodBOM  = ProdBOM::findTransId(InventTransOrigin::find(reqTrans.InventTransOrigin).InventTransId);
+
+        next main(_args);
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

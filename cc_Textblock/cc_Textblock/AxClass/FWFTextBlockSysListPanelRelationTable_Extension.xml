@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockSysListPanelRelationTable_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(classStr(SysListPanelRelationTable))]
+final class FWFTextBlockSysListPanelRelationTable_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>addData</Name>
+				<Source><![CDATA[
+    void addData(container data)
+    {
+        FWFTextBlockGroupAssign	groupAssign;
+        int						i;
+  
+        next addData(data);
+
+        if (relationTable == tablenum(FWFTextBlockGroupAssign))
+        {
+            ttsbegin;
+            for (i = conlen(data); i; i--)
+            {
+                groupAssign = FWFTextBlockGroupAssign::findByGroupIdRefId(relationRangeValue, conPeek(data, i), true);
+                groupAssign.Module = this.parmFormRun().args().parmEnum();
+                groupAssign.update();
+            }
+            ttscommit;
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

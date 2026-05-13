@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockPurchRFQSendDP_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(classStr(PurchRFQSendDP))]
+final class FWFTextBlockPurchRFQSendDP_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>initializeRequestForQuotationLine</Name>
+				<Source><![CDATA[
+    protected PurchRFQSendTmp initializeRequestForQuotationLine(
+        VendRFQTrans    _vendRFQTrans,
+        VendRFQJour     _vendRFQJour,
+        EcoResCategory  _ecoResCategory)
+    {
+        next initializeRequestForQuotationLine(_vendRFQTrans, _vendRFQJour, _ecoResCategory);
+
+        FWFTextBlockReportTextInit textBlockReportTextInit = FWFTextBlockReportTextInit::newParameters(tmpPurchRFQSend, _vendRFQJour);
+
+        textBlockReportTextInit.insTexts();
+        textBlockReportTextInit.parmSource(_vendRFQTrans);
+        textBlockReportTextInit.insLineTexts();
+
+        return tmpPurchRFQSend;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

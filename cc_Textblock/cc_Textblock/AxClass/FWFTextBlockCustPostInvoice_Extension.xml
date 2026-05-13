@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockCustPostInvoice_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of <c>CustPostInvoice</c> for text block management
+/// </summary>
+[ExtensionOf(classStr(CustPostInvoice))]
+final class FWFTextBlockCustPostInvoice_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>postCustInvoice</Name>
+				<Source><![CDATA[
+    protected void postCustInvoice(CustInvoiceJour _custInvoiceJour, LedgerVoucher _ledgerVoucher, boolean _creditNote, NumberSeq _numberSeq)
+    {
+        CustInvoiceTrans custInvoiceTransLocal;
+        ;
+        next postCustInvoice(_custInvoiceJour, _ledgerVoucher, _creditNote, _numberSeq);
+
+        while select custInvoiceTransLocal
+            where custInvoiceTransLocal.SalesId == _custInvoiceJour.SalesId
+                && custInvoiceTransLocal.InvoiceId == _custInvoiceJour.InvoiceId
+                && custInvoiceTransLocal.InvoiceDate == _custInvoiceJour.InvoiceDate
+                && custInvoiceTransLocal.numberSequenceGroup == _custInvoiceJour.numberSequenceGroup
+        {
+            FWFTextBlockEventHandler::newParameters(custInvoiceTransLocal, EventLogType::Insert).run();
+        }
+
+        FWFTextBlockEventHandler::newParameters(_custInvoiceJour, EventLogType::Insert).run();
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

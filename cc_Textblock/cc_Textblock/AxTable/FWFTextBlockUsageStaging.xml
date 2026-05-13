@@ -1,0 +1,761 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxTable xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockUsageStaging</Name>
+	<SourceCode>
+		<Methods />
+	</SourceCode>
+	<DeveloperDocumentation>@DMF:StagingDeveloperDocumentation</DeveloperDocumentation>
+	<FormRef>FWFTextBlockUsage</FormRef>
+	<Label>@FWFTextBlock:AssignExtendedFormLetterNotes</Label>
+	<TableGroup>Staging</TableGroup>
+	<TitleField1>AccountRelation</TitleField1>
+	<TitleField2>AccountType</TitleField2>
+	<PrimaryIndex>StagingIdx</PrimaryIndex>
+	<ReplacementKey>StagingIdx</ReplacementKey>
+	<SaveDataPerCompany>No</SaveDataPerCompany>
+	<DeleteActions />
+	<FieldGroups>
+		<AxTableFieldGroup>
+			<Name>AutoIdentification</Name>
+			<AutoPopulate>Yes</AutoPopulate>
+			<IsManuallyUpdated>Yes</IsManuallyUpdated>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>DefinitionGroup</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>ExecutionId</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>TextBlockTable_Name</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>TextBlockTable_Module</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>TextBlockTable_CompanyId</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>TextBlockTable_LanguageId</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>ProductType</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>ItemCode</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>ItemRelation</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>AccountType</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>AccountCode</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>AccountRelation</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>FromDate</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoReport</Name>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoLookup</Name>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoSummary</Name>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoBrowse</Name>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>ExtensionList</Name>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+			<Label>@DMF:StagingExtensionGroup</Label>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>DefinitionGroup</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>IsSelected</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>TransferStatus</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>ExecutionId</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+	</FieldGroups>
+	<Fields>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_ICCopy</Name>
+			<ExtendedDataType>FWFTextBlockICCopy</ExtendedDataType>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldInt64">
+			<Name>TextBlockParm_InstanceRelationType</Name>
+			<AllowEdit>No</AllowEdit>
+			<AllowEditOnCreate>No</AllowEditOnCreate>
+			<ExtendedDataType>RelationType</ExtendedDataType>
+			<Visible>No</Visible>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_Position</Name>
+			<EnumType>FWFTextBlockPosition</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_PrintOnPurchConfirmation</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS301622</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_PrintOnPurchInvoice</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS14204</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_PrintOnPurchPackingSlip</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS333386</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_PrintOnPurchReceiptsList</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS25756</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_PrintOnSalesConfirmation</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS301622</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_PrintOnSalesInvoice</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS14204</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_PrintOnSalesPackingSlip</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS11549</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_PrintOnSalesPickingList</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS77792</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_PrintOnSalesQuotation</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS5864</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_ShowWarning</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:ShowWarningHelp</HelpText>
+			<Label>@FWFTextBlock:ShowWarning</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldInt">
+			<Name>TextBlockParm_SortOrder</Name>
+			<ExtendedDataType>Counter</ExtendedDataType>
+			<Label>@SYS72898</Label>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_PrintOnCustFreeInvoice</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS23028</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_PrintOnPurchAgreement</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS190134</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_PrintOnSalesAgreement</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS101267</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_PrintOnProdJobCard</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS21235</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_PrintOnProdRouteCard</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS21234</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>ProductConfigurationId</Name>
+			<ExtendedDataType>EcoResItemConfigurationName</ExtendedDataType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>ProductColorId</Name>
+			<ExtendedDataType>EcoResItemColorName</ExtendedDataType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>InventorySiteId</Name>
+			<ExtendedDataType>InventSiteId</ExtendedDataType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>ProductSizeId</Name>
+			<ExtendedDataType>EcoResItemSizeName</ExtendedDataType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>ProductStyleId</Name>
+			<ExtendedDataType>EcoResItemStyleName</ExtendedDataType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldInt">
+			<Name>RowId</Name>
+			<AssetClassification>Customer Content</AssetClassification>
+			<Label>@FWFTextBlock:TextBlockRowId</Label>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldInt">
+			<Name>ParentRowId</Name>
+			<AssetClassification>Customer Content</AssetClassification>
+			<Label>@FWFTextBlock:TextBlockParentRowId</Label>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>TextBlockTable_LanguageId</Name>
+			<ExtendedDataType>LanguageId</ExtendedDataType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_PrintOnProdPickList</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:PrintNoteOnDocumentHelp</HelpText>
+			<Label>@SYS77792</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_DirectDeliveryCopy</Name>
+			<ExtendedDataType>FWFTextBlockDirectDeliveryCopy</ExtendedDataType>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_RelatedPOCopy</Name>
+			<ExtendedDataType>FWFTextBlockRelatedPOCopy</ExtendedDataType>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>SetupGroupId</Name>
+			<ExtendedDataType>FWFTextBlockSetupGroupId</ExtendedDataType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>DefinitionGroup</Name>
+			<AllowEdit>No</AllowEdit>
+			<ExtendedDataType>DMFDefinitionGroupName</ExtendedDataType>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+			<Mandatory>Yes</Mandatory>
+			<StringSize>60</StringSize>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>ExecutionId</Name>
+			<AllowEdit>No</AllowEdit>
+			<ExtendedDataType>DMFExecutionId</ExtendedDataType>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+			<Mandatory>Yes</Mandatory>
+			<StringSize>90</StringSize>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>IsSelected</Name>
+			<ExtendedDataType>DMFIsSelected</ExtendedDataType>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TransferStatus</Name>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+			<EnumType>DMFTransferStatus</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>AccountCode</Name>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+			<EnumType>TableGroupAll</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>AccountRelation</Name>
+			<ExtendedDataType>FWFTextBlockAccountRelation</ExtendedDataType>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>AccountType</Name>
+			<HelpText>@FWFTextBlock:SelectAccountType</HelpText>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+			<EnumType>FWFTextBlockAccountRelationType</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldDate">
+			<Name>FromDate</Name>
+			<ExtendedDataType>FromDate</ExtendedDataType>
+			<HelpText>@SYS13946</HelpText>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>ItemCode</Name>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+			<EnumType>TableGroupAll</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>ItemRelation</Name>
+			<ExtendedDataType>ItemRelation</ExtendedDataType>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>ProductType</Name>
+			<AllowEdit>No</AllowEdit>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+			<EnumType>FWFTextBlockProductType</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldDate">
+			<Name>ToDate</Name>
+			<ExtendedDataType>ToDate</ExtendedDataType>
+			<HelpText>@SYS13526</HelpText>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>TextBlockTable_CompanyId</Name>
+			<ExtendedDataType>DataAreaId</ExtendedDataType>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockTable_Module</Name>
+			<AllowEdit>No</AllowEdit>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+			<Mandatory>Yes</Mandatory>
+			<EnumType>FWFTextBlockModule</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>TextBlockTable_Name</Name>
+			<ExtendedDataType>FWFTextBlockName</ExtendedDataType>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+			<Mandatory>Yes</Mandatory>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_PrintOnProjInvoice</Name>
+			<AllowEdit>No</AllowEdit>
+			<AllowEditOnCreate>No</AllowEditOnCreate>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<Label>@FWFTextBlock:CopyTextRelatedPO</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_PrintOnProjQuotation</Name>
+			<AllowEdit>No</AllowEdit>
+			<AllowEditOnCreate>No</AllowEditOnCreate>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<Label>@FWFTextBlock:CopyTextRelatedPO</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>TextBlockParm_PrintOnProjQuotationConfirm</Name>
+			<AllowEdit>No</AllowEdit>
+			<AllowEditOnCreate>No</AllowEditOnCreate>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<Label>@FWFTextBlock:CopyTextRelatedPO</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+	</Fields>
+	<FullTextIndexes />
+	<Indexes>
+		<AxTableIndex>
+			<Name>StagingIdx</Name>
+			<AlternateKey>Yes</AlternateKey>
+			<IsManuallyUpdated>Yes</IsManuallyUpdated>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+			<Fields>
+				<AxTableIndexField>
+					<DataField>DefinitionGroup</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>ExecutionId</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>TextBlockTable_Name</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>TextBlockTable_Module</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>TextBlockTable_CompanyId</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>TextBlockTable_LanguageId</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>ProductType</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>ItemCode</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>ItemRelation</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>AccountType</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>AccountCode</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>AccountRelation</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>FromDate</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>ProductConfigurationId</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>ProductColorId</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>InventorySiteId</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>ProductSizeId</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>ProductStyleId</DataField>
+				</AxTableIndexField>
+			</Fields>
+		</AxTableIndex>
+		<AxTableIndex>
+			<Name>RowIdIdx</Name>
+			<AllowDuplicates>Yes</AllowDuplicates>
+			<IsManuallyUpdated>Yes</IsManuallyUpdated>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+			<Fields>
+				<AxTableIndexField>
+					<DataField>DefinitionGroup</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>ExecutionId</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>RowId</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>TextBlockTable_Name</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>TextBlockTable_Module</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>TextBlockTable_CompanyId</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>TextBlockTable_LanguageId</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>ProductType</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>ItemCode</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>ItemRelation</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>AccountType</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>AccountCode</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>AccountRelation</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>FromDate</DataField>
+				</AxTableIndexField>
+			</Fields>
+		</AxTableIndex>
+		<AxTableIndex>
+			<Name>ParentRowIdx</Name>
+			<AllowDuplicates>Yes</AllowDuplicates>
+			<Fields>
+				<AxTableIndexField>
+					<DataField>DefinitionGroup</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>ExecutionId</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>ParentRowId</DataField>
+				</AxTableIndexField>
+			</Fields>
+		</AxTableIndex>
+	</Indexes>
+	<Mappings />
+	<Relations>
+		<AxTableRelation>
+			<Name>TextBlockTable</Name>
+			<Cardinality>ZeroMore</Cardinality>
+			<IsManuallyUpdated>Yes</IsManuallyUpdated>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+			<RelatedTable>FWFTextBlockTable</RelatedTable>
+			<RelatedTableCardinality>ExactlyOne</RelatedTableCardinality>
+			<RelationshipType>Link</RelationshipType>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>Name</Name>
+					<Field>TextBlockTable_Name</Field>
+					<RelatedField>Name</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>Module</Name>
+					<Field>TextBlockTable_Module</Field>
+					<RelatedField>Module</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>CompanyId</Name>
+					<Field>TextBlockTable_CompanyId</Field>
+					<RelatedField>CompanyId</RelatedField>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+		<AxTableRelation>
+			<Name>FWFTextBlockStaging</Name>
+			<Cardinality>ZeroMore</Cardinality>
+			<RelatedTable>FWFTextBlockStaging</RelatedTable>
+			<RelatedTableCardinality>ExactlyOne</RelatedTableCardinality>
+			<RelationshipType>Link</RelationshipType>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>DefinitionGroup</Name>
+					<Field>DefinitionGroup</Field>
+					<RelatedField>DefinitionGroup</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>ExecutionId</Name>
+					<Field>ExecutionId</Field>
+					<RelatedField>ExecutionId</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>TextBlockTable_Name</Name>
+					<Field>TextBlockTable_Name</Field>
+					<RelatedField>Name</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>TextBlockTable_Module</Name>
+					<Field>TextBlockTable_Module</Field>
+					<RelatedField>Module</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>TextBlockTable_CompanyId</Name>
+					<Field>TextBlockTable_CompanyId</Field>
+					<RelatedField>CompanyId</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>TextBlockTable_LanguageId</Name>
+					<Field>TextBlockTable_LanguageId</Field>
+					<RelatedField>TextBlockTable_LanguageId</RelatedField>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+		<AxTableRelation xmlns=""
+			i:type="AxTableRelationForeignKey">
+			<Name>DataEntity</Name>
+			<Cardinality>ExactlyOne</Cardinality>
+			<EntityRelationshipRole>@DMF:StagingToDataEntityRelationshipRole</EntityRelationshipRole>
+			<IsSystemGenerated>Yes</IsSystemGenerated>
+			<RelatedTable>FWFTextBlockUsageEntity</RelatedTable>
+			<RelatedTableCardinality>ZeroOne</RelatedTableCardinality>
+			<RelationshipType>Link</RelationshipType>
+			<Validate>No</Validate>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>TextBlockTable_Name</Name>
+					<Field>TextBlockTable_Name</Field>
+					<RelatedField>TextBlockTable_Name</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>TextBlockTable_Module</Name>
+					<Field>TextBlockTable_Module</Field>
+					<RelatedField>TextBlockTable_Module</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>TextBlockTable_CompanyId</Name>
+					<Field>TextBlockTable_CompanyId</Field>
+					<RelatedField>TextBlockTable_CompanyId</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>ProductType</Name>
+					<Field>ProductType</Field>
+					<RelatedField>ProductType</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>ItemCode</Name>
+					<Field>ItemCode</Field>
+					<RelatedField>ItemCode</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>ItemRelation</Name>
+					<Field>ItemRelation</Field>
+					<RelatedField>ItemRelation</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>AccountType</Name>
+					<Field>AccountType</Field>
+					<RelatedField>AccountType</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>AccountCode</Name>
+					<Field>AccountCode</Field>
+					<RelatedField>AccountCode</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>AccountRelation</Name>
+					<Field>AccountRelation</Field>
+					<RelatedField>AccountRelation</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>FromDate</Name>
+					<Field>FromDate</Field>
+					<RelatedField>FromDate</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>ProductConfigurationId</Name>
+					<Field>ProductConfigurationId</Field>
+					<RelatedField>ProductConfigurationId</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>ProductColorId</Name>
+					<Field>ProductColorId</Field>
+					<RelatedField>ProductColorId</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>InventorySiteId</Name>
+					<Field>InventorySiteId</Field>
+					<RelatedField>InventorySiteId</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>ProductSizeId</Name>
+					<Field>ProductSizeId</Field>
+					<RelatedField>ProductSizeId</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>ProductStyleId</Name>
+					<Field>ProductStyleId</Field>
+					<RelatedField>ProductStyleId</RelatedField>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+	</Relations>
+	<StateMachines />
+</AxTable>

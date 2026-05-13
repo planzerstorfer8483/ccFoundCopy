@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxTableExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>AgreementHeaderTmp.FWFTextBlock</Name>
+	<FieldGroupExtensions />
+	<FieldGroups>
+		<AxTableFieldGroup>
+			<Name>FWFTextBlock</Name>
+			<Label>@FWFTextBlock:TextBlock</Label>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>FWFTextBlockHeaderText</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>FWFTextBlockFooterText</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+	</FieldGroups>
+	<FieldModifications />
+	<Fields>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>FWFTextBlockHeaderText</Name>
+			<ExtendedDataType>FWFTextBlockText</ExtendedDataType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>FWFTextBlockFooterText</Name>
+			<ExtendedDataType>FWFTextBlockText</ExtendedDataType>
+		</AxTableField>
+	</Fields>
+	<FullTextIndexes />
+	<Indexes />
+	<Mappings />
+	<PropertyModifications />
+	<RelationExtensions />
+	<Relations />
+</AxTableExtension>

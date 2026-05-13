@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxMenuItemDisplay xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V1">
+	<Name>FWFTextBlockTable_TransferOrder</Name>
+	<DisabledResource>0</DisabledResource>
+	<EnumParameter>TransferOrder</EnumParameter>
+	<EnumTypeParameter>FWFTextBlockModule</EnumTypeParameter>
+	<FeatureClass>FWFTextBlockTransferOrderFeature</FeatureClass>
+	<HelpText>@FWFTextBlock:TextBlockHelp</HelpText>
+	<IsObsolete>Yes</IsObsolete>
+	<Label>@FWFTextBlock:TextBlock</Label>
+	<LinkedPermissionObject>SalesTable</LinkedPermissionObject>
+	<LinkedPermissionType>Form</LinkedPermissionType>
+	<MaintainUserLicense>Enterprise</MaintainUserLicense>
+	<NormalResource>0</NormalResource>
+	<Object>FWFTextBlockTable</Object>
+	<ViewUserLicense>Enterprise</ViewUserLicense>
+</AxMenuItemDisplay>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockReqPlanCopyReqPO_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(classStr(ReqPlanCopyReqPO))]
+final class FWFTextBlockReqPlanCopyReqPO_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>initFieldMapping</Name>
+				<Source><![CDATA[
+    protected void initFieldMapping()
+    {
+        next initFieldMapping();
+
+        this.insertFieldMap(reqPODatasourceId, tableNum(ReqPO), fieldNum(ReqPO, FWFTextBlockProdBOMFromRefRecId), tableNum(ReqPO), fieldNum(ReqPO, FWFTextBlockProdBOMFromRefRecId));
+        this.insertFieldMap(reqPODatasourceId, tableNum(ReqPO), fieldNum(ReqPO, FWFTextBlockSalesLineFromRefRecId), tableNum(ReqPO), fieldNum(ReqPO, FWFTextBlockSalesLineFromRefRecId));
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

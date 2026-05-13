@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockSalesCopyingForm_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(formStr(SalesCopying))]
+final class FWFTextBlockSalesCopyingForm_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>createContract</Name>
+				<Source><![CDATA[
+    protected SalesOrderCopyingContract createContract(SalesPurchCopy _salesPurchCopy)
+    {
+        SalesOrderCopyingContract contract = next createContract(_salesPurchCopy);
+
+        contract.parmCopyHeaderTextBlock(CopyTextblock_Header.value());
+        contract.parmCopyLineTextBlock(CopyTextblock_Line.value());
+
+        return contract;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>init</Name>
+				<Source><![CDATA[
+    void  init()
+    {
+        CustFormletterParameters param = CustFormletterParameters::find();
+
+        next init();
+
+        CopyTextblock_Header.value(param.FWFTextBlockOrderCopyingHeader);
+        CopyTextblock_Line.value(param.FWFTextBlockOrderCopyingLine);
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

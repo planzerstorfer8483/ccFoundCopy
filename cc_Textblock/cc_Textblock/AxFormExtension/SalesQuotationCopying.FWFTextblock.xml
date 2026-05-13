@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxFormExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>SalesQuotationCopying.FWFTextblock</Name>
+	<ControlModifications />
+	<Controls>
+		<AxFormExtensionControl xmlns="">
+			<Name>Copy0qwjuycd1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormGroupControl">
+				<Name>FWFTextBlock</Name>
+				<Type>Group</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormCheckBoxControl">
+						<Name>CopyTextblock_Header</Name>
+						<AutoDeclaration>Yes</AutoDeclaration>
+						<FilterExpression>%1</FilterExpression>
+						<HelpText>@FWFTextBlock:SalesCopyingHeaderHelp</HelpText>
+						<Type>CheckBox</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<Label>@FWFTextBlock:SalesCopyingHeader</Label>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormCheckBoxControl">
+						<Name>CopyTextblock_Line</Name>
+						<AutoDeclaration>Yes</AutoDeclaration>
+						<FilterExpression>%1</FilterExpression>
+						<HelpText>@FWFTextBlock:SalesCopyingLineHelp</HelpText>
+						<Type>CheckBox</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<Label>@FWFTextBlock:SalesCopyingLine</Label>
+					</AxFormControl>
+				</Controls>
+				<Caption>@FWFTextBlock:TextBlock</Caption>
+			</FormControl>
+			<Parent>TabPageParameters</Parent>
+		</AxFormExtensionControl>
+	</Controls>
+	<DataSourceModifications />
+	<DataSourceReferences />
+	<DataSources />
+	<Parts />
+	<PropertyModifications />
+</AxFormExtension>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockSalesInvoiceJournalPost_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of <c>SalesInvoiceJournalPost</c> for text block management
+/// </summary>
+[ExtensionOf(classStr(SalesInvoiceJournalPost))]
+final class FWFTextBlockSalesInvoiceJournalPost_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>endUpdate</Name>
+				<Source><![CDATA[
+    void endUpdate()
+    {
+        CustInvoiceTrans custInvoiceTransLocal;
+        ;
+        next endUpdate();
+
+        while select custInvoiceTransLocal
+            where custInvoiceTransLocal.SalesId == this.custInvoiceJour.SalesId
+                && custInvoiceTransLocal.InvoiceId == this.custInvoiceJour.InvoiceId
+                && custInvoiceTransLocal.InvoiceDate == this.custInvoiceJour.InvoiceDate
+                && custInvoiceTransLocal.numberSequenceGroup == this.custInvoiceJour.numberSequenceGroup
+        {
+            FWFTextBlockEventHandler::newParameters(custInvoiceTransLocal, EventLogType::Insert).run();
+        }
+
+        FWFTextBlockEventHandler::newParameters(this.custInvoiceJour, EventLogType::Insert).run();
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

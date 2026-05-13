@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockPurchCopying_Form_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(formStr(PurchCopying))]
+final class FWFTextBlockPurchCopying_Form_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>canClose</Name>
+				<Source><![CDATA[
+    boolean canClose()
+    {
+        purchCopyingForm.parmCopyHeaderTextBlock(CopyTextblock_Header.value());
+        purchCopyingForm.parmCopyLineTextBlock(CopyTextblock_Line.value());
+        
+        return next canClose();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>init</Name>
+				<Source><![CDATA[
+    void  init()
+    {
+        FWFTextBlockCopyingHeader   copyingHeader;
+        FWFTextBlockCopyingLine     copyingLine;
+
+        next init();
+
+        if (salesPurchCopy == SalesPurchCopy::CopyAllHeader ||
+            salesPurchCopy == SalesPurchCopy::CopyAllLines ||
+            salesPurchCopy == SalesPurchCopy::CopyJournalHeader ||
+            salesPurchCopy == SalesPurchCopy::CopyJournalLines)
+        {
+            VendFormletterParameters param = VendFormletterParameters::find();
+
+            switch (purchCopyingForm.parmCallerTable().TableId)
+            {
+                case tableNum(PurchTable):
+                    copyingHeader = param.FWFTextBlockCopyingHeader;
+                    copyingLine   = param.FWFTextBlockCopyingLine;
+                    break;
+
+                case tableNum(PurchRFQCaseTable):
+                    copyingHeader = param.FWFTextBlockCopyingHeaderRFQCase;
+                    copyingLine   = param.FWFTextBlockCopyingLineRFQCase;
+                    break;
+
+                case tableNum(PurchReqTable):
+                    copyingHeader = param.FWFTextBlockCopyingHeaderReq;
+                    copyingLine   = param.FWFTextBlockCopyingLineReq;
+                    break;
+            }
+
+            CopyTextblock_Header.value(copyingHeader);
+            CopyTextblock_Line.value(copyingLine);
+            CopyTextblock_Header.visible(true);
+            CopyTextblock_Line.visible(true);
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

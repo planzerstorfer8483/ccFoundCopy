@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockSalesCopyingContract_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(classStr(SalesCopyingContract))]
+final class FWFTextBlockSalesCopyingContract_Extension
+{
+    private NoYes   copyHeaderTB;
+    private NoYes   copyLineTB;
+
+    #define.CurrentVersion(1)
+    #localmacro.CurrentList
+        copyHeaderTB,
+        copyLineTB
+    #endmacro
+
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>parmCopyHeaderTextBlock</Name>
+				<Source><![CDATA[
+    public NoYes parmCopyHeaderTextBlock(NoYes _copyHeaderTB = copyHeaderTB)
+    {
+        copyHeaderTB = _copyHeaderTB;
+        return copyHeaderTB;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmCopyLineTextBlock</Name>
+				<Source><![CDATA[
+    public NoYes parmCopyLineTextBlock(NoYes _copyLineTB = copyLineTB)
+    {
+        copyLineTB = _copyLineTB;
+        return copyLineTB;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>pack</Name>
+				<Source><![CDATA[
+    public container pack()
+    {
+        container packedClass = next pack();
+        return SysPackExtensions::appendExtension(packedClass, classStr(FWFTextBlockSalesCopyingContract_Extension), this.packExtension());
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>unpack</Name>
+				<Source><![CDATA[
+    public boolean unpack(container _packedClass)
+    {
+        boolean result = next unpack(_packedClass);
+ 
+        if (result)
+        {
+            container packedClassExtension = SysPackExtensions::findExtension(_packedClass, classStr(FWFTextBlockSalesCopyingContract_Extension));
+            
+            if (!this.unpackExtension(packedClassExtension))
+            {
+                result = false;
+            }
+        }
+ 
+        return result;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>packExtension</Name>
+				<Source><![CDATA[
+    private container packExtension()
+    {
+        return [#CurrentVersion, #CurrentList];
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>unpackExtension</Name>
+				<Source><![CDATA[
+    private boolean unpackExtension(container _packedClass)
+    {
+        Integer version = RunBase::getVersion(_packedClass);
+ 
+        switch (version)
+        {
+            case #CurrentVersion:
+                [version, #currentList] = _packedClass;
+                break;
+            default:
+                return false;
+        }
+        return true;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

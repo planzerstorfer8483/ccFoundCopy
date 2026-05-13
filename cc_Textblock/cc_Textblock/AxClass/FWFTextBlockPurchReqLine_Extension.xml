@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockPurchReqLine_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(tableStr(PurchReqLine))]
+final class FWFTextBlockPurchReqLine_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>displayHasTextblock</Name>
+				<Source><![CDATA[
+    [SysClientCacheDataMethodAttribute(true)]
+    public display container displayHasTextblock()
+    {
+        return FWFTextBlockHelper::hasTextblock(this);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initFromPurchRFQLine</Name>
+				<Source><![CDATA[
+    void initFromPurchRFQLine(PurchRFQLine _purchRFQLine, boolean _newline)
+    {
+        next initFromPurchRFQLine(_purchRFQLine, _newline);
+
+        this.FWFTextBlockPurchRFQLineFromRefRecId = _purchRFQLine.RecId;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

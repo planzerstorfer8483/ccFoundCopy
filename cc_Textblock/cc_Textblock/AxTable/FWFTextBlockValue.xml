@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxTable xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockValue</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+public class FWFTextBlockValue extends common
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>htmlText</Name>
+				<Source><![CDATA[
+    public str htmlText(str _addText = '')
+    {
+        HTMLTextWriter writer;
+        str            text;
+        
+        if (_addText)
+        {
+            text += _addText;
+        }
+        //text += this.TextBlock;
+        text += this.getTextBlockFormatted();
+    
+        // Already HTML?
+        if (strFind(text, '<', 1, maxInt()) && strFind(text, '>', 1, maxInt()))
+        {
+            text = strReplace(text, '<head>', '');
+            text = strReplace(text, '</head>', '');
+            text = strReplace(text, '<body>', '');
+            text = strReplace(text, '</body>', '');             
+        }
+        text = strReplace(text, '\n', '<br>');
+    
+        writer = new HTMLTextWriter();
+        //writer.renderBeginTag('html');
+        writer.renderBeginTag('body');
+        writer.write(text);
+        writer.renderEndTag();
+    
+        return writer.getHtmlString();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>setText</Name>
+				<Source><![CDATA[
+    public void setText(str _text)
+    {
+        this.TextBlock = _text;
+        this.Hash      = FWFTextBlockValue::calculateHash(_text);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>calculateHash</Name>
+				<Source><![CDATA[
+    public static str calculateHash(str _tb)
+    {
+        str s;
+        ClrObject obj;
+        ClrObject md5;
+        System.Text.StringBuilder sBuilder;
+        ClrObject clrStr;
+        ClrObject clrStrObject;
+        System.Exception clrException;
+        System.Array resultByteArray;
+        int i;
+        int arrayLength ;
+        InteropPermission perm;
+    
+        perm = new InteropPermission(InteropKind::ClrInterop);
+        perm.assert();
+        try
+        {
+            obj = System.Text.Encoding::get_ASCII().GetBytes(_tb);
+            md5 = System.Security.Cryptography.MD5::Create();
+            resultByteArray = md5.ComputeHash(obj);
+            //BP deviation documented
+            sBuilder = new System.Text.StringBuilder();
+            arrayLength = resultByteArray.get_Length() ;
+            // Loop through each byte of the hashed data
+            // and format each one as a hexadecimal string.
+            for (i = 0; i <arrayLength; i++)
+            {
+                clrStrObject = resultByteArray.GetValue(i);
+                clrStr = clrStrObject.ToString('x2');
+                sBuilder.Append(clrStr);
+            }
+    
+            // Return the hexadecimal string.
+            s = sBuilder.ToString();
+        }
+        catch (Exception::CLRError)
+        {
+            //BP deviation documented
+            clrException = CLRInterop::getLastException();
+            s = clrException.get_Message();
+            error(s);
+            throw error("@SYS106158");
+        }
+    
+        CodeAccessPermission::revertAssert();
+        return s;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>find</Name>
+				<Source><![CDATA[
+    // PAHA 2011-09-06, FWI Foundation - 46890 Text block management -->
+    static FWFTextBlockValue find(RecId _recId, boolean _forUpdate = false)
+    {
+        FWFTextBlockValue       value;
+    
+        value.selectForUpdate(_forUpdate);
+    
+        select firstOnly value
+            where value.RecId == _recId;
+    
+        return value;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>findByHash</Name>
+				<Source><![CDATA[
+    static FWFTextBlockValue findByHash(FWFTextBlockHash _hash, boolean _forUpdate = false)
+    {
+        FWFTextBlockValue       value;
+    
+        value.selectForUpdate(_forUpdate);
+    
+        select firstOnly value
+            where value.Hash == _hash;
+    
+        return value;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>findByText</Name>
+				<Source><![CDATA[
+    public static FWFTextBlockValue findByText(str _text, boolean _forUpdate = false)
+    {
+        FWFTextBlockHash    hash = FWFTextBlockValue::calculateHash(_text);
+    
+        return FWFTextBlockValue::findByHash(hash, _forUpdate);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>findOrCreate</Name>
+				<Source><![CDATA[
+    public static FWFTextBlockValue findOrCreate(str _text)
+    {
+        FWFTextBlockValue    ret;
+    
+        ttsBegin;
+    
+        ret = FWFTextBlockValue::findByText(_text);
+    
+        if (! ret)
+        {
+            ret.initValue();
+            ret.setText(_text);
+            ret.insert();
+        }
+    
+        ttsCommit;
+    
+        return ret;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>getTextBlockFormatted</Name>
+				<Source><![CDATA[
+    /// <summary>
+    ///
+    /// </summary>
+    public str getTextBlockFormatted()
+    {
+        str text = this.TextBlock;
+
+        // text saved as HTML?
+        if (strFind(text, '<', 1, maxInt()) && strFind(text, '>', 1, maxInt()))
+        {
+            text = strReplace(text, '<p>', '');
+            text = strReplace(text, '<\p>', '<br>');
+            text = strReplace(text, '\n', '');
+        }
+        else
+        {
+            text = strReplace(text, '\n', '<br>');
+        }
+        
+        return text;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+	<DeveloperDocumentation>@FWFTextBlock:TextBlockValueDevDoc</DeveloperDocumentation>
+	<FormRef>FWFTextBlockValue</FormRef>
+	<Label>@FWFTextBlock:TextBlock</Label>
+	<TableGroup>Group</TableGroup>
+	<TitleField1>Hash</TitleField1>
+	<TitleField2>TextBlock</TitleField2>
+	<CacheLookup>Found</CacheLookup>
+	<SaveDataPerCompany>No</SaveDataPerCompany>
+	<TableContents>DefaultData</TableContents>
+	<DeleteActions />
+	<FieldGroups>
+		<AxTableFieldGroup>
+			<Name>AutoSummary</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoReport</Name>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>TextBlock</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>Hash</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoLookup</Name>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>TextBlock</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>Hash</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoIdentification</Name>
+			<AutoPopulate>Yes</AutoPopulate>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoBrowse</Name>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>TextBlock</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>Hash</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+	</FieldGroups>
+	<Fields>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>Hash</Name>
+			<ExtendedDataType>FWFTextBlockHash</ExtendedDataType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>TextBlock</Name>
+			<ExtendedDataType>Notes</ExtendedDataType>
+		</AxTableField>
+	</Fields>
+	<FullTextIndexes />
+	<Indexes>
+		<AxTableIndex>
+			<Name>TextBlockValueIdx</Name>
+			<AlternateKey>Yes</AlternateKey>
+			<Fields>
+				<AxTableIndexField>
+					<DataField>Hash</DataField>
+				</AxTableIndexField>
+			</Fields>
+		</AxTableIndex>
+	</Indexes>
+	<Mappings />
+	<Relations>
+		<AxTableRelation>
+			<Name>FWFTextBlockInstance</Name>
+			<Cardinality>ZeroMore</Cardinality>
+			<RelatedTable>FWFTextBlockInstance</RelatedTable>
+			<RelatedTableCardinality>ZeroOne</RelatedTableCardinality>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>RecId</Name>
+					<Field>RecId</Field>
+					<RelatedField>ValueRecId</RelatedField>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+	</Relations>
+	<StateMachines />
+</AxTable>

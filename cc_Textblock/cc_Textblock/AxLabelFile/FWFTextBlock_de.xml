@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxLabelFile xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlock_de</Name>
+	<LabelContentFileName>FWFTextBlock.de.label.txt</LabelContentFileName>
+	<LabelFileId>FWFTextBlock</LabelFileId>
+	<Language>de</Language>
+	<RelativeUriInModelStore>FWFTextBlock\FWFTextBlock\AxLabelFile\LabelResources\de\FWFTextBlock.de.label.txt</RelativeUriInModelStore>
+</AxLabelFile>

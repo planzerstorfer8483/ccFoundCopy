@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockVersioningPurchaseOrder_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(classStr(VersioningPurchaseOrder))]
+final class FWFTextBlockVersioningPurchaseOrder_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>isChangeConfirmationRequired</Name>
+				<Source><![CDATA[
+    protected boolean isChangeConfirmationRequired(Common _newRecord, Common _oldRecord)
+    {
+        boolean ret = next isChangeConfirmationRequired(_newRecord, _oldRecord);
+
+        TableId tableId = (_oldRecord ? _oldRecord.TableId : _newRecord.TableId);
+        
+        if (tableId == tableNum(FWFTextBlockInstance))
+        {
+            ret = true;
+        }
+
+        return ret;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

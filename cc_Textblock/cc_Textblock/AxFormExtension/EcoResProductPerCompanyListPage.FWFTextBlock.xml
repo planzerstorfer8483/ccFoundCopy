@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxFormExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>EcoResProductPerCompanyListPage.FWFTextBlock</Name>
+	<ControlModifications />
+	<Controls>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControl1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormMenuButtonControl">
+				<Name>FWFTextBlockProcurement</Name>
+				<HelpText>@FWFTextBlock:TextBlockHelp</HelpText>
+				<Type>MenuButton</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormMenuFunctionButtonControl">
+						<Name>FWFTextBlockUsage_Supplier</Name>
+						<Type>MenuFunctionButton</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<MenuItemName>FWFTextBlockUsage_Supplier</MenuItemName>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormMenuFunctionButtonControl">
+						<Name>FWFTextBlockUsage_Product_Supplier</Name>
+						<Type>MenuFunctionButton</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<DataSource>InventTable</DataSource>
+						<MenuItemName>FWFTextBlockUsage_Product_Supplier</MenuItemName>
+					</AxFormControl>
+				</Controls>
+				<Big>Yes</Big>
+				<ImageLocation>EmbeddedResource</ImageLocation>
+				<NormalImage>10042</NormalImage>
+				<Text>@SYS24752</Text>
+			</FormControl>
+			<Parent>ButtonGroupPurchaseRelatedInformation</Parent>
+			<PositionType>Begin</PositionType>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControl2</Name>
+			<FormControl xmlns=""
+				i:type="AxFormMenuButtonControl">
+				<Name>FWFTextBlockSell</Name>
+				<HelpText>@FWFTextBlock:TextBlockHelp</HelpText>
+				<Type>MenuButton</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormMenuFunctionButtonControl">
+						<Name>FWFTextBlockUsage_Customer</Name>
+						<Type>MenuFunctionButton</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<MenuItemName>FWFTextBlockUsage_Customer</MenuItemName>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormMenuFunctionButtonControl">
+						<Name>FWFTextBlockUsage_Product_Customer</Name>
+						<Type>MenuFunctionButton</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<DataSource>InventTable</DataSource>
+						<MenuItemName>FWFTextBlockUsage_Product_Customer</MenuItemName>
+					</AxFormControl>
+				</Controls>
+				<ImageLocation>EmbeddedResource</ImageLocation>
+				<NormalImage>10042</NormalImage>
+				<Text>@SYS24752</Text>
+			</FormControl>
+			<Parent>ButtonGroupSellRelatedInformation</Parent>
+			<PositionType>Begin</PositionType>
+		</AxFormExtensionControl>
+	</Controls>
+	<DataSources />
+	<Parts />
+	<PropertyModifications />
+</AxFormExtension>

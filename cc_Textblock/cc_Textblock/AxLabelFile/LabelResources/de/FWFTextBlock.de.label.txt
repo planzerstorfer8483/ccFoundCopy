@@ -1,0 +1,180 @@
+﻿AccountFilterType=Debitor oder Kreditor oder beide (GAB)
+ ;New Comment
+AccountFilterTypeGAB=GAB
+ ;New Comment
+AccountFilterTypeHelp=Filterstyp für Textblockeintrag
+ ;New Comment
+AccountRelation=Relation
+AccountRelationType=Relationstyp
+AccountRelationTypeHelp=Relationstyp für Textblockeintrag
+ ;New Comment
+AddCust=Debitoren hinzufügen
+AddProd=Produkte hinzufügen
+AddProj=Projekte hinzufügen
+AddVend=Kreditoren hinzufügen
+AllTextBlocks=Alle Texte
+ ;New Comment
+AssignExtendedFormLetterNotes=Erweiterte Formularhinweise zuweisen
+ ;New Comment
+AssignExtendedFormLetterNotesHelp=Erweiterte Formularhinweise zuweisen
+ ;New Comment
+AssignExtendedFormLetterNotesLang=Erweiterte Formularhinweise mit Sprache zuweisen
+AssignGroupsRemaining=Verbleibende Mitglieder
+AssignGroupsSelected=Ausgewählte Mitglieder
+AssignTextBlockPosition=Positionen
+AssignTextBlockPositionDetails=Positionsdetails
+CaptionCust=Debitoren
+CaptionProd=Produkte
+CaptionProj=Projekte
+CaptionTextTranslation=Text / Übersetzung
+CaptionVend=Kreditoren
+CopyExtendedFormLetterNotes=Kopieren
+CopyText=Text kopieren
+ ;New Comment
+CopyTextDirectDelivery=Direktlieferung
+CopyTextDirectDeliveryHelp=Text kopieren bei Direktslieferungs-Auftragserstellung
+CopyTextHelp=Text kopieren bei Auftragserstellung
+ ;New Comment
+CopyTextIntercompany=Intercompany
+CopyTextIntercompanyHelp=Text kopieren bei der Erstellung von Intercompany-Aufträgen
+CopyTextRelatedPO=Zugeordnete Aufträge
+CopyTextRelatedPOHelp=Text kopieren bei der Erstellung von zugeordneten Aufträgen
+CustAssignExtendedFormLetterNotes=Erweiterte Formularhinweise für Debitoren zuweisen
+ ;New Comment
+CustAssignment=Zuweisung Kunden
+ ;New Comment
+CustTextBlockGroupAssign=Gruppen für Debitoren zuweisen
+CustVendAssignExtendedFormLetterNotes=Erweiterte Formularhinweise für Debitoren oder Kreditoren zuweisen
+ ;New Comment
+ErrorTextBlockCannotBeUsedMsg=Textblock ist nur für %1 '%2' definiert
+ ;New Comment
+ErrorValidationMsg=Die Validierung des Datensatzes für die Tabelle '%1' in der Funktion '%2' ist fehlgeschlagen
+ ;New Comment
+HashCode=Hashcode
+ ;New Comment
+HashCodeHelp=Hashcode für den Textblock
+ ;New Comment
+hasTextBlock=Textblock vorhanden
+hasTextBlockHelp=Zeigt an, ob diesem Datensatz Formularhinweise zugeordnet sind.
+HeaderFooter=Kopf-/Fußzeile
+ ;New Comment
+InitModeHelp=Gibt an, ob eine Mahnung vorhanden ist
+ ;New Comment
+InventoryDocuments=Lagerdokumente
+ModuleHelp=Gibt das Modul an, auf das sich der Formularhinweis bezieht
+ ;New Comment
+NewLabel0=Label files created on 05/23/2016 00:51:11 for label file Id FWFTextBlock and language de
+ ;Label file comment - see above label
+PlaceHolder01=Dynamische Texte können mit Hilfe von Platzhaltern für Felder, Methoden und Attribute erzeugt werden!
+ ;New Comment
+PlaceHolder02=z.B. Feld: {InventTable.ItemId}, Methode: {CustTable.name()}, Attribut: {inventTable.[Color]}
+ ;New Comment
+PlaceHolder03=Tabellen: Jour (CustConfirmJour, CustInvoiceJour, ...), Trans (CustConfirmTrans, CustInvoiceTrans, ...), Source (SalesLine, PurchLine, ...)
+ ;New Comment
+PlaceHolder04=CustTable, VendTable, InventTable, SalesTable, SalesLine, PurchTable, PurchLine, SalesQuotationTable, SalesQuotationLine
+ ;New Comment
+PositionAbove=Oben
+ ;New Comment
+PositionBelow=Unten
+ ;New Comment
+PositionHelp=Platzierung des Textes
+ ;New Comment
+PrintNoteOnDocumentHelp=Hinweis auf dem gewälten Dokument drucken?
+ ;New Comment
+PrintOnProjQuotationConfirm=Projektangebotsbestätigung
+ProdAssignExtendedFormLetterNotes=Erweiterte Formularhinweise für Produkte zuweisen
+ ;New Comment
+ProdTextBlockGroupAssign=Gruppen für Produkte zuweisen
+ProductionDocuments=Produktionsdokumente
+ProductTypeHelp=Gibt den Typ des Produkts an
+ ;New Comment
+ProjAssignExtendedFormLetterNotes=Erweiterte Formularhinweise für Projekte zuweisen
+ProjectDocuments=Projektdokumente
+ProjTextBlockGroupAssign=Gruppen für Projekte zuweisen
+ReInitLanguageChgInfo=Durch die Sprachänderung auf '%1' wurden die Erweiterten Formularhinweise neu initialisiert.
+ReInitOnLanguageChg=Erweiterte Formularhinweise neu initialisieren
+RelatedFormLetterNotes=Zugehörige Formularhinweise
+ ;New Comment
+SalesCopyingHeader=Kopftexte kopieren
+SalesCopyingHeaderHelp=Sollen die erweiterten Formularhinweise der markierten Kopfzeilen kopiert werden?
+SalesCopyingLine=Positionstexte kopieren
+SalesCopyingLineHelp=Sollen die erweiterten Formularhinweise der markierten Positionen kopiert werden?
+SalesDocuments=Verkaufsdokumente
+ ;New Comment
+SelectAccountType=Debitor oder Kreditor auswählen
+ ;New Comment
+ShowWarning=Warnung anzeigen
+ ;New Comment
+ShowWarningHelp=Warnung bei der Auftragsanlage anzeigen
+ ;New Comment
+TextBlock=Erweiterte Formularhinweise
+ ;New Comment
+TextBlockComposite=Zusammengesetzte erweiterte Formularhinweise
+TextBlockCustMaintain=Textblöcke verwalten (Verkauf)
+ ;New Comment
+TextBlockEntityMaintain=Erweiterte Formularhinweise verwalten
+TextBlockEntityView=Erweiterte Formularhinweise anzeigen
+TextBlockGroup=Gruppen für erweiterte Formularhinweise
+TextBlockGroupAssign=Gruppen zuweisen
+TextBlockGroupAssignDevDoc=The FWFTextBlockGroupAssign table contains the assignment of customers, vendors and items to groups.
+TextBlockGroupAssignInsertError=%1 '%2' ist Gruppe '%3' bereits zugeordnet.
+TextBlockGroupAssignMaintain=Gruppenzuweisung verwalten
+TextBlockGroupAssignView=Gruppenzuweisung anzeigen
+TextBlockGroupDevDoc=The FWFTextBlockGroup table contains the groups for extended form notes
+TextBlockGroupHelp=Gruppen für erweiterte Formularhinweise
+TextBlockGroupMaintain=Gruppen für erweiterte Formularhinweise verwalten
+TextBlockGroupPanelGroups=Gruppen
+TextBlockGroupPanelMembers=Mitglieder
+TextBlockGroupView=Gruppen für erweiterte Formularhinweise anzeigen
+TextBlockHelp=Erweiterte Formularhinweise
+ ;New Comment
+TextBlockInstanceDevDoc=The FWFTextBlockInstance table contains all the references
+ ;New Comment
+TextBlockLanguageDevDoc=The FWFTextBlockLanguage table contains the translations of the references
+ ;New Comment
+TextBlockNameHelp=Name des Textblocks
+ ;New Comment
+TextBlockParentRowId=ID der übergeordneten Zeile
+TextBlockParmDevDoc=The FWFTextBlockParm table contains the text block setup
+ ;New Comment
+TextBlockProjMaintain=Textblöcke verwalten (Projekt)
+TextBlockPurchCopyDefaultValues=Richten Sie Default-Werte für das Kopieren von Texten ein.
+TextBlockReferenceId=Referenz ID
+TextBlockRowId=Zeilen-ID
+TextBlockSetup=Textblockeinstellungen
+ ;New Comment
+TextBlockSetupGroupMaintain=Steuerungsgruppen verwalten
+TextBlockSetupGroups=Steuerungsgruppen
+TextBlockSetupGroupsCust=Steuerungsgruppen für Debitoren
+TextBlockSetupGroupsProd=Steuerungsgruppen für Produkte
+TextBlockSetupGroupsProj=Steuerungsgruppen für Projekte
+TextBlockSetupGroupsVend=Steuerungsgruppen für Kreditoren
+TextBlockSetupGroupView=Steuerungsgruppen anzeigen
+TextBlockSetupHelp=Einstellungen für den Druck
+ ;New Comment
+TextBlockSetupParmDevDoc=The FWFTextBlockSetupParm table contains the text block setup
+ ;New Comment
+TextBlockSubMenuLabel=COSMO Erweiterte Formularhinweise
+TextBlockTableDevDoc=The FWFTextBlockTable table contains the extended form notes
+ ;New Comment
+TextBlockTransferOrderFeature=COSMO Erweiterte Formularhinweise - Umlagerungsauftrag
+TextBlockTransferOrderFeatureSummary=Diese Funktion aktiviert die Möglichkeit (vordefinierte) Text auf den Umlagerungsjournalen zu hinterlegen.
+TextBlockTransferOrderMaintain=Erweiterte Formularhinweise am Umlagerungsauftrag verwalten
+TextBlockTransParmDevDoc=The FWFTextBlockTransParm table contains the text block setup
+ ;New Comment
+TextBlockUsageDevDoc=The FWFTextBlockUsage table contains the extended form letter notes
+ ;New Comment
+TextBlockUsageEntityMaintain=Zusammengesetzte erweiterte Formularhinweise verwalten
+TextBlockUsageTmpDevDoc=The FWFTextBlockUsageTmp table contains the extended form letter notes
+ ;New Comment
+TextBlockUsateEntityView=Zusammengesetze erweiterte Formularhinweise anzeigen
+TextBlockValueDevDoc=The FWFTextBlockValue table contains the extended form letter notes
+ ;New Comment
+TextBlockVendMaintain=Textblöcke verwalten (Einkauf)
+ ;New Comment
+VendAssignExtendedFormLetterNotes=Erweiterte Formularhinweise für Kreditoren zuweisen
+ ;New Comment
+VendAssignment=Zuweisung Lieferanten
+ ;New Comment
+VendTextBlockGroupAssign=Gruppen für Kreditoren zuweisen
+WarningRecordMissing=Der '%1'-Datensatz wurde noch nicht gespeichert. Erweiterte Formularhinweise können erst nach dem Speichern bearbeitet werden.

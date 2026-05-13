@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockPurchRFQTable_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(tableStr(PurchRFQTable))]
+final class FWFTextBlockPurchRFQTable_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>initPurchAgreementHeader</Name>
+				<Source><![CDATA[
+    void initPurchAgreementHeader(PurchAgreementHeader _purchAgreementHeader)
+    {
+        next initPurchAgreementHeader(_purchAgreementHeader);
+
+        _purchAgreementHeader.FWFTextBlockPurchRFQTableFromRefRecId = this.RecId;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

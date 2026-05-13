@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockProdJobCardDP_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of <c>ProdJobCardDP</c> for text block management
+/// </summary>
+[ExtensionOf(classStr(ProdJobCardDP))]
+final class FWFTextBlockProdJobCardDP_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>insertIntoTempTable</Name>
+				<Source><![CDATA[
+    protected void insertIntoTempTable(
+        ProdTable        _prodTable,
+        ProdRoute        _prodRoute,
+        ProdRouteJob     _prodRouteJob,
+        ProdJournalRoute _journalRoute,
+        WrkCtrTable      _wrkCtrTable,
+        HcmWorker        _hcmWorker,
+        DocuRef          _docuRef,
+        HcmWorker        _journalRouteWorker
+        )
+    {
+        FWFTextBlockReportTextInit::newParameters(prodJobCardTmp, _prodTable).addTextsProductionPaper(ProdJournalType::JobCard);
+
+        next insertIntoTempTable( _prodTable,
+                                  _prodRoute,
+                                  _prodRouteJob,
+                                  _journalRoute,
+                                  _wrkCtrTable,
+                                  _hcmWorker,
+                                  _docuRef,
+                                  _journalRouteWorker);
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

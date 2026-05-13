@@ -1,0 +1,494 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxForm xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>FWFTextBlockGroup</Name>
+	<SourceCode>
+		<Methods xmlns="">
+			<Method>
+				<Name>classDeclaration</Name>
+				<Source><![CDATA[
+[Form]
+public class FWFTextBlockGroup extends FormRun
+{
+    FWFTextBlockModule      module;
+}
+]]></Source>
+			</Method>
+			<Method>
+				<Name>init</Name>
+				<Source><![CDATA[
+    public void init()
+    {
+        super();
+    
+        if (element.args())
+        {
+            if (element.args().parmEnumType() == enumnum(FWFTextBlockModule))
+            {
+                module = element.args().parmEnum();
+            }
+        }
+    
+        if (module)
+        {
+            FWFTextBlockGroup_ds.object(fieldNum(FWFTextBlockGroup, Module)).skip(false);
+            FWFTextBlockGroup_ds.query().dataSourceTable(tableNum(FWFTextBlockGroup)).addRange(fieldNum(FWFTextBlockGroup, Module)).value(QueryValue(module));
+
+            Grid_Module.visible(false);
+
+            switch (module)
+            {
+                case FWFTextBlockModule::Customer :
+                    FWFTextBlockGroupAssign_RefId.label("@SYS7149");
+                    FWFTextBlockGroupAssign_Name.label("@SYS80991");
+                    ReferenceTab.caption("@FWFTextBlock:CaptionCust");
+                    break;
+
+                case FWFTextBlockModule::Supplier :
+                    FWFTextBlockGroupAssign_RefId.label("@SYS14048");
+                    FWFTextBlockGroupAssign_Name.label("@SYS80991");
+                    ReferenceTab.caption("@FWFTextBlock:CaptionVend");
+                    break;
+
+                case FWFTextBlockModule::ReleasedProduct :
+                    FWFTextBlockGroupAssign_RefId.label("@SYS12836");
+                    FWFTextBlockGroupAssign_Name.label("@SYS27054");
+                    ReferenceTab.caption("@FWFTextBlock:CaptionProd");
+                    break;
+
+                case FWFTextBlockModule::Project :
+                    FWFTextBlockGroupAssign_RefId.label("@SYS110827");
+                    FWFTextBlockGroupAssign_Name.label("@SYS117835");
+                    ReferenceTab.caption("@FWFTextBlock:CaptionProj");
+                    break;
+            }
+
+        }
+        else
+        {
+            FWFTextBlockGroup_ds.object(fieldNum(FWFTextBlockGroup, Module)).skip(true);
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>refreshReferenceGrid</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Refreshes the references grid.
+    /// </summary>
+    public void refreshReferenceGrid()
+    {
+        FWFTextBlockGroupAssign_ds.query().dataSourceTable(tablenum(FWFTextBlockGroupAssign)).clearRanges();
+        FWFTextBlockGroupAssign_ds.executeQuery();
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+		<DataSources xmlns="" />
+		<DataControls xmlns="">
+			<Control>
+				<Name>AddReference</Name>
+				<Type>Button</Type>
+				<Methods>
+					<Method>
+						<Name>clicked</Name>
+						<Source><![CDATA[
+        public void clicked()
+        {
+            MenuFunction    menuFunction;
+            Args            args = new Args();
+
+            args.caller(this.formRun());
+            args.record(FWFTextBlockGroup);
+
+            switch (module)
+            {
+                case FWFTextBlockModule::Customer :
+                    menuFunction = new MenuFunction(menuItemDisplayStr(FWFTextBlockGroupAdd_Customer), MenuItemType::Display);
+                    break;
+
+                case FWFTextBlockModule::Supplier :
+                    menuFunction = new MenuFunction(menuItemDisplayStr(FWFTextBlockGroupAdd_Supplier), MenuItemType::Display);
+                    break;
+
+                case FWFTextBlockModule::ReleasedProduct :
+                    menuFunction = new MenuFunction(menuItemDisplayStr(FWFTextBlockGroupAdd_Product), MenuItemType::Display);
+                    break;
+
+                case FWFTextBlockModule::Project :
+                    menuFunction = new MenuFunction(menuItemDisplayStr(FWFTextBlockGroupAdd_Project), MenuItemType::Display);
+                    break;
+            }
+            
+            if (menuFunction && menuFunction.checkAccessRights())
+            {
+
+                menuFunction.run(args);
+            }
+
+            super();
+        }
+
+]]></Source>
+					</Method>
+				</Methods>
+			</Control>
+			<Control>
+				<Name>ReferencesDelete</Name>
+				<Type>Button</Type>
+				<Methods>
+					<Method>
+						<Name>clicked</Name>
+						<Source><![CDATA[
+        void clicked()
+        {
+            super();
+
+            ttsbegin;
+            if (FWFTextBlockGroupAssign_ds.anyMarked())
+            {
+                FWFTextBlockGroupAssign_ds.deleteMarked();
+            }
+            else if (getFirstSelection(FWFTextBlockGroupAssign_ds))
+            {
+                FWFTextBlockGroupAssign_ds.delete();
+            }
+            ttscommit;
+
+            FWFTextBlockGroupAssign_ds.executeQuery();
+        }
+
+]]></Source>
+					</Method>
+				</Methods>
+			</Control>
+		</DataControls>
+		<Members xmlns="" />
+	</SourceCode>
+	<DataSources>
+		<AxFormDataSource xmlns="">
+			<Name>FWFTextBlockGroup</Name>
+			<Table>FWFTextBlockGroup</Table>
+			<Fields>
+				<AxFormDataSourceField>
+					<DataField>DataAreaId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>Description</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>Id</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>Module</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>Partition</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>RecId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>TableId</DataField>
+				</AxFormDataSourceField>
+			</Fields>
+			<ReferencedDataSources />
+			<InsertIfEmpty>No</InsertIfEmpty>
+			<DataSourceLinks />
+			<DerivedDataSources />
+		</AxFormDataSource>
+		<AxFormDataSource xmlns="">
+			<Name>FWFTextBlockGroupAssign</Name>
+			<Table>FWFTextBlockGroupAssign</Table>
+			<Fields>
+				<AxFormDataSourceField>
+					<DataField>DataAreaId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>GroupId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>Module</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>Partition</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>RecId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>RefId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>TableId</DataField>
+				</AxFormDataSourceField>
+			</Fields>
+			<ReferencedDataSources />
+			<JoinSource>FWFTextBlockGroup</JoinSource>
+			<LinkType>Active</LinkType>
+			<DataSourceLinks />
+			<DerivedDataSources />
+		</AxFormDataSource>
+	</DataSources>
+	<Design>
+		<Caption xmlns="">@FWFTextBlock:TextBlockGroup</Caption>
+		<DataSource xmlns="">FWFTextBlockGroup</DataSource>
+		<Pattern xmlns="">SimpleListDetails-Grid</Pattern>
+		<PatternVersion xmlns="">1.4</PatternVersion>
+		<Style xmlns="">SimpleListDetails</Style>
+		<TitleDataSource xmlns="">FWFTextBlockGroup</TitleDataSource>
+		<Controls xmlns="">
+			<AxFormControl xmlns=""
+				i:type="AxFormActionPaneControl">
+				<Name>ActionPane</Name>
+				<Type>ActionPane</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls />
+			</AxFormControl>
+			<AxFormControl xmlns=""
+				i:type="AxFormGroupControl">
+				<Name>LeftSide</Name>
+				<HeightMode>SizeToAvailable</HeightMode>
+				<Type>Group</Type>
+				<Width>300</Width>
+				<WidthMode>Manual</WidthMode>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl>
+						<Name>QuickFilterControl</Name>
+						<WidthMode>SizeToAvailable</WidthMode>
+						<FormControlExtension>
+							<Name>QuickFilterControl</Name>
+							<ExtensionComponents />
+							<ExtensionProperties>
+								<AxFormControlExtensionProperty>
+									<Name>targetControlName</Name>
+									<Type>String</Type>
+								</AxFormControlExtensionProperty>
+								<AxFormControlExtensionProperty>
+									<Name>placeholderText</Name>
+									<Type>String</Type>
+								</AxFormControlExtensionProperty>
+								<AxFormControlExtensionProperty>
+									<Name>defaultColumnName</Name>
+									<Type>String</Type>
+								</AxFormControlExtensionProperty>
+							</ExtensionProperties>
+						</FormControlExtension>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormGridControl">
+						<Name>Grid</Name>
+						<AllowEdit>No</AllowEdit>
+						<Type>Grid</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormComboBoxControl">
+								<Name>Grid_Module</Name>
+								<AutoDeclaration>Yes</AutoDeclaration>
+								<Type>ComboBox</Type>
+								<FormControlExtension
+									i:nil="true" />
+								<DataField>Module</DataField>
+								<DataSource>FWFTextBlockGroup</DataSource>
+								<Items />
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormStringControl">
+								<Name>Grid_Id</Name>
+								<Type>String</Type>
+								<FormControlExtension
+									i:nil="true" />
+								<DataField>Id</DataField>
+								<DataSource>FWFTextBlockGroup</DataSource>
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormStringControl">
+								<Name>Grid_Description</Name>
+								<Type>String</Type>
+								<FormControlExtension
+									i:nil="true" />
+								<DataField>Description</DataField>
+								<DataSource>FWFTextBlockGroup</DataSource>
+							</AxFormControl>
+						</Controls>
+						<DataGroup>Overview</DataGroup>
+						<DataSource>FWFTextBlockGroup</DataSource>
+						<MultiSelect>No</MultiSelect>
+						<ShowRowLabels>No</ShowRowLabels>
+						<Style>Tabular</Style>
+					</AxFormControl>
+				</Controls>
+				<FrameType>None</FrameType>
+				<Style>SidePanel</Style>
+			</AxFormControl>
+			<AxFormControl xmlns=""
+				i:type="AxFormGroupControl">
+				<Name>Splitter</Name>
+				<AutoDeclaration>Yes</AutoDeclaration>
+				<Type>Group</Type>
+				<WidthMode>SizeToAvailable</WidthMode>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls />
+				<FrameType>None</FrameType>
+				<Style>SplitterVerticalContainer</Style>
+			</AxFormControl>
+			<AxFormControl xmlns=""
+				i:type="AxFormGroupControl">
+				<Name>RightSide_DetailsHeader</Name>
+				<Pattern>FieldsFieldGroups</Pattern>
+				<PatternVersion>1.1</PatternVersion>
+				<Type>Group</Type>
+				<WidthMode>SizeToAvailable</WidthMode>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormComboBoxControl">
+						<Name>RightSide_DetailsHeader_Module</Name>
+						<AllowEdit>No</AllowEdit>
+						<Type>ComboBox</Type>
+						<Visible>No</Visible>
+						<FormControlExtension
+							i:nil="true" />
+						<DataField>Module</DataField>
+						<DataSource>FWFTextBlockGroup</DataSource>
+						<Items />
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormStringControl">
+						<Name>RightSide_DetailsHeader_Id</Name>
+						<Type>String</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<DataField>Id</DataField>
+						<DataSource>FWFTextBlockGroup</DataSource>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormStringControl">
+						<Name>RightSide_DetailsHeader_Description</Name>
+						<Type>String</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<DataField>Description</DataField>
+						<DataSource>FWFTextBlockGroup</DataSource>
+					</AxFormControl>
+				</Controls>
+				<ColumnsMode>Fill</ColumnsMode>
+				<DataGroup>Overview</DataGroup>
+				<DataSource>FWFTextBlockGroup</DataSource>
+				<FrameType>None</FrameType>
+			</AxFormControl>
+			<AxFormControl xmlns=""
+				i:type="AxFormTabControl">
+				<Name>RightSide_DetailsTab</Name>
+				<Type>Tab</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormTabPageControl">
+						<Name>ReferenceTab</Name>
+						<AutoDeclaration>Yes</AutoDeclaration>
+						<Type>TabPage</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormActionPaneControl">
+								<Name>ReferenceActionPane</Name>
+								<Type>ActionPane</Type>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormButtonGroupControl">
+										<Name>ReferenceButtonGroup</Name>
+										<Type>ButtonGroup</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<Controls>
+											<AxFormControl xmlns=""
+												i:type="AxFormButtonControl">
+												<Name>AddReference</Name>
+												<Type>Button</Type>
+												<FormControlExtension
+													i:nil="true" />
+												<ButtonDisplay>TextWithImageLeft</ButtonDisplay>
+												<MultiSelect>Yes</MultiSelect>
+												<NormalImage>New</NormalImage>
+												<Text>@SYS124603</Text>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormButtonControl">
+												<Name>ReferencesDelete</Name>
+												<AutoDeclaration>Yes</AutoDeclaration>
+												<ElementPosition>1610612733</ElementPosition>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>Auto</HeightMode>
+												<NeededPermission>Delete</NeededPermission>
+												<Type>Button</Type>
+												<VerticalSpacing>-1</VerticalSpacing>
+												<WidthMode>Auto</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<ButtonDisplay>TextWithImageLeft</ButtonDisplay>
+												<MultiSelect>Yes</MultiSelect>
+												<NormalImage>Delete</NormalImage>
+												<ShowShortCut>No</ShowShortCut>
+												<Text>@SYS309739</Text>
+											</AxFormControl>
+										</Controls>
+									</AxFormControl>
+								</Controls>
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormGridControl">
+								<Name>ReferenceGrid</Name>
+								<AllowEdit>No</AllowEdit>
+								<Type>Grid</Type>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormStringControl">
+										<Name>FWFTextBlockGroupAssign_RefId</Name>
+										<AutoDeclaration>Yes</AutoDeclaration>
+										<Type>String</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>RefId</DataField>
+										<DataSource>FWFTextBlockGroupAssign</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormStringControl">
+										<Name>FWFTextBlockGroupAssign_Name</Name>
+										<AutoDeclaration>Yes</AutoDeclaration>
+										<Type>String</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<CacheDataMethod>Yes</CacheDataMethod>
+										<DataMethod>name</DataMethod>
+										<DataSource>FWFTextBlockGroupAssign</DataSource>
+									</AxFormControl>
+								</Controls>
+								<DataSource>FWFTextBlockGroupAssign</DataSource>
+							</AxFormControl>
+						</Controls>
+						<DataSource>FWFTextBlockGroupAssign</DataSource>
+					</AxFormControl>
+				</Controls>
+				<DataSource>FWFTextBlockGroupAssign</DataSource>
+				<Style>FastTabs</Style>
+			</AxFormControl>
+		</Controls>
+	</Design>
+	<Parts />
+</AxForm>

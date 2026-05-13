@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockProdRouteCardDP_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of <c>ProdRouteCardDP</c> for text block management
+/// </summary>
+[ExtensionOf(classStr(ProdRouteCardDP))]
+final class FWFTextBlockProdRouteCardDP_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>insertValues</Name>
+				<Source><![CDATA[
+    public void insertValues()
+    {
+        FWFTextBlockReportTextInit::newParameters(prodRouteCardTmp, prodTable).addTextsProductionPaper(ProdJournalType::RouteCard);
+
+        next insertValues();
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

@@ -1,0 +1,890 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockEventHandler_Setup</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+class FWFTextBlockEventHandler_Setup extends FWFTextBlockEventHandler
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>insertFromRelatedOrder</Name>
+				<Source><![CDATA[
+    private void insertFromRelatedOrder(Common _targetRecord)
+    {
+        SalesTable          salesTable;
+        SalesLine           salesLine;
+        PurchTable          purchTable;
+        PurchLine           purchLine;
+        SalesTable          salesTableIC;
+        SalesLine           salesLineIC;
+        PurchTable          purchTableIC;
+        PurchLine           purchLineIC;
+        ;
+        // copy from original Sales order to IC Purch order
+        if (_targetRecord is SalesTable)
+        {
+            salesTable = _targetRecord;
+            if (salesTable.InterCompanyOrder)
+            {
+                changeCompany(salesTable.InterCompanyCompanyId)
+                {
+                    purchTableIC = PurchTable::find(salesTable.InterCompanyPurchId);
+                }
+                if (purchTableIC)
+                {
+                    FWFTextBlockInstance::copySourceToTarget(salesTable, purchTableIC, true);
+                }
+            }
+            else if (InterCompanyPurchSalesReference::isSalesTableReferenced(salesTable.SalesId))
+            {
+                InterCompanyPurchSalesReference	icPurchSalesRef;
+                select firstonly PurchId from icPurchSalesRef
+                    where icPurchSalesRef.SalesId == salesTable.SalesId;
+                purchTable = PurchTable::find(icPurchSalesRef.PurchId);
+                FWFTextBlockInstance::copySourceToTarget(salesTable, purchTable, true);
+            }
+        }
+        if (_targetRecord is SalesLine)
+        {
+            salesLine = _targetRecord;
+            salesTable = salesLine.salesTable();
+            if (salesTable)
+            {
+                if (salesTable.InterCompanyOrder)
+                {
+                    changeCompany(salesTable.InterCompanyCompanyId)
+                    {
+                        purchLineIC = PurchLine::findInventTransId(salesLine.InterCompanyInventTransId);
+                    }
+                    if (purchLineIC)
+                    {
+                        FWFTextBlockInstance::copySourceToTarget(purchLineIC, salesLine, true);
+                    }
+                }
+                if (salesTable.InterCompanyDirectDelivery)
+                {
+                    // Direct delivery, Sales order -> Purch order (in case of line added after order is saved)
+                    // to avoid twice copying special checking is done inside
+                    purchLine = PurchLine::findInventTransId(salesLine.InventRefTransId);
+                    purchTable = purchLine.purchTable();
+                    if (purchLine)
+                    {
+                        FWFTextBlockInstance::copySourceToTarget(salesLine, purchLine, true);
+                    }
+                    // Purch order -> IC Sales order
+                    if (purchTable.InterCompanyCompanyId)
+                    {
+                        changeCompany(purchTable.InterCompanyCompanyId)
+                        {
+                            salesLineIC = SalesLine::findInventTransId(purchLine.InterCompanyInventTransId);
+                        }
+                        if (salesLineIC)
+                        {
+                            FWFTextBlockInstance::copySourceToTarget(purchLine, salesLineIC, true);
+                        }
+                    }
+                }
+            }
+        }
+        // copy from original Sales order to Purch order
+        if (_targetRecord is PurchTable)
+        {
+            purchTable = _targetRecord;
+            if (purchTable.InterCompanyOriginalSalesId)
+            {
+                if (purchTable.InterCompanyOrder)
+
+                {
+                    // Fall 1a
+                    if (purchTable.InterCompanyDirectDelivery)
+                    {
+                        // Direct delivery, Sales order -> Purch order
+                        salesTable = SalesTable::find(purchTable.InterCompanyOriginalSalesId);
+                        if (salesTable)
+                        {
+                            FWFTextBlockInstance::copySourceToTarget(salesTable, purchTable, false, true);
+                        }
+                        // Purch order -> IC Sales order (because when called from IC SalesTable.insert there was no PurchOrder yet)
+                        if (purchTable.InterCompanyCompanyId)
+                        {
+                            changeCompany(purchTable.InterCompanyCompanyId)
+                            {
+                                salesTableIC = SalesTable::find(purchTable.InterCompanySalesId);
+                            }
+                            if (salesTableIC)
+                            {
+                                FWFTextBlockInstance::copySourceToTarget(purchTable, salesTableIC, true);
+                            }
+                        }
+                    }
+                    // Fall 4a
+                    else
+                    {
+                        // Direct delivery, Sales order -> Purch order
+                        salesTable = SalesTable::find(purchTable.InterCompanyOriginalSalesId);
+                        if (salesTable)
+                        {
+                            FWFTextBlockInstance::copySourceToTarget(salesTable, purchTable, false, false, true);
+                        }
+                        // Purch order -> IC Sales order (because when called from IC SalesTable.insert there was no PurchOrder yet)
+                        if (purchTable.InterCompanyCompanyId)
+                        {
+                            changeCompany(purchTable.InterCompanyCompanyId)
+                            {
+                                salesTableIC = SalesTable::find(purchTable.InterCompanySalesId);
+                            }
+                            if (salesTableIC)
+                            {
+                                FWFTextBlockInstance::copySourceToTarget(purchTable, salesTableIC, true);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // Fall 1b und 3: Direct delivery
+                    if (purchTable.MCRDropShipment)
+                    {
+                        salesTable = SalesTable::find(purchTable.InterCompanyOriginalSalesId);
+                        if (salesTable)
+                        {
+                            FWFTextBlockInstance::copySourceToTarget(salesTable, purchTable, false, true, false);
+                        }
+                    }
+                    // Fall 4b und 2: Related PO
+                    else
+                    {
+                        salesTable = SalesTable::find(purchTable.InterCompanyOriginalSalesId);
+                        if (salesTable)
+                        {
+                            FWFTextBlockInstance::copySourceToTarget(salesTable, purchTable, false, false, true);
+                        }
+                    }
+                }
+            }
+            // Fall 5
+            else if (purchTable.InterCompanyOrder)
+            {
+                // Purch order -> IC Sales order
+                changeCompany(purchTable.InterCompanyCompanyId)
+                {
+                    salesTableIC = SalesTable::find(purchTable.InterCompanySalesId);
+                }
+                if (salesTableIC)
+                {
+                    FWFTextBlockInstance::copySourceToTarget(purchTable, salesTableIC, true);
+                }
+            }
+        }
+        if (_targetRecord is PurchLine)
+        {
+            purchLine = _targetRecord;
+            purchTable = purchLine.purchTable();
+            if (purchTable.InterCompanyOriginalSalesId && purchTable.InterCompanyDirectDelivery)
+            {
+                // Direct delivery, Sales order -> Purch order (after whole order save)
+                salesLine = SalesLine::findInventTransId(purchLine.InventRefTransId);
+                if (salesLine)
+                {
+                    FWFTextBlockInstance::copySourceToTarget(salesLine, purchLine, true);
+                }
+                // Purch order -> IC Sales order (because when called from IC SalesLine.insert there was no PurchOrder yet)
+                if (purchTable.InterCompanyCompanyId)
+                {
+                    changeCompany(purchTable.InterCompanyCompanyId)
+                    {
+                        salesLineIC = SalesLine::findInventTransId(purchLine.InterCompanyInventTransId);
+                    }
+                    if (salesLineIC)
+                    {
+                        FWFTextBlockInstance::copySourceToTarget(purchLine, salesLineIC, true);
+                    }
+                }
+            }
+            else if (purchTable && purchTable.InterCompanyOrder)
+            {
+                // Purch order -> IC Sales order
+                changeCompany(purchTable.InterCompanyCompanyId)
+                {
+                    salesLineIC = SalesLine::findInventTransId(purchLine.InterCompanyInventTransId);
+                }
+                if (salesLineIC)
+                {
+                    FWFTextBlockInstance::copySourceToTarget(purchLine, salesLineIC, true);
+                }
+            }
+    
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>insertFromSetupUsage</Name>
+				<Source><![CDATA[
+    protected void insertFromSetupUsage()
+    {
+        InventTable                     inventTable;
+        FWFTextBlockAccountRelationType accountType;
+        SalesTable                      salesTable;
+        SalesLine                       salesLine;
+        SalesQuotationTable				salesQuotationTable;
+        SalesQuotationLine              salesQuotationLine;
+        CustInvoiceTable				custInvoiceTable;
+        PurchTable                      purchTable;
+        PurchLine                       purchLine;
+        CustTable                       custTable;
+        VendTable                       vendTable;
+        SalesAgreementHeader            salesAgreementHeader;
+        PurchAgreementHeader            purchAgreementHeader;
+        AgreementLine                   agreementLine;
+        InventDim                       inventDim;
+        CustVendRel                     accountGroup;
+        CustVendAC                      accountId;
+        LanguageId                      languageId;
+        ProdTable						prodTable;
+        ReqPO							reqPO;
+    
+        setPrefix("@FWFTextBlock:TextBlock");
+    
+        switch (targetRecord.TableId)
+        {
+            case tableNum(SalesTable):
+                salesTable				= targetRecord as SalesTable;
+                custTable				= salesTable.custTable_CustAccount();
+                inventDim.InventSiteId	= salesTable.InventSiteId;
+                languageId				= salesTable.LanguageId;
+                //accountGroup			= custTable.PriceGroup;	// replaced use of price groups with own formletter groups
+                if (salesTable.SalesType == SalesType::ItemReq)
+                {
+                    accountType	= FWFTextBlockAccountRelationType::Proj;
+                    accountId	= salesTable.ProjId;
+                }
+                else
+                {
+                    accountType	= FWFTextBlockAccountRelationType::Cust;
+                    accountId	= custTable.AccountNum;
+                }
+                break;
+    
+            case tableNum(SalesLine):
+                salesLine		= targetRecord;
+                salesTable		= salesLine.salesTable();
+                custTable		= salesTable.custTable_CustAccount();
+                //accountGroup	= custTable.PriceGroup;	// replaced use of price groups with own formletter groups
+                languageId		= salesTable.LanguageId;
+                inventTable		= salesLine.inventTable();
+                inventDim		= salesLine.inventDim();
+                if (salesTable.SalesType == SalesType::ItemReq)
+                {
+                    accountType	= FWFTextBlockAccountRelationType::Proj;
+                    accountId	= salesTable.ProjId;
+                }
+                else
+                {
+                    accountType	= FWFTextBlockAccountRelationType::Cust;
+                    accountId	= custTable.AccountNum;
+                }
+                break;
+    
+            case tableNum(SalesQuotationTable):
+                salesQuotationTable	= targetRecord as SalesQuotationTable;
+                custTable				= salesQuotationTable.custTable_CustAccount();
+                inventDim.InventSiteId	= salesQuotationTable.InventSiteId;
+                languageId				= salesQuotationTable.LanguageId;
+                if (salesQuotationTable.QuotationType == QuotationType::Sales)
+                {
+                    accountType	= FWFTextBlockAccountRelationType::Cust;
+                    accountId	= custTable.AccountNum;
+                }
+                else
+                {
+                    accountType	= FWFTextBlockAccountRelationType::Proj;
+                    accountId	= salesQuotationTable.ProjIdRef;
+                }
+                break;
+    
+            case tableNum(SalesQuotationLine):
+                salesQuotationLine  = targetRecord as SalesQuotationLine;
+                salesQuotationTable = salesQuotationLine.salesQuotationTable();
+                custTable	= salesQuotationTable.custTable_CustAccount();
+                inventTable = salesQuotationLine.inventTable();
+                inventDim   = salesQuotationLine.inventDim();
+                languageId	= salesQuotationTable.LanguageId;
+                if (salesQuotationTable.QuotationType == QuotationType::Sales)
+                {
+                    accountType = FWFTextBlockAccountRelationType::Cust;
+                    accountId	= custTable.AccountNum;
+                }
+                else if (salesQuotationTable.QuotationType == QuotationType::Project && salesQuotationLine.ProjTransType == QuotationProjTransType::Item)
+                {
+                    accountType	= FWFTextBlockAccountRelationType::Proj;
+                    accountId	= salesQuotationTable.ProjIdRef;
+                }
+                break;
+
+            case tableNum(CustInvoiceTable):
+                accountType			= FWFTextBlockAccountRelationType::Cust;
+                custInvoiceTable	= targetRecord as CustInvoiceTable;
+                custTable			= custInvoiceTable.custTable_OrderAccount();
+                languageId			= custInvoiceTable.LanguageId;
+                //accountGroup		= custTable.PriceGroup;	// replaced use of price groups with own formletter groups
+                accountId			= custTable.AccountNum;
+                break;
+    
+            case tableNum(PurchTable):
+                accountType				= FWFTextBlockAccountRelationType::Vend;
+                purchTable				= targetRecord as PurchTable;
+                vendTable				= purchTable.vendTable_OrderAccount();
+                inventDim.InventSiteId	= purchTable.InventSiteId;
+                languageId				= purchTable.LanguageId;
+                //accountGroup			= vendTable.PriceGroup;	// replaced use of price groups with own formletter groups
+                accountId				= vendTable.AccountNum;
+                break;
+    
+            case tableNum(PurchLine):
+                accountType         = FWFTextBlockAccountRelationType::Vend;
+                purchLine           = targetRecord;
+                purchTable          = purchLine.purchTable();
+                languageId			= purchTable.LanguageId;
+                inventTable         = purchLine.inventTable();
+                inventDim           = purchLine.inventDim();
+                vendTable			= purchTable.vendTable_OrderAccount();
+                //accountGroup		= vendTable.PriceGroup;	// replaced use of price groups with own formletter groups
+                accountId			= vendTable.AccountNum;
+                break;
+    
+            case tableNum(SalesAgreementHeader):
+                accountType				= FWFTextBlockAccountRelationType::Cust;
+                salesAgreementHeader	= targetRecord as SalesAgreementHeader;
+                custTable				= salesAgreementHeader.custTable();
+                languageId				= salesAgreementHeader.Language;
+                //accountGroup			= custTable.PriceGroup;	// replaced use of price groups with own formletter groups
+                accountId				= custTable.AccountNum;
+                break;
+
+            case tableNum(PurchAgreementHeader):
+                accountType			 = FWFTextBlockAccountRelationType::Vend;
+                purchAgreementHeader = targetRecord as PurchAgreementHeader;
+                vendTable			 = purchAgreementHeader.vendTable();
+                languageId			 = purchAgreementHeader.Language;
+                //accountGroup		 = vendTable.PriceGroup;	// replaced use of price groups with own formletter groups
+                accountId			 = vendTable.AccountNum;
+                break;
+
+            case tableNum(AgreementLine):
+                agreementLine		 = targetRecord;
+                salesAgreementHeader = agreementLine.salesAgreementHeader();
+                purchAgreementHeader = agreementLine.purchAgreementHeader();
+                if (purchAgreementHeader.RecId)
+                {
+                    accountType		= FWFTextBlockAccountRelationType::Vend;
+                    languageId		= purchAgreementHeader.Language;
+                    vendTable		= purchAgreementHeader.vendTable();
+                    //accountGroup	= vendTable.PriceGroup;	// replaced use of price groups with own formletter groups
+                    accountId		= vendTable.AccountNum;
+                }
+                else if (salesAgreementHeader.RecId)
+                {
+                    accountType		= FWFTextBlockAccountRelationType::Cust;
+                    languageId		= salesAgreementHeader.Language;
+                    custTable		= salesAgreementHeader.custTable();
+                    //accountGroup	= custTable.PriceGroup;	// replaced use of price groups with own formletter groups
+                    accountId		= custTable.AccountNum;
+                }
+                inventTable = agreementLine.inventTable();
+                inventDim	= agreementLine.inventDim();
+                break;
+
+            case tableNum(ProdTable):
+                prodTable	= targetRecord;
+                accountType = FWFTextBlockAccountRelationType::Prod;
+                inventTable = prodTable.inventTable();
+                inventDim   = prodTable.inventDim();
+                languageId	= this.getDefaultLanguageId();
+                break;
+
+            case tableNum(ReqPO):
+                reqPO		= targetRecord;
+                accountType = FWFTextBlockAccountRelationType::Prod;
+                inventTable = InventTable::find(reqPO.ItemId);
+                inventDim   = reqPO.inventDim();
+                languageId	= this.getDefaultLanguageId();
+                break;
+
+            case tablenum(BOM):
+                BOM bomLocal = targetRecord as BOM;
+                accountType	 = FWFTextBlockAccountRelationType::Prod;
+                inventTable	 = bomLocal.inventTable();
+                inventDim	 = bomLocal.inventDim();
+                languageId	 = this.getDefaultLanguageId();
+                break;
+
+            case tableNum(ProdBOM):
+                ProdBOM prodBOMLocal = targetRecord as ProdBOM;
+                accountType	 = FWFTextBlockAccountRelationType::Prod;
+                inventTable	 = prodBOMLocal.inventTable();
+                inventDim	 = prodBOMLocal.inventDim();
+                languageId	 = this.getDefaultLanguageId();
+                break;
+
+            case tableNum(ProjProposalTransTable) :
+                ProjProposalTransTable	projProposalTransTable = targetRecord as ProjProposalTransTable;
+                ProjProposalJour		projProposalJourLocal = ProjProposalJour::find(projProposalTransTable.ProposalId);
+                accountId	= projProposalTransTable.ProjId;
+                accountType	= FWFTextBlockAccountRelationType::Proj;
+                languageId	= this.getDefaultLanguageId();
+                this.parmTargetRecord(projProposalJourLocal);
+                break;
+                
+            case tableNum(ProjProposalItem) :
+                ProjProposalItem	projProposalItemLocal = targetRecord as ProjProposalItem;
+                if (projProposalItemLocal.ProjTransId)
+                {
+                    ProjItemTrans  projItemTrans;
+                    select firstOnly ProjId from projItemTrans
+                        where projItemTrans.ProjTransId == projProposalItemLocal.ProjTransId;
+                    accountId = projItemTrans.ProjId;
+                }
+                accountType	 = FWFTextBlockAccountRelationType::Proj;
+                inventTable	 = projProposalItemLocal.inventTable();
+                languageId	 = this.getDefaultLanguageId();
+                break;
+
+            case tableNum(PurchReqTable) :
+            case tableNum(PurchRFQCaseTable) :
+                accountType	= FWFTextBlockAccountRelationType::Vend;
+                languageId	= this.getDefaultLanguageId();
+                break;
+
+            case tableNum(PurchReqLine) :
+                PurchReqLine purchReqLine = targetRecord as PurchReqLine;
+                accountType	= FWFTextBlockAccountRelationType::Vend;
+                languageId	= this.getDefaultLanguageId();
+                inventDim   = purchReqLine.inventDim();
+                inventTable = purchReqLine.inventTable();
+                accountId   = purchReqLine.VendAccount;
+                break;
+            
+            case tableNum(PurchRFQCaseLine) :
+                PurchRFQCaseLine RFQCaseLine = targetRecord as PurchRFQCaseLine;
+                accountType	= FWFTextBlockAccountRelationType::Vend;
+                languageId	= this.getDefaultLanguageId();
+                inventDim   = RFQCaseLine.inventDim();
+                inventTable = RFQCaseLine.inventTable();                
+                break;
+
+            default:
+                accountType = -1;
+        }
+    
+        switch (targetRecord.TableId)
+        {
+            case tableNum(SalesLine) :
+            case tableNum(SalesQuotationLine) :
+            case tableNum(PurchLine) :
+            case tableNum(AgreementLine) :
+            case tableNum(ProdTable) :
+            case tableNum(ReqPO) :
+            case tableNum(BOM) :
+            case tableNum(ProjProposalItem) :
+                if (inventTable)
+                {
+                    this.insertFromSetupUsageProductBased(accountType, accountGroup, accountId, languageId, inventDim, purchAgreementHeader.RecId || salesAgreementHeader.RecId, inventTable.ItemId, inventTable.itemGroupId());
+                }
+                break;
+
+            case tableNum(SalesTable) :
+            case tableNum(SalesQuotationTable) :
+            case tableNum(PurchTable) :
+            case tableNum(CustInvoiceTable) :
+            case tableNum(SalesAgreementHeader) :
+            case tableNum(PurchAgreementHeader) :
+            case tableNum(ProjProposalJour) :
+            case tableNum(PurchReqTable) :
+                this.insertFromSetupUsageNonProductBased(accountType, accountGroup, accountId, languageId, inventDim, purchAgreementHeader.RecId || salesAgreementHeader.RecId);
+                break;
+
+            case tableNum(PurchReqLine) :
+            case tableNum(PurchRFQCaseLine) :
+                //also add texts for lines without itemId (all)
+                this.insertFromSetupUsageProductBased(accountType, accountGroup, accountId, languageId, inventDim, purchAgreementHeader.RecId || salesAgreementHeader.RecId, inventTable.ItemId, inventTable.itemGroupId());
+                break;
+
+            default :
+                if (inventTable)
+                {
+                    this.insertFromSetupUsageProductBased(accountType, accountGroup, accountId, languageId, inventDim, purchAgreementHeader.RecId || salesAgreementHeader.RecId, inventTable.ItemId, inventTable.itemGroupId());
+                }
+                else
+                {
+                    this.insertFromSetupUsageNonProductBased(accountType, accountGroup, accountId, languageId, inventDim, purchAgreementHeader.RecId || salesAgreementHeader.RecId);
+                }
+                break;
+        }
+  
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>insertFromSetupUsageProductBased</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Copies an extended text from setup to target record for line based records.
+    /// </summary>
+    /// <param name = "_accountType">The <c>FWFTextBlockAccountRelationType</c> value.</param>
+    /// <param name = "_accountGroup">The price goup value of customer or vendor.</param>
+    /// <param name = "_accountId">The account number of customer or vendor.</param>
+    /// <param name = "_languageId">The language id.</param>
+    /// <param name = "_inventDim">The <c>InventDim</c> record. For site based texts the <c>InventSiteId</c> field should be filled.</param>
+    /// <param name = "_isAgreementHeader">A boolean value. True if target record is <c>PurchAgreementHeader</c> or <c>SalesAgreementHeader</c>.</param>
+    /// <param name = "_itemId">The <c>ItemId</c> value.</param>
+    /// <param name = "_itemGroup">The <c>ItemGroupId</c> value.</param>
+    protected void insertFromSetupUsageProductBased(FWFTextBlockAccountRelationType _accountType,CustVendRel _accountGroup, CustVendAC _accountId, LanguageId _languageId, InventDim _inventDim, boolean _isAgreementHeader, ItemId _itemId, ItemRelation _itemGroup)
+    {
+        FWFTextBlockUsage		textBlockUsage;
+        FWFTextBlockSetupParm	setupParm;
+        InventDim				inventDimSearch;
+
+        while select textBlockUsage
+                order by setupParm.SortOrder
+                where (textBlockUsage.FromDate <= DateTimeUtil::getSystemDate(DateTimeUtil::getUserPreferredTimeZone()) || ! textBlockUsage.FromDate)
+                   && (textBlockUsage.ToDate   >= DateTimeUtil::getSystemDate(DateTimeUtil::getUserPreferredTimeZone()) || ! textBlockUsage.ToDate)
+                   && textBlockUsage.AccountType == _accountType
+                   && textBlockUsage.ProductType == FWFTextBlockProductType::ReleasedProduct
+                   && ((textBlockUsage.AccountCode == TableGroupAll::All) ||
+                       (textBlockUsage.AccountCode == TableGroupAll::GroupId) ||	 //&& textBlockUsage.AccountRelation == _accountGroup) ||	// replaced use of price groups with own formletter groups
+                       (textBlockUsage.AccountCode == TableGroupAll::Table   && textBlockUsage.AccountRelation == _accountId))
+                   && ((textBlockUsage.ItemCode    == TableGroupAll::All) ||
+                       (textBlockUsage.ItemCode    == TableGroupAll::GroupId) ||	//&& textBlockUsage.ItemRelation    == _itemGroup) ||	// replaced use of item groups with own formletter groups
+                       (textBlockUsage.ItemCode    == TableGroupAll::Table   && textBlockUsage.ItemRelation    == _itemId))
+            join RecId from inventDimSearch
+                where inventDimSearch.inventDimId    == textBlockUsage.InventDimId
+                   && (inventDimSearch.ConfigId      == _inventDim.ConfigId      || ! inventDimSearch.ConfigId)
+                   && (inventDimSearch.InventColorId == _inventDim.InventColorId || ! inventDimSearch.InventColorId)
+                   && (inventDimSearch.InventSizeId  == _inventDim.InventSizeId  || ! inventDimSearch.InventSizeId)
+                   && (inventDimSearch.InventStyleId == _inventDim.InventStyleId || ! inventDimSearch.InventStyleId)
+                   && (inventDimSearch.InventSiteId  == _inventDim.InventSiteId  || ! inventDimSearch.InventSiteId)
+            join /*SortOrder*/ setupParm
+                where setupParm.RecId == textBlockUsage.SetupRefRefId
+        {
+            if ((textBlockUsage.AccountCode == TableGroupAll::GroupId && ! FWFTextBlockGroupAssign::exists(textBlockUsage.AccountRelation, _accountId)) ||
+                (textBlockUsage.ItemCode	== TableGroupAll::GroupId && ! FWFTextBlockGroupAssign::exists(textBlockUsage.ItemRelation, _itemId)))
+            {
+                continue;
+            }
+   
+            if ((_isAgreementHeader || textBlockUsage.textBlockTable().isValidForCompany(targetRecord.dataAreaId)) && setupParm.isValidForTarget(targetRecord, true))
+            {
+                FWFTextBlockInstance::createFromSetupUsage(textBlockUsage, targetRecord, _languageId);
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>insertFromSetupUsageNonProductBased</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Copies an extended text from setup to target record for header records.
+    /// </summary>
+    /// <param name = "_accountType">The <c>FWFTextBlockAccountRelationType</c> value.</param>
+    /// <param name = "_accountGroup">The price goup value of customer or vendor.</param>
+    /// <param name = "_accountId">The account number of customer or vendor.</param>
+    /// <param name = "_languageId">The language id.</param>
+    /// <param name = "_inventDim">The <c>InventDim</c> record. For site based texts the <c>InventSiteId</c> field should be filled.</param>
+    /// <param name = "_isAgreementHeader">A boolean value. True if target record is <c>PurchAgreementHeader</c> or <c>SalesAgreementHeader</c>.</param>
+    protected void insertFromSetupUsageNonProductBased(FWFTextBlockAccountRelationType _accountType, CustVendRel _accountGroup, CustVendAC _accountId, LanguageId _languageId, InventDim _inventDim, boolean _isAgreementHeader)
+    {
+        FWFTextBlockUsage		textBlockUsage;
+        FWFTextBlockSetupParm	setupParm;
+        InventDim				inventDimSearch;
+       
+        while select textBlockUsage
+            order by setupParm.SortOrder
+            where (textBlockUsage.FromDate <= DateTimeUtil::getSystemDate(DateTimeUtil::getUserPreferredTimeZone()) || ! textBlockUsage.FromDate)
+                && (textBlockUsage.ToDate   >= DateTimeUtil::getSystemDate(DateTimeUtil::getUserPreferredTimeZone()) || ! textBlockUsage.ToDate)
+                && textBlockUsage.AccountType == _accountType
+                && textBlockUsage.ProductType == FWFTextBlockProductType::None
+                && textBlockUsage.ItemCode    == TableGroupAll::All
+                && ((textBlockUsage.AccountCode == TableGroupAll::All) ||
+                    (textBlockUsage.AccountCode == TableGroupAll::GroupId) ||	//&& textBlockUsage.AccountRelation == _accountGroup) ||	// replaced use of price groups with own formletter groups
+                    (textBlockUsage.AccountCode == TableGroupAll::Table   && textBlockUsage.AccountRelation == _accountId))
+        join RecId from inventDimSearch
+            where inventDimSearch.inventDimId    == textBlockUsage.InventDimId
+                && (inventDimSearch.InventSiteId  == _inventDim.InventSiteId  || ! inventDimSearch.InventSiteId)
+        join /*SortOrder*/ setupParm
+            where setupParm.RecId == textBlockUsage.SetupRefRefId
+        {
+            if (textBlockUsage.AccountCode == TableGroupAll::GroupId && ! FWFTextBlockGroupAssign::exists(textBlockUsage.AccountRelation, _accountId))
+            {
+                continue;
+            }
+
+            if ((_isAgreementHeader || textBlockUsage.textBlockTable().isValidForCompany(targetRecord.dataAreaId)) && setupParm.isValidForTarget(targetRecord, true))
+            {
+                FWFTextBlockInstance::createFromSetupUsage(textBlockUsage, targetRecord, _languageId);
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>reInitTexts</Name>
+				<Source><![CDATA[
+    protected void reInitTexts()
+    {
+        this.runDelete();
+        this.runInsert();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>reInitLanguageChg</Name>
+				<Source><![CDATA[
+    protected void reInitLanguageChg()
+    {
+        SalesLine           salesLine;
+        SalesQuotationLine  salesQuotationLine;
+        PurchLine           purchLine;
+        SalesTable          salesTable;
+        SalesQuotationTable salesQuotationTable;
+        PurchTable          purchTable;
+        LanguageId          languageId;
+
+        //re-init SalesLine / PurchLine / SalesQuotationLine
+        this.reInitTexts();
+
+        switch (targetRecord.TableId)
+        {
+            case tableNum(SalesLine) :
+                salesLine = targetRecord as SalesLine;
+                targetRecord = salesLine.salesTable();
+                salesTable = targetRecord as SalesTable;
+                languageId = salesTable.LanguageId;
+                break;
+
+            case tableNum(SalesQuotationLine) :
+                salesQuotationLine = targetRecord as SalesQuotationLine;
+                targetRecord = salesQuotationLine.salesQuotationTable();
+                salesQuotationTable = targetRecord as SalesQuotationTable;
+                languageId = salesQuotationTable.LanguageId;
+                break;
+
+            case tableNum(PurchLine) :
+                purchLine = targetRecord as PurchLine;
+                targetRecord = purchLine.purchTable();
+                purchTable = targetRecord as PurchTable;
+                languageId = purchTable.LanguageId;
+                break;
+        }
+
+        //re-init SalesTable / PurchTable / SalesQuotationTable
+        this.reInitTexts();
+        Info(strFmt("@FWFTextBlock:ReInitLanguageChgInfo", languageId));
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>runInsert</Name>
+				<Source><![CDATA[
+    protected void runInsert()
+    {
+        SalesTable salesTable;
+        SalesLine salesLine;
+        PurchLine purchLine;
+        boolean createdFromQutotation;
+    
+        // Copy texts from sales quotation to sales order
+        salesTable = targetRecord as salesTable;
+        if (salesTable.QuotationId)
+        {
+            FWFTextBlockInstance::copySourceToTarget(SalesQuotationTable::find(salesTable.QuotationId), salesTable);
+            createdFromQutotation = true;
+        }
+    
+        // Copy texts from sales quotation line to sales order line
+        salesLine = targetRecord as salesLine;
+        if (salesLine.FWFTextBlockQuotationLineRefRecId)
+        {
+            FWFTextBlockInstance::copySourceToTarget(salesQuotationLine::findRecId(salesLine.FWFTextBlockQuotationLineRefRecId), salesLine);
+            createdFromQutotation = true;
+        }
+
+        // Copy texts from sales agreement line to sales order line
+        salesLine = targetRecord as salesLine;
+        if (salesLine.MatchingAgreementLine)
+        {
+            FWFTextBlockInstance::copySourceToTarget(AgreementLine::find(salesLine.MatchingAgreementLine), salesLine);
+            // Copy texts from sales agreement header to sales order table
+            this.insertFromAgreementHeader(salesLine, salesLine.MatchingAgreementLine);
+        }
+        // Copy texts from purch agreement line to purch order line
+        purchLine = targetRecord as PurchLine;
+        if (purchLine.MatchingAgreementLine)
+        {
+            FWFTextBlockInstance::copySourceToTarget(AgreementLine::find(purchLine.MatchingAgreementLine), purchLine);
+            // Copy texts from sales agreement header to sales order table
+            this.insertFromAgreementHeader(purchLine, purchLine.MatchingAgreementLine);
+        }
+
+        if (! createdFromQutotation)
+        {
+            // New header/line
+            this.insertFromSetupUsage();
+        }
+
+        this.insertFromRelatedOrder(targetRecord);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>runUpdate</Name>
+				<Source><![CDATA[
+    protected void runUpdate()
+    {
+        boolean		reInitTexts;
+        boolean     reInitLanguageChg;
+        SalesLine	salesLine;
+    
+        switch (targetRecord.TableId)
+        {
+            case tableNum(SalesTable) :
+                reInitTexts = targetRecord.(fieldNum(SalesTable, CustAccount)) != targetRecordOrig.(fieldNum(SalesTable, CustAccount));
+                break;
+    
+            case tableNum(SalesLine) :
+                reInitTexts = targetRecord.(fieldNum(SalesLine, CustAccount)) != targetRecordOrig.(fieldNum(SalesLine, CustAccount));
+                if (! reInitTexts)
+                {
+					salesLine   = targetRecord as SalesLine;
+                    reInitTexts = salesLine.InterCompanyInventTransId ? true : false;
+                }
+                if (! reInitTexts)
+                {
+                    reInitLanguageChg = targetRecord.(fieldNum(SalesLine, FWFTextBlockReInitRequired)) != targetRecordOrig.(fieldNum(SalesLine, FWFTextBlockReInitRequired));
+                }
+                break;
+    
+            case tableNum(PurchTable) :
+                reInitTexts = targetRecord.(fieldNum(PurchTable, OrderAccount)) != targetRecordOrig.(fieldNum(PurchTable, OrderAccount));
+                break;
+    
+            case tableNum(PurchLine) :
+                reInitTexts = targetRecord.(fieldNum(PurchLine, VendAccount)) != targetRecordOrig.(fieldNum(PurchLine, VendAccount));
+                if (! reInitTexts)
+                {
+                    reInitLanguageChg = targetRecord.(fieldNum(PurchLine, FWFTextBlockReInitRequired)) != targetRecordOrig.(fieldNum(PurchLine, FWFTextBlockReInitRequired));
+                }
+                break;
+    
+            case tableNum(SalesQuotationTable) :
+                reInitTexts = targetRecordOrig.(fieldNum(SalesQuotationTable, CustAccount)) && targetRecord.(fieldNum(SalesQuotationTable, CustAccount)) != targetRecordOrig.(fieldNum(SalesQuotationTable, CustAccount));
+                break;
+    
+            case tableNum(SalesQuotationLine) :
+                reInitTexts = targetRecordOrig.(fieldNum(SalesQuotationLine, CustAccount)) && targetRecord.(fieldNum(SalesQuotationLine, CustAccount)) != targetRecordOrig.(fieldNum(SalesQuotationLine, CustAccount));
+                if (! reInitTexts)
+                {
+                    reInitLanguageChg = targetRecord.(fieldNum(SalesQuotationLine, FWFTextBlockReInitRequired)) != targetRecordOrig.(fieldNum(SalesQuotationLine, FWFTextBlockReInitRequired));
+                }
+                break;
+
+            case tableNum(CustInvoiceTable) :
+                reInitTexts = targetRecord.(fieldNum(CustInvoiceTable, OrderAccount)) != targetRecordOrig.(fieldNum(CustInvoiceTable, OrderAccount));
+                break;
+
+            case tableNum(SalesAgreementHeader) :
+                reInitTexts = targetRecord.(fieldNum(SalesAgreementHeader, CustAccount)) != targetRecordOrig.(fieldNum(SalesAgreementHeader, CustAccount));
+                break;
+
+            case tableNum(PurchAgreementHeader) :
+                reInitTexts = targetRecord.(fieldNum(PurchAgreementHeader, VendAccount)) != targetRecordOrig.(fieldNum(PurchAgreementHeader, VendAccount));
+                break;
+        }
+    
+        if (reInitTexts)
+        {
+            this.reInitTexts();
+        }
+
+        if (reInitLanguageChg)
+        {
+            this.reInitLanguageChg();
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>insertFromAgreementHeader</Name>
+				<Source><![CDATA[
+    protected void insertFromAgreementHeader(SalesPurchLine _salesPurchLine, AgreementLineRecId _agreementLineRecId)
+    {
+        SalesTable salesTable;
+        SalesLine salesLine;
+        SalesAgreementHeader salesAgreementHeader;
+        PurchTable purchTable;
+        PurchLine  purchLine;
+        PurchAgreementHeader purchAgreementHeader;
+        AgreementLine agreementLine = AgreementLine::find(_agreementLineRecId);
+
+        salesAgreementHeader = agreementLine.salesAgreementHeader();
+        purchAgreementHeader = agreementLine.purchAgreementHeader();
+
+        if (salesAgreementHeader.RecId)
+        {
+            select firstOnly RecId from salesLine
+                where salesLine.SalesId             == _salesPurchLine.SalesPurchId
+                   && salesLine.RecId               != _salesPurchLine.RecId
+                exists join agreementLine
+                    where agreementLine.RecId       == salesLine.MatchingAgreementLine
+                       && agreementLine.Agreement   == salesAgreementHeader.RecId;
+
+            salesTable = SalesTable::find(_salesPurchLine.SalesPurchId);
+            if (! salesLine.RecId)
+            {
+                FWFTextBlockInstance::copySourceToTarget(salesAgreementHeader, salesTable);
+            }
+        }
+
+        if (purchAgreementHeader.RecId)
+        {
+            select firstOnly RecId from purchLine
+                where purchLine.PurchId             == _salesPurchLine.SalesPurchId
+                   && purchLine.RecId               != _salesPurchLine.RecId
+                exists join agreementLine
+                    where agreementLine.RecId       == purchLine.MatchingAgreementLine
+                       && agreementLine.Agreement   == purchAgreementHeader.RecId;
+
+            purchTable = PurchTable::find(_salesPurchLine.SalesPurchId);
+            if (! purchLine.RecId)
+            {
+                FWFTextBlockInstance::copySourceToTarget(purchAgreementHeader, purchTable);
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>construct</Name>
+				<Source><![CDATA[
+    public static FWFTextBlockEventHandler_Setup construct()
+    {
+        return new FWFTextBlockEventHandler_Setup();
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockTableEventHandler</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+class FWFTextBlockTableEventHandler
+{
+    
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>PurchLine_onInserted</Name>
+				<Source><![CDATA[
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    [DataEventHandler(tableStr(PurchLine), DataEventType::Inserted)]
+    public static void PurchLine_onInserted(Common _sender, DataEventArgs _e)
+    {
+        PurchLine						purchLine  = _sender as PurchLine;
+        PurchTable						purchTable = purchLine.purchTable();
+        SalesLine						salesLineIC;
+        FWFTextBlockEventHandler_Setup	handler;
+
+        if (purchTable.InterCompanySalesId &&
+            purchLine.SkipUpdate   != InterCompanySkipUpdate::InterCompany &&
+            purchLine.SkipUpdate   != InterCompanySkipUpdate::Both)
+        {
+            changeCompany(purchTable.InterCompanyCompanyId)
+            {
+                salesLineIC = SalesLine::findInventTransId(purchLine.InterCompanyInventTransId);
+                handler = FWFTextBlockEventHandler_Setup::construct();
+                handler.parmTargetRecord(salesLineIC);
+                handler.parmEventType(EventLogType::Update);
+                handler.run();
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

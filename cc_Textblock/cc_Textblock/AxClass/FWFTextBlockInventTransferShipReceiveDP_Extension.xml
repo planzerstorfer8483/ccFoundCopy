@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockInventTransferShipReceiveDP_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of <c>InventTransferShipReceiveDP</c> for text block management
+/// </summary>
+[ExtensionOf(classStr(InventTransferShipReceiveDP))]
+final class FWFTextBlockInventTransferShipReceiveDP_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>initTmpInventTransfer</Name>
+				<Source><![CDATA[
+        protected void initTmpInventTransfer(
+        InventTransferJour      _inventTransferJour,
+        InventTransferJourLine  _inventTransferJourLine,
+        InventDim               _inventDim,
+        CompanyInfo             _companyinfo,
+        InventTransferTable     _inventTransferTable,
+        InventTransferLine      _inventTransferLine)
+    {
+        FWFTextBlockReportTextInit::newParameters(tmpInventTransfer, _inventTransferJour).addTextsTransferOrder();
+
+        next initTmpInventTransfer(_inventTransferJour,
+                                   _inventTransferJourLine,
+                                   _inventDim,
+                                   _companyinfo,
+                                   _inventTransferTable,
+                                   _inventTransferLine);
+
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

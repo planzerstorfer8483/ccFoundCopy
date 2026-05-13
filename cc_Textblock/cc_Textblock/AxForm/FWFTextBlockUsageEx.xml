@@ -1,0 +1,2424 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxForm xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>FWFTextBlockUsageEx</Name>
+	<SourceCode>
+		<Methods xmlns="">
+			<Method>
+				<Name>classDeclaration</Name>
+				<Source><![CDATA[
+[Form]
+public class FWFTextBlockUsageEx extends FormRun
+{
+    #resAppl
+
+    FormDesign                      formDesign;
+    InventDimCtrl_Frm               inventDimFormSetup;
+    FWFTextBlockTreeNav             treeNav;
+
+    CustTable                       custTable;
+    VendTable                       vendTable;
+    ProjTable                       projTable;
+    Common                          callerTable;
+    DirPartyTable                   dirPartyTable;
+
+    FWFTextBlockModule              module;
+    FWFTextBlockAccountRelationType accountType;
+
+    TableGroupAll                   accountCode;
+    FWFTextBlockAccountRelation		accountRelation;
+
+    QueryBuildRange                 blockCodeHeader;
+    QueryBuildRange                 blockCodeLines;
+
+    boolean                         isRelation;
+    FieldId                         selectedDocumentFldId;
+
+}
+]]></Source>
+			</Method>
+			<Method>
+				<Name>buildInventCustVendFilter</Name>
+				<Source><![CDATA[
+    private str buildInventCustVendFilter(
+        FormDataSource                  _dsUsage,
+        FWFTextBlockAccountRelationType _accountType
+    )
+    {
+        QueryBuildDataSource    qbds = _dsUsage.queryRun().query().dataSourceTable(tableNum(FWFTextBlockUsage));
+        str                     filter;
+        FWFTextBlockGroupAssign groupAssign;
+    
+        void addTableFilter(str _fieldStrCode, int _code, str _fieldStrRel, str _rel)
+        {
+            filter = '(' + this.relationFilter(_dsUsage, _fieldStrCode, _code, _fieldStrRel, _rel) + ' || ' + this.relationCodeAllFilter(_dsUsage, _fieldStrCode) + ')';
+        }
+    
+        void addGroupFilter(str _fieldStrCode, str _fieldStrRel, str _rel)
+        {
+            if (_rel)
+            {
+                filter += ' || ' + this.relationFilter(_dsUsage, _fieldStrCode, any2int(TableGroupAll::GroupId), _fieldStrRel, _rel);
+            }
+        }
+    
+        qbds.findRange(fieldNum(FWFTextBlockUsage, AccountType)).value(queryValue(_accountType));
+        switch (_accountType)
+        {
+            case FWFTextBlockAccountRelationType::Vend :
+                [accountCode, accountRelation] = [TableGroupAll::Table, vendTable.AccountNum];
+                addTableFilter(fieldStr(FWFTextBlockUsage, AccountCode), any2int(accountCode), fieldStr(FWFTextBlockUsage, AccountRelation), accountRelation);
+                while select groupAssign where groupAssign.RefId == vendTable.AccountNum
+                {
+                    addGroupFilter(fieldStr(FWFTextBlockUsage, AccountCode), fieldStr(FWFTextBlockUsage, AccountRelation), groupAssign.GroupId);
+                }
+                break;
+    
+            case FWFTextBlockAccountRelationType::Cust :
+                [accountCode, accountRelation] = [TableGroupAll::Table, custTable.AccountNum];
+                addTableFilter(fieldStr(FWFTextBlockUsage, AccountCode), any2int(accountCode), fieldStr(FWFTextBlockUsage, AccountRelation), accountRelation);
+                while select groupAssign where groupAssign.RefId == custTable.AccountNum
+                {
+                    addGroupFilter(fieldStr(FWFTextBlockUsage, AccountCode), fieldStr(FWFTextBlockUsage, AccountRelation), groupAssign.GroupId);
+                }
+                break;
+
+            case FWFTextBlockAccountRelationType::Proj :
+                [accountCode, accountRelation] = [TableGroupAll::Table, projTable.ProjId];
+                addTableFilter(fieldStr(FWFTextBlockUsage, AccountCode), any2int(accountCode), fieldStr(FWFTextBlockUsage, AccountRelation), accountRelation);
+                while select groupAssign where groupAssign.RefId == projTable.ProjId
+                {
+                    addGroupFilter(fieldStr(FWFTextBlockUsage, AccountCode), fieldStr(FWFTextBlockUsage, AccountRelation), groupAssign.GroupId);
+                }
+                break;
+
+            case FWFTextBlockAccountRelationType::Prod :
+                if (custTable.AccountNum)
+                {
+                    [accountCode, accountRelation] = [TableGroupAll::Table, custTable.AccountNum];
+                    addTableFilter(fieldStr(FWFTextBlockUsage, AccountCode), any2int(accountCode), fieldStr(FWFTextBlockUsage, AccountRelation), accountRelation);
+                    while select groupAssign where groupAssign.RefId == custTable.AccountNum
+                    {
+                        addGroupFilter(fieldStr(FWFTextBlockUsage, AccountCode), fieldStr(FWFTextBlockUsage, AccountRelation), groupAssign.GroupId);
+                    }
+                }
+                else if (vendTable.AccountNum)
+                {
+                    [accountCode, accountRelation] = [TableGroupAll::Table, vendTable.AccountNum];
+                    addTableFilter(fieldStr(FWFTextBlockUsage, AccountCode), any2int(accountCode), fieldStr(FWFTextBlockUsage, AccountRelation), accountRelation);
+                    while select groupAssign where groupAssign.RefId == vendTable.AccountNum
+                    {
+                        addGroupFilter(fieldStr(FWFTextBlockUsage, AccountCode), fieldStr(FWFTextBlockUsage, AccountRelation), groupAssign.GroupId);
+                    }
+                }
+                else if (projTable.ProjId)
+                {
+                    [accountCode, accountRelation] = [TableGroupAll::Table, projTable.ProjId];
+                    addTableFilter(fieldStr(FWFTextBlockUsage, AccountCode), any2int(accountCode), fieldStr(FWFTextBlockUsage, AccountRelation), accountRelation);
+                    while select groupAssign where groupAssign.RefId == projTable.ProjId
+                    {
+                        addGroupFilter(fieldStr(FWFTextBlockUsage, AccountCode), fieldStr(FWFTextBlockUsage, AccountRelation), groupAssign.GroupId);
+                    }
+                }
+                break;
+        }
+    
+        return filter ? '(' + filter + ')' : '';
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>clearInventDim</Name>
+				<Source><![CDATA[
+    public void clearInventDim()
+    {
+        UsageLines.InventDimId = InventDim::inventDimIdBlank();
+    
+        inventDim.data(InventDim::find(UsageLines.InventDimId));
+        inventDim_ds.setCurrent();
+        inventDim_ds.refresh();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>enableRelationFields</Name>
+				<Source><![CDATA[
+    void enableRelationFields(
+        FWFTextBlockUsage   _textBlockUsage
+        )
+    {
+        FormDataSource      fdsUsage = FormDataUtil::getFormDataSource(_textBlockUsage) as FormDataSource;
+    
+        if (_textBlockUsage.ItemCode == TableGroupAll::All)
+        {
+            fdsUsage.object(fieldNum(FWFTextBlockUsage, ItemRelation)).skip(true);
+            fdsUsage.object(fieldNum(FWFTextBlockUsage, ItemRelation)).allowEdit(false);
+        }
+        else
+        {
+            fdsUsage.object(fieldNum(FWFTextBlockUsage, ItemRelation)).skip(false);
+            fdsUsage.object(fieldNum(FWFTextBlockUsage, ItemRelation)).allowEdit(true);
+        }
+    
+        if (_textBlockUsage.AccountCode == TableGroupAll::All)
+        {
+            fdsUsage.object(fieldNum(FWFTextBlockUsage, AccountRelation)).skip(true);
+            fdsUsage.object(fieldNum(FWFTextBlockUsage, AccountRelation)).allowEdit(false);
+        }
+        else
+        {
+            fdsUsage.object(fieldNum(FWFTextBlockUsage, AccountRelation)).skip(false);
+            fdsUsage.object(fieldNum(FWFTextBlockUsage, AccountRelation)).allowEdit(true);
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>init</Name>
+				<Source><![CDATA[
+    public void  init()
+    {
+        super();
+    
+        treeNav = FWFTextBlockTreeNav::newTreeView(TreeDoc);
+    
+        element.initParameters();
+    
+        treeNav.createFilterRange(ParmHeader_ds.queryBuildDataSource());
+        treeNav.createFilterRange(ParmLines_ds.queryBuildDataSource());
+    
+        element.updateDesignDim(InventDimFormDesignUpdate::Init);
+        element.updateDesignForm();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initParameters</Name>
+				<Source><![CDATA[
+    void  initParameters()
+    {
+        FWFTextBlockAccountFilterType   accountFilterType;
+        ;
+        UsageHeader_ds.query().dataSourceTable(tableNum(FWFTextBlockUsage)).clearRanges();
+        UsageHeader_ds.query().dataSourceTable(tableNum(FWFTextBlockUsage)).clearDynalinks();
+    
+        UsageLines_ds.query().dataSourceTable(tableNum(FWFTextBlockUsage)).clearRanges();
+        UsageLines_ds.query().dataSourceTable(tableNum(FWFTextBlockUsage)).clearDynalinks();
+    
+        if (element.args().record())
+        {
+            isRelation = true;
+        }
+    
+        if (element.args().parmEnumType() == enumNum(FWFTextBlockAccountFilterType))
+        {
+            accountFilterType = element.args().parmEnum();
+        }
+        else
+        {
+            module = FWFTextBlockModule::ReleasedProduct;
+        }
+    
+        if (element.args() && element.args().record())
+        {
+            callerTable = element.args().record();
+        }
+    
+        accountCode = TableGroupAll::All;
+    
+        switch (callerTable.TableId)
+        {
+            case tableNum(CustTable) :
+                custTable = element.args().record();
+                break;
+    
+            case tableNum(VendTable) :
+                vendTable = element.args().record();
+                break;
+
+            case tableNum(ProjTable) :
+                projTable = element.args().record();
+                break;
+    
+            case tableNum(DirPartyTable) :
+                dirPartyTable   = element.args().record();
+    
+                select firstonly custTable
+                    where custTable.Party == dirPartyTable.RecId;
+    
+                select firstonly vendTable
+                    where vendTable.Party == dirPartyTable.RecId;
+    
+                if (custTable && !vendTable)
+                {
+                    accountFilterType = FWFTextBlockAccountFilterType::Cust;
+                }
+                if (!custTable && vendTable)
+                {
+                    accountFilterType = FWFTextBlockAccountFilterType::Vend;
+                }
+                break;
+        }
+    
+        UsageHeader_ds.object(fieldNum(FWFTextBlockUsage, ItemCode)).visible(false);
+        UsageHeader_ds.object(fieldNum(FWFTextBlockUsage, ItemRelation)).visible(false);
+    
+        UsageHeader_ds.object(fieldNum(FWFTextBlockUsage, AccountType)).visible(false);
+        UsageLines_ds.object(fieldNum(FWFTextBlockUsage, AccountType)).visible(false);
+    
+        blockCodeHeader = UsageHeader_ds.query().dataSourceTable(tableNum(FWFTextBlockUsage)).addRange(fieldNum(FWFTextBlockUsage, AccountCode));
+        blockCodeHeader.status(RangeStatus::Locked);
+    
+        blockCodeLines = UsageLines_ds.query().dataSourceTable(tableNum(FWFTextBlockUsage)).addRange(fieldNum(FWFTextBlockUsage, AccountCode));
+        blockCodeLines.status(RangeStatus::Locked);
+    
+        UsageHeader_AccountRelation.label("@SYS22898");
+        UsageLines_AccountRelation.label("@SYS22898");
+    
+        UsageHeader_ds.query().dataSourceTable(tableNum(FWFTextBlockUsage)).addRange(fieldNum(FWFTextBlockUsage, AccountType));
+        UsageHeader_ds.query().dataSourceTable(tableNum(FWFTextBlockUsage)).addRange(fieldNum(FWFTextBlockUsage, ProductType)).value(queryValue(FWFTextBlockProductType::None));
+    
+        UsageLines_ds.query().dataSourceTable(tableNum(FWFTextBlockUsage)).addRange(fieldNum(FWFTextBlockUsage, AccountType));
+        UsageLines_ds.query().dataSourceTable(tableNum(FWFTextBlockUsage)).addRange(fieldNum(FWFTextBlockUsage, ProductType)).value(queryValue(FWFTextBlockProductType::ReleasedProduct));
+    
+        treeNav.parmAccountTypeFilter(accountFilterType);
+        treeNav.initTree();
+        treeNav.redrawTree();
+    
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>inventDimSetupObject</Name>
+				<Source><![CDATA[
+    Object inventDimSetupObject()
+    {
+        return inventDimFormSetup;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>itemId</Name>
+				<Source><![CDATA[
+    ItemId itemId()
+    {
+        return UsageLines.itemId();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>relationCodeAllFilter</Name>
+				<Source><![CDATA[
+    str relationCodeAllFilter(
+        FormDataSource      _dsUsage,
+        str                 _fieldStrCode
+        )
+    {
+        str     dsName      = _dsUsage.queryRun().query().dataSourceTable(tableNum(FWFTextBlockUsage)).name();
+        return strFmt('(%1.%2==%3)', dsName, _fieldStrCode, any2int(TableGroupAll::All));
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>relationFilter</Name>
+				<Source><![CDATA[
+    str relationFilter(
+        FormDataSource  _dsUsage,
+        str             _fieldStrCode,
+        int             _code,
+        str             _fieldStrRel,
+        str             _rel
+        )
+    {
+        str     dsName      = _dsUsage.queryRun().query().dataSourceTable(tableNum(FWFTextBlockUsage)).name();
+    
+        return strFmt('((%1.%2==%3) && (%1.%4=="%5"))', dsName, _fieldStrCode, _code, _fieldStrRel, _rel ? queryValue(_rel) : '');
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>reSelect</Name>
+				<Source><![CDATA[
+    public void reSelect(
+        FormDataSource                  _dsUsage,
+        FormDataSource                  _dsParm,
+        QueryBuildRange                 _blockCode,
+        FWFTextBlockAccountRelationType _accountType
+        )
+    {
+        str filter;
+    
+        if (isRelation)
+        {
+            filter = this.buildInventCustVendFilter(_dsUsage, _accountType);
+        }
+    
+        _blockCode.value(filter);
+    
+        treeNav.setFilterRange(_dsParm.queryBuildDataSource(), selectedDocumentFldId);
+    
+        _dsUsage.executeQuery();
+        _dsUsage.queryRun().saveUserSetup(false);
+        _dsUsage.refresh();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>updateDesignCustVend</Name>
+				<Source><![CDATA[
+    public void updateDesignCustVend()
+    {
+        switch (accountType)
+        {
+            case FWFTextBlockAccountRelationType::Cust:
+                module = FWFTextBlockModule::Customer;
+                break;
+            case FWFTextBlockAccountRelationType::Vend:
+                module = FWFTextBlockModule::Supplier;
+                break;
+
+            case FWFTextBlockAccountRelationType::Prod:
+                module = FWFTextBlockModule::Supplier;
+                break;
+
+            case FWFTextBlockAccountRelationType::Proj:
+                module = FWFTextBlockModule::Supplier;
+                break;
+        }
+    
+        switch (module)
+        {
+            case FWFTextBlockModule::Customer:
+                UsageHeader_AccountRelation.label("@SYS24704");
+                UsageLines_AccountRelation.label("@SYS24704");
+                break;
+    
+            case FWFTextBlockModule::Supplier:
+                UsageHeader_AccountRelation.label("@SYS9455");
+                UsageLines_AccountRelation.label("@SYS9455");
+                break;
+
+            case FWFTextBlockModule::ReleasedProduct:
+                UsageHeader_AccountRelation.label("@SYS191447");
+                UsageLines_AccountRelation.label("@SYS191447");
+                break;
+
+            case FWFTextBlockModule::Project:
+                UsageHeader_AccountRelation.label("@SYS4534");
+                UsageLines_AccountRelation.label("@SYS4534");
+                break;
+        }
+    
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>updateDesignDim</Name>
+				<Source><![CDATA[
+    void updateDesignDim(InventDimFormDesignUpdate mode)
+    {
+        InventDimParm       inventDimParmVisible;
+        InventDimParm       inventDimParmEnabled;
+        InventDimParm       inventDimParmLocked;
+    
+        InventDimGroupSetup inventDimGroupSetup;
+    
+        inventTable         localInventTable = inventTable::find(UsageLines.ItemRelation);
+    
+        switch (mode)
+        {
+            case InventDimFormDesignUpdate::Init          :
+            case InventDimFormDesignUpdate::LinkActive    :
+                if (!inventDimFormSetup)
+                {
+                    inventDimFormSetup  = InventDimCtrl::newFromForm(element);
+                }
+                inventDimFormSetup.parmSkipOnHandLookUp(true);
+    
+            case InventDimFormDesignUpdate::Active        :
+            case InventDimFormDesignUpdate::FieldChange   :
+                inventDimFormSetup.formActiveSetup();
+                if (UsageLines.ItemCode == TableGroupAll::Table && UsageLines.ItemRelation)
+                {
+                    //Diviating from the common pattern using InventDimGroupSetup::newItemId(....) to allow the form to load with incomplete dimension settings on the product.
+                    inventDimGroupSetup = InventDimGroupSetup::newDimensionGroups(localInventTable.productDimensionGroup(), 0, 0);
+                    inventDimGroupSetup.inventDimParmActive(inventDimParmEnabled);
+                }
+                else
+                {
+                    inventDimParmEnabled.clear();
+                }
+    
+                inventDimParmLocked.initNonProductDimAllGroups();
+
+                inventDimParmLocked.InventSiteIdFlag = NoYes::No;
+                inventDimParmEnabled.InventSiteIdFlag = NoYes::Yes;
+                inventDimParmLocked.InventOwnerIdFlag_RU = NoYes::Yes;
+    
+                inventDimFormSetup.parmDimParmLockedRightClick(inventDimParmLocked);
+                inventDimFormSetup.parmDimParmVisibleGrid(inventDimParmVisible);
+                inventDimFormSetup.parmDimParmEnabled(inventDimParmEnabled);
+                inventDimFormSetup.formSetControls(true);
+    
+                break;
+    
+            default :
+                throw error(strFmt("@SYS54195",funcName()));
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>updateDesignForm</Name>
+				<Source><![CDATA[
+    public void updateDesignForm()
+    {
+        FWFTextBlockUsage_Supplier.visible(module == FWFTextBlockModule::Supplier);
+        FWFTextBlockUsage_Product_Supplier.visible(module == FWFTextBlockModule::Supplier);
+    
+        FWFTextBlockUsage_Customer.visible(module == FWFTextBlockModule::Customer);
+        FWFTextBlockUsage_Product_Customer.visible(module == FWFTextBlockModule::Customer);
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+		<DataSources xmlns="">
+			<DataSource>
+				<Name>UsageHeader</Name>
+				<Methods>
+					<Method>
+						<Name>newTmpRecord</Name>
+						<Source><![CDATA[
+        public FWFTextBlockUsage newTmpRecord()
+        {
+            FWFTextBlockUsage       textBlockUsage;
+        
+            // BP deviation documented
+            textBlockUsage.setTmp();
+        
+            textBlockUsage.initValue();
+        
+            textBlockUsage.AccountType       = accountType;
+            textBlockUsage.ProductType       = FWFTextBlockProductType::None;
+            textBlockUsage.AccountCode       = accountCode;
+            textBlockUsage.AccountRelation   = accountRelation;
+            textBlockUsage.ItemCode          = TableGroupAll::All;
+        
+            textBlockUsage.updateRelations();
+            textBlockUsage.insert();
+        
+            return textBlockUsage;
+        }
+
+]]></Source>
+					</Method>
+					<Method>
+						<Name>create</Name>
+						<Source><![CDATA[
+        public void create(boolean _append = false)
+        {
+            Args         args;
+            FormRun      formOption;
+        
+            // super(_append);
+        
+            if (! selectedDocumentFldId)
+            {
+                return;
+            }
+        
+            args = new Args();
+            args.name(formStr(FWFTextBlockOptions));
+            args.caller(element);
+            args.parmEnumType(enumNum(AccessType));
+            args.parmEnum(AccessType::Add);
+            args.record(this.newTmpRecord());
+            args.parm(int2str(selectedDocumentFldId));
+        
+            formOption = classfactory.formRunClass(args);
+            formOption.init();
+            formOption.run();
+            formOption.wait();
+        
+            formOption.closeOk();
+        
+            if (FormDataUtil::getFormDataSource(UsageHeader))
+            {
+                UsageHeader_ds.executeQuery();
+            }
+        }
+
+]]></Source>
+					</Method>
+					<Method>
+						<Name>delete</Name>
+						<Source><![CDATA[
+        public void delete()
+        {
+            if (! UsageHeader.RecId)
+            {
+                super();
+            }
+            else
+            {
+                ttsBegin;
+        
+                if (ParmHeader.RecId && selectedDocumentFldId > 0)
+                {
+                    ParmHeader.(selectedDocumentFldId) = false;
+                    ParmHeader.update();
+                }
+        
+                ttsCommit;
+        
+                UsageHeader_ds.executeQuery();
+            }
+        }
+
+]]></Source>
+					</Method>
+					<Method>
+						<Name>initValue</Name>
+						<Source><![CDATA[
+        void  initValue()
+        {
+            super();
+        
+            UsageHeader.AccountType       = accountType;
+            UsageHeader.AccountCode       = accountCode;
+            UsageHeader.AccountRelation   = accountRelation;
+        
+            UsageHeader.ItemCode          = TableGroupAll::All;
+            UsageHeader.ProductType       = FWFTextBlockProductType::None;
+        }
+
+]]></Source>
+					</Method>
+					<Method>
+						<Name>write</Name>
+						<Source><![CDATA[
+        public void write()
+        {
+            UsageHeader.InventDimId   = InventDim::inventDimIdBlank();
+            UsageHeader.SetupRefRefId = ParmHeader.RecId;
+        
+            super();
+        }
+
+]]></Source>
+					</Method>
+					<Method>
+						<Name>active</Name>
+						<Source><![CDATA[
+        int  active()
+        {
+            int ok;
+        
+            ok = super();
+        
+            element.enableRelationFields(UsageHeader);
+        
+            DeleteButtonHeader.enabled(UsageHeader.AccountCode == TableGroupAll::Table);
+        
+            return ok;
+        }
+
+]]></Source>
+					</Method>
+				</Methods>
+				<Fields>
+					<Field>
+						<DataField>AccountCode</DataField>
+						<Methods>
+							<Method>
+								<Name>modified</Name>
+								<Source><![CDATA[
+            public void modified()
+            {
+                super();
+            
+                element.enableRelationFields(UsageHeader);
+            }
+
+]]></Source>
+							</Method>
+						</Methods>
+					</Field>
+					<Field>
+						<DataField>TextBlockRecId</DataField>
+						<Methods>
+							<Method>
+								<Name>lookupReference</Name>
+								<Source><![CDATA[
+            public Common lookupReference(FormReferenceControl _formReferenceControl)
+            {
+                return FWFTextBlockTable::lookupReference(_formReferenceControl, module);
+            }
+
+]]></Source>
+							</Method>
+						</Methods>
+					</Field>
+				</Fields>
+			</DataSource>
+			<DataSource>
+				<Name>InventDim</Name>
+				<Methods>
+					<Method>
+						<Name>write</Name>
+						<Source><![CDATA[
+        public void write()
+        {
+            // super();
+        }
+
+]]></Source>
+					</Method>
+					<Method>
+						<Name>initValue</Name>
+						<Source><![CDATA[
+        public void initValue()
+        {
+            inventDim.data(InventDim::find(UsageLines.InventDimId));
+        
+            super();
+        }
+
+]]></Source>
+					</Method>
+				</Methods>
+				<Fields />
+			</DataSource>
+			<DataSource>
+				<Name>UsageLines</Name>
+				<Methods>
+					<Method>
+						<Name>create</Name>
+						<Source><![CDATA[
+        public void create(boolean _append = false)
+        {
+            Args         args;
+            FormRun      formOption;
+        
+            // super(_append);
+        
+            if (! selectedDocumentFldId)
+            {
+                return;
+            }
+        
+            args = new Args();
+            args.name(formStr(FWFTextBlockOptions));
+            args.caller(element);
+            args.parmEnumType(enumNum(AccessType));
+            args.parmEnum(AccessType::Add);
+            args.record(this.newTmpRecord());
+            args.parm(int2str(selectedDocumentFldId));
+        
+            formOption = classfactory.formRunClass(args);
+            formOption.init();
+            formOption.run();
+            formOption.wait();
+        
+            formOption.closeOk();
+        
+            if (FormDataUtil::getFormDataSource(UsageLines))
+            {
+                UsageLines_ds.executeQuery();
+            }
+        }
+
+]]></Source>
+					</Method>
+					<Method>
+						<Name>delete</Name>
+						<Source><![CDATA[
+        public void delete()
+        {
+            if (! UsageLines.RecId)
+            {
+                super();
+            }
+            else
+            {
+                ttsBegin;
+        
+                if (ParmLines.RecId && selectedDocumentFldId > 0)
+                {
+                    ParmLines.(selectedDocumentFldId) = false;
+                    ParmLines.update();
+                }
+        
+                ttsCommit;
+        
+                UsageLines_ds.executeQuery();
+            }
+        }
+
+]]></Source>
+					</Method>
+					<Method>
+						<Name>initValue</Name>
+						<Source><![CDATA[
+        void  initValue()
+        {
+            super();
+        
+            UsageLines.AccountType       = accountType;
+            UsageLines.AccountCode       = accountCode;
+            UsageLines.AccountRelation   = accountRelation;
+        
+            UsageLines.ItemCode          = TableGroupAll::Table;
+            UsageLines.ProductType       = FWFTextBlockProductType::ReleasedProduct;
+        }
+
+]]></Source>
+					</Method>
+					<Method>
+						<Name>inventDim</Name>
+						<Source><![CDATA[
+        InventDim inventDim()
+        {
+            return inventDim;
+        }
+
+]]></Source>
+					</Method>
+					<Method>
+						<Name>write</Name>
+						<Source><![CDATA[
+        public void write()
+        {
+            UsageLines.InventDimId   = InventDim::findOrCreate(inventDim).InventDimId;
+            UsageLines.SetupRefRefId = ParmLines.RecId;
+        
+            super();
+        
+            if (UsageLines.InventDimId != inventDim.InventDimId)
+            {
+                inventDim.data(InventDim::find(UsageLines.InventDimId));
+                inventDim_ds.setCurrent();
+            }
+        }
+
+]]></Source>
+					</Method>
+					<Method>
+						<Name>active</Name>
+						<Source><![CDATA[
+        int  active()
+        {
+            int ok;
+        
+            ok = super();
+        
+            element.enableRelationFields(UsageLines);
+            element.updateDesignDim(InventDimFormDesignUpdate::Active);
+        
+            return ok;
+        }
+
+]]></Source>
+					</Method>
+					<Method>
+						<Name>newTmpRecord</Name>
+						<Source><![CDATA[
+        public FWFTextBlockUsage newTmpRecord()
+        {
+            FWFTextBlockUsage       textBlockUsage;
+        
+            // BP deviation documented
+            textBlockUsage.setTmp();
+        
+            textBlockUsage.initValue();
+        
+            textBlockUsage.AccountType       = accountType;
+            textBlockUsage.ProductType       = FWFTextBlockProductType::ReleasedProduct;
+            textBlockUsage.AccountCode       = accountCode;
+            textBlockUsage.AccountRelation   = accountRelation;
+            textBlockUsage.ItemCode          = TableGroupAll::Table;
+        
+            textBlockUsage.updateRelations();
+            textBlockUsage.insert();
+        
+            return textBlockUsage;
+        }
+
+]]></Source>
+					</Method>
+				</Methods>
+				<Fields>
+					<Field>
+						<DataField>ItemCode</DataField>
+						<Methods>
+							<Method>
+								<Name>modified</Name>
+								<Source><![CDATA[
+            public void modified()
+            {
+                super();
+            
+                element.enableRelationFields(UsageLines);
+                element.clearInventDim();
+            
+                element.updateDesignDim(InventDimFormDesignUpdate::FieldChange);
+            }
+
+]]></Source>
+							</Method>
+						</Methods>
+					</Field>
+					<Field>
+						<DataField>ItemRelation</DataField>
+						<Methods>
+							<Method>
+								<Name>modified</Name>
+								<Source><![CDATA[
+            public void modified()
+            {
+                super();
+            
+                element.clearInventDim();
+            
+                element.updateDesignDim(InventDimFormDesignUpdate::FieldChange);
+            }
+
+]]></Source>
+							</Method>
+						</Methods>
+					</Field>
+					<Field>
+						<DataField>ProductType</DataField>
+						<Methods>
+							<Method>
+								<Name>modified</Name>
+								<Source><![CDATA[
+            public void modified()
+            {
+                super();
+            
+                element.updateDesignDim(InventDimFormDesignUpdate::LinkActive);
+            }
+
+]]></Source>
+							</Method>
+							<Method>
+								<Name>dataChanged</Name>
+								<Source><![CDATA[
+            public void dataChanged()
+            {
+                super();
+            
+                element.updateDesignDim(InventDimFormDesignUpdate::LinkActive);
+            }
+
+]]></Source>
+							</Method>
+						</Methods>
+					</Field>
+					<Field>
+						<DataField>TextBlockRecId</DataField>
+						<Methods>
+							<Method>
+								<Name>lookupReference</Name>
+								<Source><![CDATA[
+            public Common lookupReference(FormReferenceControl _formReferenceControl)
+            {
+                return FWFTextBlockTable::lookupReference(_formReferenceControl, FWFTextBlockModule::ReleasedProduct);
+            }
+
+]]></Source>
+							</Method>
+						</Methods>
+					</Field>
+				</Fields>
+			</DataSource>
+		</DataSources>
+		<DataControls xmlns="">
+			<Control>
+				<Name>TreeDoc</Name>
+				<Type>Tree</Type>
+				<Methods>
+					<Method>
+						<Name>selectionChanged</Name>
+						<Source><![CDATA[
+        public void selectionChanged(FormTreeItem _OldItem, FormTreeItem _NewItem, FormTreeSelect _how)
+        {
+            int         idx;
+        
+            super(_OldItem, _NewItem, _how);
+        
+            [accountType, selectedDocumentFldId] = [accountType, 0];
+        
+            if (_NewItem != null)
+            {
+                idx = any2int(_NewItem.data());
+                if (idx != 0)
+                {
+                    [accountType, selectedDocumentFldId] = treeNav.getModule(idx);
+                }
+            }
+        
+            element.updateDesignCustVend();
+        
+            element.reSelect(UsageHeader_ds, ParmHeader_ds, blockCodeHeader, accountType);
+            element.reSelect(UsageLines_ds, ParmLines_ds, blockCodeLines, accountType);
+        }
+
+]]></Source>
+					</Method>
+				</Methods>
+			</Control>
+		</DataControls>
+		<Members xmlns="" />
+	</SourceCode>
+	<DataSources>
+		<AxFormDataSource xmlns="">
+			<Name>UsageHeader</Name>
+			<Table>FWFTextBlockUsage</Table>
+			<Fields>
+				<AxFormDataSourceField>
+					<DataField>AccountCode</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>AccountRelation</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>AccountType</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>dataAreaId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>FromDate</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>InventDimId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>ItemCode</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>ItemRelation</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>modifiedDateTime</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>ProductType</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>RecId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>SetupRefRefId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>TableId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>TextBlockRecId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>ToDate</DataField>
+				</AxFormDataSourceField>
+			</Fields>
+			<ReferencedDataSources />
+			<AllowEdit>No</AllowEdit>
+			<InsertIfEmpty>No</InsertIfEmpty>
+			<DataSourceLinks />
+			<DerivedDataSources />
+		</AxFormDataSource>
+		<AxFormDataSource xmlns="">
+			<Name>InventDim</Name>
+			<Table>InventDim</Table>
+			<Fields>
+				<AxFormDataSourceField>
+					<DataField>configId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>createdDateTime</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>dataAreaId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>inventBatchId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>InventColorId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>inventDimId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>InventGtdId_RU</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>InventLocationId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>InventOwnerId_RU</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>InventProfileId_RU</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>inventSerialId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>InventSiteId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>InventSizeId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>InventStatusId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>InventStyleId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>LicensePlateId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>modifiedBy</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>modifiedDateTime</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>RecId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>SHA1Hash</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>TableId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>wMSLocationId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>wMSPalletId</DataField>
+				</AxFormDataSourceField>
+			</Fields>
+			<ReferencedDataSources />
+			<DelayActive>No</DelayActive>
+			<JoinSource>UsageLines</JoinSource>
+			<LinkType>InnerJoin</LinkType>
+			<AllowCreate>No</AllowCreate>
+			<AllowDelete>No</AllowDelete>
+			<AllowEdit>No</AllowEdit>
+			<InsertAtEnd>No</InsertAtEnd>
+			<InsertIfEmpty>No</InsertIfEmpty>
+			<DataSourceLinks />
+			<DerivedDataSources />
+		</AxFormDataSource>
+		<AxFormDataSource xmlns="">
+			<Name>ParmHeader</Name>
+			<Table>FWFTextBlockSetupParm</Table>
+			<Fields>
+				<AxFormDataSourceField>
+					<DataField>dataAreaId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>ICCopy</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>InstanceRelationType</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>Position</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnPurchConfirmation</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnPurchInvoice</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnPurchPackingSlip</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnPurchReceiptsList</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnSalesConfirmation</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnSalesInvoice</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnSalesPackingSlip</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnSalesPickingList</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnSalesQuotation</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>RecId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>relationType</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>ShowWarning</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>SortOrder</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>TableId</DataField>
+				</AxFormDataSourceField>
+			</Fields>
+			<ReferencedDataSources />
+			<JoinSource>UsageHeader</JoinSource>
+			<LinkType>InnerJoin</LinkType>
+			<AllowCreate>No</AllowCreate>
+			<AllowDelete>No</AllowDelete>
+			<AllowEdit>No</AllowEdit>
+			<InsertIfEmpty>No</InsertIfEmpty>
+			<DataSourceLinks />
+			<DerivedDataSources />
+		</AxFormDataSource>
+		<AxFormDataSource xmlns="">
+			<Name>UsageLines</Name>
+			<Table>FWFTextBlockUsage</Table>
+			<Fields>
+				<AxFormDataSourceField>
+					<DataField>AccountCode</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>AccountRelation</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>AccountType</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>dataAreaId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>FromDate</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>InventDimId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>ItemCode</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>ItemRelation</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>modifiedDateTime</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>ProductType</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>RecId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>SetupRefRefId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>TableId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>TextBlockRecId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>ToDate</DataField>
+				</AxFormDataSourceField>
+			</Fields>
+			<ReferencedDataSources />
+			<AllowEdit>No</AllowEdit>
+			<InsertIfEmpty>No</InsertIfEmpty>
+			<DataSourceLinks />
+			<DerivedDataSources />
+		</AxFormDataSource>
+		<AxFormDataSource xmlns="">
+			<Name>ParmLines</Name>
+			<Table>FWFTextBlockSetupParm</Table>
+			<Fields>
+				<AxFormDataSourceField>
+					<DataField>dataAreaId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>ICCopy</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>InstanceRelationType</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>Position</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnPurchConfirmation</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnPurchInvoice</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnPurchPackingSlip</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnPurchReceiptsList</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnSalesConfirmation</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnSalesInvoice</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnSalesPackingSlip</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnSalesPickingList</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>PrintOnSalesQuotation</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>RecId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>relationType</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>ShowWarning</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>SortOrder</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>TableId</DataField>
+				</AxFormDataSourceField>
+			</Fields>
+			<ReferencedDataSources />
+			<JoinSource>UsageLines</JoinSource>
+			<LinkType>InnerJoin</LinkType>
+			<AllowCreate>No</AllowCreate>
+			<AllowDelete>No</AllowDelete>
+			<AllowEdit>No</AllowEdit>
+			<InsertIfEmpty>No</InsertIfEmpty>
+			<DataSourceLinks />
+			<DerivedDataSources />
+		</AxFormDataSource>
+	</DataSources>
+	<Design>
+		<Caption xmlns="">@FWFTextBlock:AssignExtendedFormLetterNotes</Caption>
+		<HeightMode xmlns="">Column</HeightMode>
+		<HideIfEmpty xmlns="">No</HideIfEmpty>
+		<Pattern xmlns="">SimpleListDetails-Tree</Pattern>
+		<PatternVersion xmlns="">1.3</PatternVersion>
+		<ShowDeleteButton xmlns="">No</ShowDeleteButton>
+		<ShowNewButton xmlns="">No</ShowNewButton>
+		<StatusBarStyle xmlns="">Simple</StatusBarStyle>
+		<Style xmlns="">SimpleListDetails</Style>
+		<TitleDataSource xmlns="">UsageHeader</TitleDataSource>
+		<ViewEditMode xmlns="">View</ViewEditMode>
+		<WidthMode xmlns="">Column</WidthMode>
+		<Controls xmlns="">
+			<AxFormControl xmlns=""
+				i:type="AxFormActionPaneControl">
+				<Name>ActionPane</Name>
+				<ElementPosition>715827882</ElementPosition>
+				<FilterExpression>%1</FilterExpression>
+				<HeightMode>Auto</HeightMode>
+				<Type>ActionPane</Type>
+				<VerticalSpacing>-1</VerticalSpacing>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormButtonGroupControl">
+						<Name>TextblockSettingsVend</Name>
+						<ElementPosition>858993458</ElementPosition>
+						<FilterExpression>%1</FilterExpression>
+						<HeightMode>Auto</HeightMode>
+						<Type>ButtonGroup</Type>
+						<VerticalSpacing>-1</VerticalSpacing>
+						<WidthMode>Auto</WidthMode>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormMenuFunctionButtonControl">
+								<Name>FWFTextBlockUsage_Supplier</Name>
+								<AutoDeclaration>Yes</AutoDeclaration>
+								<ElementPosition>1073741822</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<HeightMode>Auto</HeightMode>
+								<Type>MenuFunctionButton</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<WidthMode>Auto</WidthMode>
+								<FormControlExtension
+									i:nil="true" />
+								<Big>Yes</Big>
+								<MenuItemName>FWFTextBlockUsage_Supplier</MenuItemName>
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormMenuFunctionButtonControl">
+								<Name>FWFTextBlockUsage_Product_Supplier</Name>
+								<AutoDeclaration>Yes</AutoDeclaration>
+								<ElementPosition>1610612733</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<HeightMode>Auto</HeightMode>
+								<Type>MenuFunctionButton</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<WidthMode>Auto</WidthMode>
+								<FormControlExtension
+									i:nil="true" />
+								<Big>Yes</Big>
+								<MenuItemName>FWFTextBlockUsage_Product_Supplier</MenuItemName>
+							</AxFormControl>
+						</Controls>
+						<ArrangeMethod>Vertical</ArrangeMethod>
+						<Caption>@FWFTextBlock:VendAssignment</Caption>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormButtonGroupControl">
+						<Name>TextblockSettingsCust</Name>
+						<ElementPosition>1288490187</ElementPosition>
+						<FilterExpression>%1</FilterExpression>
+						<HeightMode>Auto</HeightMode>
+						<Type>ButtonGroup</Type>
+						<VerticalSpacing>-1</VerticalSpacing>
+						<WidthMode>Auto</WidthMode>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormMenuFunctionButtonControl">
+								<Name>FWFTextBlockUsage_Customer</Name>
+								<AutoDeclaration>Yes</AutoDeclaration>
+								<ElementPosition>1073741822</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<HeightMode>Auto</HeightMode>
+								<Type>MenuFunctionButton</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<WidthMode>Auto</WidthMode>
+								<FormControlExtension
+									i:nil="true" />
+								<Big>Yes</Big>
+								<MenuItemName>FWFTextBlockUsage_Customer</MenuItemName>
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormMenuFunctionButtonControl">
+								<Name>FWFTextBlockUsage_Product_Customer</Name>
+								<AutoDeclaration>Yes</AutoDeclaration>
+								<ElementPosition>1610612733</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<HeightMode>Auto</HeightMode>
+								<Type>MenuFunctionButton</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<WidthMode>Auto</WidthMode>
+								<FormControlExtension
+									i:nil="true" />
+								<Big>Yes</Big>
+								<MenuItemName>FWFTextBlockUsage_Supplier</MenuItemName>
+							</AxFormControl>
+						</Controls>
+						<ArrangeMethod>Vertical</ArrangeMethod>
+						<Caption>@FWFTextBlock:CustAssignment</Caption>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormButtonGroupControl">
+						<Name>TextSettings</Name>
+						<ElementPosition>1717986916</ElementPosition>
+						<FilterExpression>%1</FilterExpression>
+						<HeightMode>Auto</HeightMode>
+						<Type>ButtonGroup</Type>
+						<VerticalSpacing>-1</VerticalSpacing>
+						<WidthMode>Auto</WidthMode>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormMenuFunctionButtonControl">
+								<Name>FWFTextBlockTable</Name>
+								<ElementPosition>1431655764</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<HeightMode>Auto</HeightMode>
+								<Type>MenuFunctionButton</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<WidthMode>Auto</WidthMode>
+								<FormControlExtension
+									i:nil="true" />
+								<Big>Yes</Big>
+								<MenuItemName>FWFTextBlockTable</MenuItemName>
+								<Text>Text erfassen</Text>
+							</AxFormControl>
+						</Controls>
+						<ArrangeMethod>Vertical</ArrangeMethod>
+						<Caption>@FWFTextBlock:AllTextBlocks</Caption>
+					</AxFormControl>
+				</Controls>
+				<AlignChild>No</AlignChild>
+				<AlignChildren>No</AlignChildren>
+				<ArrangeMethod>Vertical</ArrangeMethod>
+				<DataSource>UsageHeader</DataSource>
+			</AxFormControl>
+			<AxFormControl xmlns=""
+				i:type="AxFormGroupControl">
+				<Name>NavigationList</Name>
+				<AutoDeclaration>Yes</AutoDeclaration>
+				<ElementPosition>858993458</ElementPosition>
+				<FilterExpression>%1</FilterExpression>
+				<HeightMode>SizeToAvailable</HeightMode>
+				<Type>Group</Type>
+				<VerticalSpacing>-1</VerticalSpacing>
+				<Width>300</Width>
+				<WidthMode>Manual</WidthMode>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormTreeControl">
+						<Name>TreeDoc</Name>
+						<AutoDeclaration>Yes</AutoDeclaration>
+						<ElementPosition>1431655764</ElementPosition>
+						<FilterExpression>%1</FilterExpression>
+						<HeightMode>SizeToAvailable</HeightMode>
+						<Type>Tree</Type>
+						<VerticalSpacing>-1</VerticalSpacing>
+						<FormControlExtension
+							i:nil="true" />
+						<Border>None</Border>
+					</AxFormControl>
+				</Controls>
+				<RightMargin>0</RightMargin>
+				<RightMarginMode>Fixed</RightMarginMode>
+				<FrameType>None</FrameType>
+				<Style>SidePanel</Style>
+			</AxFormControl>
+			<AxFormControl xmlns=""
+				i:type="AxFormGroupControl">
+				<Name>VerticalSplitter</Name>
+				<AutoDeclaration>Yes</AutoDeclaration>
+				<ElementPosition>1288490187</ElementPosition>
+				<FilterExpression>%1</FilterExpression>
+				<HeightMode>Auto</HeightMode>
+				<Type>Group</Type>
+				<VerticalSpacing>-1</VerticalSpacing>
+				<WidthMode>Auto</WidthMode>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls />
+				<Style>SplitterVerticalContainer</Style>
+			</AxFormControl>
+			<AxFormControl xmlns=""
+				i:type="AxFormGroupControl">
+				<Name>DetailsHeader</Name>
+				<ElementPosition>1431655764</ElementPosition>
+				<FilterExpression>%1</FilterExpression>
+				<Pattern>FieldsFieldGroups</Pattern>
+				<PatternVersion>1.1</PatternVersion>
+				<Type>Group</Type>
+				<VerticalSpacing>-1</VerticalSpacing>
+				<WidthMode>SizeToAvailable</WidthMode>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls />
+				<ColumnsMode>Fill</ColumnsMode>
+				<Columnspace>0</Columnspace>
+				<ColumnspaceMode>Fixed</ColumnspaceMode>
+				<FrameType>None</FrameType>
+			</AxFormControl>
+			<AxFormControl xmlns=""
+				i:type="AxFormTabControl">
+				<Name>DetailsTab</Name>
+				<AlignControl>No</AlignControl>
+				<ElementPosition>1431655764</ElementPosition>
+				<FilterExpression>%1</FilterExpression>
+				<Type>Tab</Type>
+				<VerticalSpacing>-1</VerticalSpacing>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormTabPageControl">
+						<Name>TabPageHeader</Name>
+						<AutoDeclaration>Yes</AutoDeclaration>
+						<ElementPosition>1073741822</ElementPosition>
+						<FilterExpression>%1</FilterExpression>
+						<HeightMode>Auto</HeightMode>
+						<Pattern>ToolbarList</Pattern>
+						<PatternVersion>1.2</PatternVersion>
+						<Type>TabPage</Type>
+						<VerticalSpacing>-1</VerticalSpacing>
+						<WidthMode>SizeToAvailable</WidthMode>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormActionPaneControl">
+								<Name>ActionPaneHeader</Name>
+								<ElementPosition>1073741822</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<Type>ActionPane</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormActionPaneTabControl">
+										<Name>ActionPaneTabHeader</Name>
+										<ElementPosition>1431655764</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>ActionPaneTab</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<Controls>
+											<AxFormControl xmlns=""
+												i:type="AxFormButtonGroupControl">
+												<Name>ButtonGroupHeader</Name>
+												<ElementPosition>1431655764</ElementPosition>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>Auto</HeightMode>
+												<Type>ButtonGroup</Type>
+												<VerticalSpacing>-1</VerticalSpacing>
+												<WidthMode>Auto</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<Controls>
+													<AxFormControl xmlns=""
+														i:type="AxFormCommandButtonControl">
+														<Name>NewButtonHeader</Name>
+														<ElementPosition>872415230</ElementPosition>
+														<FilterExpression>%1</FilterExpression>
+														<HeightMode>Auto</HeightMode>
+														<Type>CommandButton</Type>
+														<VerticalSpacing>-1</VerticalSpacing>
+														<WidthMode>Auto</WidthMode>
+														<FormControlExtension
+															i:nil="true" />
+														<ButtonDisplay>TextWithImageLeft</ButtonDisplay>
+														<Command>New</Command>
+														<NormalImage>New</NormalImage>
+														<Primary>Yes</Primary>
+													</AxFormControl>
+													<AxFormControl xmlns=""
+														i:type="AxFormCommandButtonControl">
+														<Name>DeleteButtonHeader</Name>
+														<AutoDeclaration>Yes</AutoDeclaration>
+														<ElementPosition>1308622845</ElementPosition>
+														<FilterExpression>%1</FilterExpression>
+														<HeightMode>Auto</HeightMode>
+														<Type>CommandButton</Type>
+														<VerticalSpacing>-1</VerticalSpacing>
+														<WidthMode>Auto</WidthMode>
+														<FormControlExtension
+															i:nil="true" />
+														<ButtonDisplay>TextWithImageLeft</ButtonDisplay>
+														<Command>DeleteRecord</Command>
+														<NormalImage>Delete</NormalImage>
+														<Primary>Yes</Primary>
+														<SaveRecord>No</SaveRecord>
+														<Text>@sys14425</Text>
+													</AxFormControl>
+													<AxFormControl xmlns=""
+														i:type="AxFormButtonSeparatorControl">
+														<Name>SeparatorHeader</Name>
+														<ElementPosition>1744830461</ElementPosition>
+														<FilterExpression>%1</FilterExpression>
+														<HeightMode>Auto</HeightMode>
+														<Type>ButtonSeparator</Type>
+														<VerticalSpacing>-1</VerticalSpacing>
+														<WidthMode>Auto</WidthMode>
+														<FormControlExtension
+															i:nil="true" />
+													</AxFormControl>
+													<AxFormControl xmlns=""
+														i:type="AxFormMenuFunctionButtonControl">
+														<Name>FWFTextBlockOptions</Name>
+														<ElementPosition>2013265917</ElementPosition>
+														<FilterExpression>%1</FilterExpression>
+														<HeightMode>Auto</HeightMode>
+														<Type>MenuFunctionButton</Type>
+														<VerticalSpacing>-1</VerticalSpacing>
+														<WidthMode>Auto</WidthMode>
+														<FormControlExtension
+															i:nil="true" />
+														<MenuItemName>FWFTextBlockOptions</MenuItemName>
+														<NeedsRecord>Yes</NeedsRecord>
+													</AxFormControl>
+												</Controls>
+												<ArrangeMethod>Vertical</ArrangeMethod>
+											</AxFormControl>
+										</Controls>
+										<AlignChild>No</AlignChild>
+										<AlignChildren>No</AlignChildren>
+										<ArrangeMethod>Vertical</ArrangeMethod>
+									</AxFormControl>
+								</Controls>
+								<AlignChild>No</AlignChild>
+								<AlignChildren>No</AlignChildren>
+								<ArrangeMethod>Vertical</ArrangeMethod>
+								<DataSource>UsageHeader</DataSource>
+								<Style>Strip</Style>
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormGridControl">
+								<Name>GridHeader</Name>
+								<ElementPosition>1431655764</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<Type>Grid</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormReferenceGroupControl">
+										<Name>UsageHeader_TextBlockRecId</Name>
+										<ElementPosition>477218588</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>ReferenceGroup</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<Controls />
+										<DataSource>UsageHeader</DataSource>
+										<ReferenceField>TextBlockRecId</ReferenceField>
+										<ReplacementFieldGroup>AutoLookup</ReplacementFieldGroup>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormComboBoxControl">
+										<Name>UsageHeader_AccountType</Name>
+										<ElementPosition>715827882</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>ComboBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>AccountType</DataField>
+										<DataSource>UsageHeader</DataSource>
+										<Items />
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormComboBoxControl">
+										<Name>UsageHeader_AccountCode</Name>
+										<ElementPosition>954437176</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>ComboBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>AccountCode</DataField>
+										<DataSource>UsageHeader</DataSource>
+										<Items />
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormStringControl">
+										<Name>UsageHeader_AccountRelation</Name>
+										<AutoDeclaration>Yes</AutoDeclaration>
+										<ElementPosition>1193046470</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>String</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>AccountRelation</DataField>
+										<DataSource>UsageHeader</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormDateControl">
+										<Name>UsageHeader_FromDate</Name>
+										<ElementPosition>1431655764</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>Date</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>FromDate</DataField>
+										<DataSource>UsageHeader</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormDateControl">
+										<Name>UsageHeader_ToDate</Name>
+										<ElementPosition>1670265058</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>Date</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>ToDate</DataField>
+										<DataSource>UsageHeader</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormComboBoxControl">
+										<Name>ParmHeader_Position</Name>
+										<ElementPosition>1908874352</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>ComboBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>Position</DataField>
+										<DataSource>ParmHeader</DataSource>
+										<Items />
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormStringControl">
+										<Name>defaultTextHeader</Name>
+										<ElementPosition>2028178999</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>String</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<CacheDataMethod>Yes</CacheDataMethod>
+										<DataMethod>defaultText</DataMethod>
+										<DataSource>UsageHeader</DataSource>
+									</AxFormControl>
+								</Controls>
+								<DataSource>UsageHeader</DataSource>
+							</AxFormControl>
+						</Controls>
+						<BottomMargin>0</BottomMargin>
+						<BottomMarginMode>Fixed</BottomMarginMode>
+						<Caption>@FWFTextBlock:HeaderFooter</Caption>
+						<DataSource>UsageHeader</DataSource>
+						<FastTabExpanded>Yes</FastTabExpanded>
+						<Scrollbars>Auto</Scrollbars>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormTabPageControl">
+						<Name>TabPageLines</Name>
+						<AutoDeclaration>Yes</AutoDeclaration>
+						<ElementPosition>1610612733</ElementPosition>
+						<FilterExpression>%1</FilterExpression>
+						<HeightMode>Auto</HeightMode>
+						<Pattern>ToolbarList</Pattern>
+						<PatternVersion>1.2</PatternVersion>
+						<Type>TabPage</Type>
+						<VerticalSpacing>-1</VerticalSpacing>
+						<WidthMode>SizeToAvailable</WidthMode>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormActionPaneControl">
+								<Name>ActionPaneLines</Name>
+								<ElementPosition>1073741822</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<Type>ActionPane</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormActionPaneTabControl">
+										<Name>ActionPaneTabLines</Name>
+										<ElementPosition>1431655764</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>ActionPaneTab</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<Controls>
+											<AxFormControl xmlns=""
+												i:type="AxFormButtonGroupControl">
+												<Name>ButtonGroupLines</Name>
+												<ElementPosition>1431655764</ElementPosition>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>Auto</HeightMode>
+												<Type>ButtonGroup</Type>
+												<VerticalSpacing>-1</VerticalSpacing>
+												<WidthMode>Auto</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<Controls>
+													<AxFormControl xmlns=""
+														i:type="AxFormCommandButtonControl">
+														<Name>NewButtonLines</Name>
+														<ElementPosition>715827882</ElementPosition>
+														<FilterExpression>%1</FilterExpression>
+														<HeightMode>Auto</HeightMode>
+														<Type>CommandButton</Type>
+														<VerticalSpacing>-1</VerticalSpacing>
+														<WidthMode>Auto</WidthMode>
+														<FormControlExtension
+															i:nil="true" />
+														<ButtonDisplay>TextWithImageLeft</ButtonDisplay>
+														<Command>New</Command>
+														<NormalImage>New</NormalImage>
+														<Primary>Yes</Primary>
+													</AxFormControl>
+													<AxFormControl xmlns=""
+														i:type="AxFormCommandButtonControl">
+														<Name>DeleteButtonLines</Name>
+														<ElementPosition>1073741823</ElementPosition>
+														<FilterExpression>%1</FilterExpression>
+														<HeightMode>Auto</HeightMode>
+														<Type>CommandButton</Type>
+														<VerticalSpacing>-1</VerticalSpacing>
+														<WidthMode>Auto</WidthMode>
+														<FormControlExtension
+															i:nil="true" />
+														<ButtonDisplay>TextWithImageLeft</ButtonDisplay>
+														<Command>DeleteRecord</Command>
+														<NormalImage>Delete</NormalImage>
+														<Primary>Yes</Primary>
+														<SaveRecord>No</SaveRecord>
+														<Text>@sys14425</Text>
+													</AxFormControl>
+													<AxFormControl xmlns=""
+														i:type="AxFormButtonSeparatorControl">
+														<Name>Separator1</Name>
+														<ElementPosition>1431655764</ElementPosition>
+														<FilterExpression>%1</FilterExpression>
+														<HeightMode>Auto</HeightMode>
+														<Type>ButtonSeparator</Type>
+														<VerticalSpacing>-1</VerticalSpacing>
+														<WidthMode>Auto</WidthMode>
+														<FormControlExtension
+															i:nil="true" />
+													</AxFormControl>
+													<AxFormControl xmlns=""
+														i:type="AxFormMenuFunctionButtonControl">
+														<Name>FWFTextBlockOptionsLines</Name>
+														<ElementPosition>1789569704</ElementPosition>
+														<FilterExpression>%1</FilterExpression>
+														<HeightMode>Auto</HeightMode>
+														<Type>MenuFunctionButton</Type>
+														<VerticalSpacing>-1</VerticalSpacing>
+														<WidthMode>Auto</WidthMode>
+														<FormControlExtension
+															i:nil="true" />
+														<MenuItemName>FWFTextBlockOptions</MenuItemName>
+														<NeedsRecord>Yes</NeedsRecord>
+													</AxFormControl>
+													<AxFormControl xmlns=""
+														i:type="AxFormMenuFunctionButtonControl">
+														<Name>InventDimParmFixed</Name>
+														<AutoDeclaration>Yes</AutoDeclaration>
+														<ElementPosition>1968526674</ElementPosition>
+														<FilterExpression>%1</FilterExpression>
+														<HeightMode>Auto</HeightMode>
+														<Type>MenuFunctionButton</Type>
+														<VerticalSpacing>-1</VerticalSpacing>
+														<WidthMode>Auto</WidthMode>
+														<FormControlExtension
+															i:nil="true" />
+														<MenuItemName>InventDimParmFixed</MenuItemName>
+														<SaveRecord>No</SaveRecord>
+													</AxFormControl>
+												</Controls>
+												<ArrangeMethod>Vertical</ArrangeMethod>
+											</AxFormControl>
+										</Controls>
+										<AlignChild>No</AlignChild>
+										<AlignChildren>No</AlignChildren>
+										<ArrangeMethod>Vertical</ArrangeMethod>
+									</AxFormControl>
+								</Controls>
+								<AlignChild>No</AlignChild>
+								<AlignChildren>No</AlignChildren>
+								<ArrangeMethod>Vertical</ArrangeMethod>
+								<DataSource>UsageLines</DataSource>
+								<Style>Strip</Style>
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormGridControl">
+								<Name>GridLines</Name>
+								<ElementPosition>1431655764</ElementPosition>
+								<FilterExpression>%1</FilterExpression>
+								<Type>Grid</Type>
+								<VerticalSpacing>-1</VerticalSpacing>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormReferenceGroupControl">
+										<Name>UsageLines_TextBlockRecId</Name>
+										<ElementPosition>357913940</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>ReferenceGroup</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<Controls />
+										<DataSource>UsageLines</DataSource>
+										<ReferenceField>TextBlockRecId</ReferenceField>
+										<ReplacementFieldGroup>AutoLookup</ReplacementFieldGroup>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormComboBoxControl">
+										<Name>UsageLines_AccountType</Name>
+										<ElementPosition>536870910</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>ComboBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>AccountType</DataField>
+										<DataSource>UsageLines</DataSource>
+										<Items />
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormComboBoxControl">
+										<Name>UsageLines_AccountCode</Name>
+										<ElementPosition>715827880</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>ComboBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>AccountCode</DataField>
+										<DataSource>UsageLines</DataSource>
+										<Items />
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormStringControl">
+										<Name>UsageLines_AccountRelation</Name>
+										<AutoDeclaration>Yes</AutoDeclaration>
+										<ElementPosition>894784850</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>String</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>AccountRelation</DataField>
+										<DataSource>UsageLines</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormComboBoxControl">
+										<Name>UsageLines_ItemCode</Name>
+										<ElementPosition>1073741820</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>ComboBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>ItemCode</DataField>
+										<DataSource>UsageLines</DataSource>
+										<Items />
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormStringControl">
+										<Name>UsageLines_ItemRelation</Name>
+										<ElementPosition>1252698790</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>String</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>ItemRelation</DataField>
+										<DataSource>UsageLines</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormGroupControl">
+										<Name>InventoryDimensions</Name>
+										<ElementPosition>1431655760</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>Group</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<Controls>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_configId</Name>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>Auto</HeightMode>
+												<Type>String</Type>
+												<VerticalSpacing>-1</VerticalSpacing>
+												<WidthMode>Auto</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>configId</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_InventSizeId</Name>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>Auto</HeightMode>
+												<Type>String</Type>
+												<VerticalSpacing>-1</VerticalSpacing>
+												<WidthMode>Auto</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>InventSizeId</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_InventColorId</Name>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>Auto</HeightMode>
+												<Type>String</Type>
+												<VerticalSpacing>-1</VerticalSpacing>
+												<WidthMode>Auto</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>InventColorId</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_InventStyleId</Name>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>Auto</HeightMode>
+												<Type>String</Type>
+												<VerticalSpacing>-1</VerticalSpacing>
+												<WidthMode>Auto</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>InventStyleId</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_InventSiteId</Name>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>Auto</HeightMode>
+												<Type>String</Type>
+												<VerticalSpacing>-1</VerticalSpacing>
+												<WidthMode>Auto</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>InventSiteId</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_InventLocationId</Name>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>Auto</HeightMode>
+												<Type>String</Type>
+												<VerticalSpacing>-1</VerticalSpacing>
+												<WidthMode>Auto</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>InventLocationId</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_inventBatchId</Name>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>Auto</HeightMode>
+												<Type>String</Type>
+												<VerticalSpacing>-1</VerticalSpacing>
+												<WidthMode>Auto</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>inventBatchId</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_wMSLocationId</Name>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>Auto</HeightMode>
+												<Type>String</Type>
+												<VerticalSpacing>-1</VerticalSpacing>
+												<WidthMode>Auto</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>wMSLocationId</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_inventSerialId</Name>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>Auto</HeightMode>
+												<Type>String</Type>
+												<VerticalSpacing>-1</VerticalSpacing>
+												<WidthMode>Auto</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>inventSerialId</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_InventStatusId</Name>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>Auto</HeightMode>
+												<Type>String</Type>
+												<VerticalSpacing>-1</VerticalSpacing>
+												<WidthMode>Auto</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>InventStatusId</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_LicensePlateId</Name>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>Auto</HeightMode>
+												<Type>String</Type>
+												<VerticalSpacing>-1</VerticalSpacing>
+												<WidthMode>Auto</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>LicensePlateId</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_InventOwnerId_RU</Name>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>Auto</HeightMode>
+												<Type>String</Type>
+												<VerticalSpacing>-1</VerticalSpacing>
+												<WidthMode>Auto</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>InventOwnerId_RU</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_InventProfileId_RU</Name>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>Auto</HeightMode>
+												<Type>String</Type>
+												<VerticalSpacing>-1</VerticalSpacing>
+												<WidthMode>Auto</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>InventProfileId_RU</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_InventGtdId_RU</Name>
+												<FilterExpression>%1</FilterExpression>
+												<HeightMode>Auto</HeightMode>
+												<Type>String</Type>
+												<VerticalSpacing>-1</VerticalSpacing>
+												<WidthMode>Auto</WidthMode>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>InventGtdId_RU</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_InventDimension1</Name>
+												<Type>String</Type>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>InventDimension1</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_InventDimension2</Name>
+												<Type>String</Type>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>InventDimension2</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_InventDimension3</Name>
+												<Type>String</Type>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>InventDimension3</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_InventDimension4</Name>
+												<Type>String</Type>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>InventDimension4</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_InventDimension5</Name>
+												<Type>String</Type>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>InventDimension5</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_InventDimension6</Name>
+												<Type>String</Type>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>InventDimension6</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_InventDimension7</Name>
+												<Type>String</Type>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>InventDimension7</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormStringControl">
+												<Name>InventoryDimensions_InventDimension8</Name>
+												<Type>String</Type>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>InventDimension8</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormDateTimeControl">
+												<Name>InventoryDimensions_InventDimension9</Name>
+												<Type>DateTime</Type>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>InventDimension9</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+											<AxFormControl xmlns=""
+												i:type="AxFormRealControl">
+												<Name>InventoryDimensions_InventDimension10</Name>
+												<Type>Real</Type>
+												<FormControlExtension
+													i:nil="true" />
+												<DataField>InventDimension10</DataField>
+												<DataSource>InventDim</DataSource>
+											</AxFormControl>
+										</Controls>
+										<BackgroundColor>WindowBackground</BackgroundColor>
+										<DataGroup>InventoryDimensions</DataGroup>
+										<DataSource>InventDim</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormDateControl">
+										<Name>UsageLines_FromDate</Name>
+										<ElementPosition>1610612730</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>Date</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>FromDate</DataField>
+										<DataSource>UsageLines</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormDateControl">
+										<Name>UsageLines_ToDate</Name>
+										<ElementPosition>1789569700</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>Date</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>ToDate</DataField>
+										<DataSource>UsageLines</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormComboBoxControl">
+										<Name>ParmLines_Position</Name>
+										<ElementPosition>1968526670</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>ComboBox</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>Position</DataField>
+										<DataSource>ParmLines</DataSource>
+										<Items />
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormStringControl">
+										<Name>defaultTextLines</Name>
+										<ElementPosition>2058005158</ElementPosition>
+										<FilterExpression>%1</FilterExpression>
+										<HeightMode>Auto</HeightMode>
+										<Type>String</Type>
+										<VerticalSpacing>-1</VerticalSpacing>
+										<WidthMode>Auto</WidthMode>
+										<FormControlExtension
+											i:nil="true" />
+										<CacheDataMethod>Yes</CacheDataMethod>
+										<DataMethod>defaultText</DataMethod>
+										<DataSource>UsageLines</DataSource>
+									</AxFormControl>
+								</Controls>
+								<DataSource>UsageLines</DataSource>
+							</AxFormControl>
+						</Controls>
+						<Caption>@SYS15451</Caption>
+						<DataSource>UsageLines</DataSource>
+						<FastTabExpanded>Yes</FastTabExpanded>
+						<Scrollbars>Auto</Scrollbars>
+					</AxFormControl>
+				</Controls>
+				<AlignChild>No</AlignChild>
+				<ArrangeMethod>Vertical</ArrangeMethod>
+				<Style>FastTabs</Style>
+			</AxFormControl>
+		</Controls>
+	</Design>
+	<Parts />
+</AxForm>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxFormExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>VendTableListPage.FWFTextBlock</Name>
+	<ControlModifications />
+	<Controls>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControlebc4oudh1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormMenuFunctionButtonControl">
+				<Name>FWFTextBlockUsageEx_Supplier</Name>
+				<Type>MenuFunctionButton</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Big>Yes</Big>
+				<MenuItemName>FWFTextBlockUsageEx_Supplier</MenuItemName>
+				<MultiSelect>No</MultiSelect>
+			</FormControl>
+			<Parent>PurchaseRelatedInformation</Parent>
+			<PositionType>AfterItem</PositionType>
+			<PreviousSibling>PurchaseOrders</PreviousSibling>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControllut4c2k41</Name>
+			<FormControl xmlns=""
+				i:type="AxFormMenuButtonControl">
+				<Name>FWFTextBlock</Name>
+				<HelpText>@FWFTextBlock:TextBlock</HelpText>
+				<Type>MenuButton</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormMenuFunctionButtonControl">
+						<Name>FWFTextBlockUsage_Supplier</Name>
+						<Type>MenuFunctionButton</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<DataSource>VendTable</DataSource>
+						<MenuItemName>FWFTextBlockUsage_Supplier</MenuItemName>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormMenuFunctionButtonControl">
+						<Name>FWFTextBlockUsage_Product</Name>
+						<Type>MenuFunctionButton</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<DataSource>VendTable</DataSource>
+						<MenuItemName>FWFTextBlockUsage_Product</MenuItemName>
+					</AxFormControl>
+				</Controls>
+				<ImageLocation>EmbeddedResource</ImageLocation>
+				<NormalImage>10042</NormalImage>
+				<Text>@SYS24752</Text>
+			</FormControl>
+			<Parent>PurchaseRelatedInformation</Parent>
+		</AxFormExtensionControl>
+	</Controls>
+	<DataSources />
+	<Parts />
+	<PropertyModifications />
+</AxFormExtension>

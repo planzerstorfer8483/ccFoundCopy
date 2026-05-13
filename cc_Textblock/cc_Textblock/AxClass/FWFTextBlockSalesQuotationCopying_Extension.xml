@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockSalesQuotationCopying_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(classStr(SalesQuotationCopying))]
+final class FWFTextBlockSalesQuotationCopying_Extension
+{
+    private NoYes   copyHeaderTB;
+    private NoYes   copyLineTB;
+
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>initializeParametersFromContract</Name>
+				<Source><![CDATA[
+    protected void initializeParametersFromContract(SalesQuotationCopyingContract _salesQuotationCopyingContract)
+    {
+        next initializeParametersFromContract(_salesQuotationCopyingContract);
+
+        this.parmCopyHeaderTextBlock(_salesQuotationCopyingContract.parmCopyHeaderTextBlock());
+        this.parmCopyLineTextBlock(_salesQuotationCopyingContract.parmCopyLineTextBlock());
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmCopyHeaderTextBlock</Name>
+				<Source><![CDATA[
+    public NoYes parmCopyHeaderTextBlock(NoYes _copyHeaderTB = copyHeaderTB)
+    {
+        copyHeaderTB = _copyHeaderTB;
+        return copyHeaderTB;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmCopyLineTextBlock</Name>
+				<Source><![CDATA[
+    public NoYes parmCopyLineTextBlock(NoYes _copyLineTB = copyLineTB)
+    {
+        copyLineTB = _copyLineTB;
+        return copyLineTB;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initSalesQuotationTableFromTmpFrmVirtualHeader</Name>
+				<Source><![CDATA[
+    protected Common initSalesQuotationTableFromTmpFrmVirtualHeader()
+    {
+        FWFTextBlockInstance    sourceInstance, targetInstance;
+        Common                  sourceRecord = next initSalesQuotationTableFromTmpFrmVirtualHeader();
+
+        if (this.parmCopyHeaderTextBlock())
+        {
+            //delete texts from setup
+            delete_from targetInstance
+                where targetInstance.RefTableId == salesQuotationTable.TableId
+                   && targetInstance.RefRecId   == salesQuotationTable.RecId;
+            
+            while select sourceInstance
+                where sourceInstance.RefTableId == sourceRecord.TableId
+                   && sourceInstance.RefRecId   == sourceRecord.RecId
+            {
+                targetInstance = sourceInstance.copyToTarget(salesQuotationTable, true);
+            }
+        }
+
+        return sourceRecord;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

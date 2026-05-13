@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxCompositeDataEntityView xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockTableUsageEntity</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[CompositeDataEntityView]
+public class FWFTextBlockTableUsageEntity
+{
+}
+]]></Declaration>
+		<Methods />
+	</SourceCode>
+	<Label>@FWFTextBlock:TextBlockComposite</Label>
+	<SubscriberAccessLevel>
+		<Read>Allow</Read>
+	</SubscriberAccessLevel>
+	<PublicCollectionName>TextBlockTableUsages</PublicCollectionName>
+	<PublicEntityName>TextBlockTableUsage</PublicEntityName>
+	<RootDataEntities>
+		<AxDataEntityViewReferenceRoot>
+			<Name>FWFTextBlockEntity</Name>
+			<DataEntity>FWFTextBlockEntity</DataEntity>
+			<EmbeddedDataEntities>
+				<AxDataEntityViewReferenceEmbedded>
+					<Name>FWFTextBlockUsageLanguageEntity</Name>
+					<DataEntity>FWFTextBlockUsageLanguageEntity</DataEntity>
+					<EmbeddedDataEntities />
+					<Relation>FWFTextBlockEntity</Relation>
+				</AxDataEntityViewReferenceEmbedded>
+			</EmbeddedDataEntities>
+		</AxDataEntityViewReferenceRoot>
+	</RootDataEntities>
+</AxCompositeDataEntityView>

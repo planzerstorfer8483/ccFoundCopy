@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxFormExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>VendEditInvoice.FWFVendInvoice</Name>
+	<ControlModifications>
+		<AxExtensionModification xmlns="">
+			<Name>InvoiceDetails_DocumentDate</Name>
+			<PropertyModifications>
+				<AxPropertyModification>
+					<Name>Label</Name>
+					<Value>@SYS2587</Value>
+				</AxPropertyModification>
+			</PropertyModifications>
+		</AxExtensionModification>
+	</ControlModifications>
+	<Controls>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControldnbp3kd51</Name>
+			<FormControl xmlns=""
+				i:type="AxFormDateControl">
+				<Name>FWFVendInvoiceHeader_VendInvoiceInfoTable_FWFVendInvoiceDate</Name>
+				<Type>Date</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<DataField>FWFVendInvoiceDate</DataField>
+				<DataSource>VendInvoiceInfoTable</DataSource>
+			</FormControl>
+			<Parent>groupInvoiceDatesDetails</Parent>
+			<PositionType>AfterItem</PositionType>
+			<PreviousSibling>InvoiceDetails_DocumentDate</PreviousSibling>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControll0010rhs1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormDateControl">
+				<Name>FWFVendInvoiceLine_VendInvoiceInfoTable_FWFVendInvoiceDate</Name>
+				<Type>Date</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<DataField>FWFVendInvoiceDate</DataField>
+				<DataSource>VendInvoiceInfoTable</DataSource>
+			</FormControl>
+			<Parent>groupInvoiceDates</Parent>
+			<PositionType>AfterItem</PositionType>
+			<PreviousSibling>VendInvoiceInfoTable_VatDueDate_W</PreviousSibling>
+		</AxFormExtensionControl>
+	</Controls>
+	<DataSources />
+	<Parts />
+	<PropertyModifications />
+</AxFormExtension>

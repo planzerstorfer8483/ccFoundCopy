@@ -1,0 +1,964 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockValueSubstitutor</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+// PAHA 2011-08-30, FWI Foundation - 46890 Text block management -->
+// Some methods are transferred from AX2009, but structure is new
+// KLSI 2012-03-21, FWI Foundation - 46890 Text block management -->
+// Split code to several classes
+class FWFTextBlockValueSubstitutor
+{
+    public const str    TextPlaceHolderStart = '{';
+    public const str    TextPlaceHolderEnd = '}';
+    public const str    PlaceholderPartSeparator = '.';
+    public const str    Comma = ',';
+    public const str    JournalTable = 'Jour';
+    public const str    JournalTrans = 'Trans';
+    public const str    SourceTable = 'Source';
+    public const str    InterpError = 'ERROR';
+
+    Common                      sourceRecord;
+    Common                      targetRecord;
+    str                         textBlockText;
+    str                         resultText;
+
+    SalesTable                  salesTable;
+    SalesLine                   salesLine;
+    PurchTable                  purchTable;
+    PurchLine                   purchLine;
+    SalesQuotationTable         salesQuotationTable;
+    SalesQuotationLine          salesQuotationLine;
+    CustTable                   custTable;
+    smmBusRelTable              smmBusRelTable;
+    ProdTable                   prodTable;
+    AgreementLine               agreementLine;
+    SalesAgreementHeader        salesAgreementHeader;
+    PurchAgreementHeader        purchAgreementHeader;
+    BOM                         bom;
+    CustInvoiceTable			custInvoiceTable;
+    CustIntentLetter_IT			custIntentLetter_IT;
+    EcoResProduct               ecoResProduct;
+    EcoResDistinctProductVariant   ecoResDistinctProductVariant;
+    InventDistinctProductExpanded  inventDistinctProductExpanded;
+    CustGroup                   custGroup;
+    VendGroup                   vendGroup;
+
+    VendTable					vendTable;
+    InventTable					inventTable;
+
+    Common                      targetJour;
+    Common                      targetTrans;
+    
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>containsPlaceholder</Name>
+				<Source><![CDATA[
+    protected boolean containsPlaceholder()
+    {
+        // Text {salesTable.salesId} Test
+        if (match(strFmt('.*%1.*%2.*%3', TextPlaceHolderStart, PlaceholderPartSeparator, TextPlaceHolderEnd), textBlockText))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>convertTabs</Name>
+				<Source><![CDATA[
+    protected str convertTabs(str _origText, int _tabLength = 8)
+    {
+        container   lines = FWFTextBlockValueSubstitutor::str2con(_origText, '\n');
+        container   token;
+        int         l, t;
+        int         linePos, whiteSpaces;
+        str         s, convTxt;
+    
+        void addWhitespace()
+        {
+            whiteSpaces = _tabLength - (linePos mod _tabLength);
+            if (whiteSpaces == 0)
+            {
+                whiteSpaces = _tabLength;
+            }
+            convTxt += global::strLFix('', whiteSpaces, ' ');
+            linePos += whiteSpaces;
+        }
+        ;
+    
+        convTxt = '';
+    
+        if (!_origText)
+        {
+            return convTxt;
+        }
+    
+        for(l=1; l<=conlen(lines); l++)
+        {
+            if (l>1)
+            {
+                convTxt += '\n';
+            }
+    
+            token       = FWFTextBlockValueSubstitutor::str2conEx(conPeek(lines, l), '\t');
+            linePos     = 0;
+            t           = 1;
+    
+            while (t<=conlen(token))
+            {
+                s = conPeek(token, t);
+                if (t>1) 
+                {
+                    addWhitespace();
+                }
+                linePos  += strlen(s);
+                convTxt  += s;
+                t++;
+            }
+        }
+    
+        return convTxt;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>formatText</Name>
+				<Source><![CDATA[
+    protected str formatText(str _templateText = textBlockText, boolean _delAfterEmptyPh = false)
+    {
+        str     placeHolder;
+        int     curTextPosition = 1;
+        str     placedText;
+        boolean printTextAfter  = true;
+        int     nextPhPos;
+        str		templateText = _templateText;
+        
+        while (curTextPosition <= strLen(templateText))
+        {
+            if (substr(templateText, curTextPosition, 1) == TextPlaceHolderStart)
+            {
+                if (substr(templateText, curTextPosition + 1, 1) == TextPlaceHolderStart)
+                {
+                    curTextPosition +=2;
+                }
+                else
+                {
+                    placeholder = this.getPlaceHolderStr(templateText, curTextPosition);
+    
+                    placedText = this.processPlaceHolderText(placeholder);
+    
+                    if (_delAfterEmptyPh && ! placedText)
+                    {
+                        printTextAfter = false;
+                    }
+                    templateText = strReplace(templateText,
+                                              placeHolder,
+                                              placedText);
+    
+                    if (! printTextAfter)
+                    {
+                        nextPhPos           = strFind(templateText, TextPlaceHolderStart, 1, strLen(templateText));
+                        if (nextPhPos)
+                        {
+                            templateText   = strDel(templateText, curTextPosition, nextPhPos-curTextPosition);
+                        }
+                        else
+                        {
+                            templateText   = substr(templateText, 1, curTextPosition);
+                        }
+                        printTextAfter      = true;
+                        curTextPosition--;
+                    }
+                    else
+                    {
+                        curTextPosition += strlen(placedText) ? strlen(placedText) - 1: 0;
+                    }
+                }
+            }
+    
+            curTextPosition ++;
+        }
+    
+        return this.convertTabs(templateText);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>getFieldValue</Name>
+				<Source><![CDATA[
+    protected AnyType getFieldValue(Common _cursor, str _identifier)
+    {
+        DictField						dictField;
+        str								methodName, methodParms;
+        str								identifyingOperator;
+        FWFTextBlockPlaceholderType		placeholderType = FWFTextBlockPlaceholderType::None;
+        boolean							checkOtherTypes = false;
+    
+        if (! _cursor)
+        {
+            return '';
+        }
+    
+        identifyingOperator = subStr(_identifier, strLen(_identifier), 1);
+        if (identifyingOperator != ')' &&	// method
+            identifyingOperator != ']' &&	// attributes
+            identifyingOperator != '$' &&	// reserved for customer extension
+            identifyingOperator != '%')		// reserved for customer extension
+        {
+            placeholderType = FWFTextBlockPlaceholderType::Field;
+        }
+		else if(identifyingOperator == ')')
+        {
+            placeholderType = FWFTextBlockPlaceholderType::Method;
+        }
+        else if(identifyingOperator == ']')
+        {
+            placeholderType = FWFTextBlockPlaceholderType::Attribute;
+        }
+
+        switch (placeholderType)
+        {
+            case FWFTextBlockPlaceholderType::Field :
+                dictField   = new DictField(_cursor.TableId, fieldname2Id(_cursor.TableId, _identifier));
+                if (dictField)
+                {
+                    return _cursor.(dictField.id());
+                }
+			
+            case FWFTextBlockPlaceholderType::Method :
+                [methodName, methodParms] = FWFTextBlockValueSubstitutor::str2con(subStr(_identifier, 1, strLen(_identifier)-1), '(');
+                return this.getMethodValue(_cursor, methodName, methodParms);
+
+            case FWFTextBlockPlaceholderType::Attribute :
+                return this.getAttribValue(_cursor, subStr(_identifier, 2, strLen(_identifier)-2));
+
+            default :	
+                checkOtherTypes = true;
+                return checkOtherTypes;
+		}    
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>getMethodValue</Name>
+				<Source><![CDATA[
+    protected AnyType getMethodValue(Common _cursor, str _methodName, str _methodParms)
+    {
+        ExecutePermission   perm;
+        anytype             value;
+    
+        if (! tableHasInstanceMethod(new DictTable(_cursor.TableId), _methodName))
+        {
+            return InterpError;
+        }
+    
+        try
+        {
+            perm = new ExecutePermission();
+            perm.assert();
+    
+            if (_methodParms)
+            {
+                // BP deviation documented
+                value = new DictTable(_cursor.TableId).callObject(_methodName, _cursor, _methodParms);
+            }
+            else
+            {
+                // BP deviation documented
+                value = new DictTable(_cursor.TableId).callObject(_methodName, _cursor);
+            }
+    
+            CodeAccessPermission::revertAssert();
+        }
+        catch
+        {
+            return InterpError;
+        }
+        return value;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>getPlaceHolderStr</Name>
+				<Source><![CDATA[
+    protected str getPlaceHolderStr(str _templateText, int _placeHolderStartPos)
+    {
+        int     placeholderLenght;
+        int     curPosition = _placeHolderStartPos;
+        ;
+    
+        while (substr(_templateText, curPosition, 1) != TextPlaceHolderEnd && curPosition <= strLen(_templateText))
+        {
+            placeholderLenght ++;
+    
+            curPosition ++;
+        }
+    
+        return substr(_templateText, _placeHolderStartPos, placeholderLenght + 1);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initReferencesTarget</Name>
+				<Source><![CDATA[
+    protected void initReferencesTarget()
+    {        
+        switch (targetRecord.TableId)
+        {
+            case tableNum(CustQuotationJour) :
+                CustQuotationJour custQuotationJour = targetRecord as CustQuotationJour;
+                targetJour        = custQuotationJour;
+                break;
+    
+            case tableNum(CustQuotationTrans) :
+                custQuotationTrans custQuotationTrans = targetRecord as custQuotationTrans;
+                targetJour         = custQuotationTrans.custQuotationJour();
+                targetTrans        = custQuotationTrans;
+                break;
+    
+            case tableNum(WMSPickingRoute) :
+                WMSPickingRoute wmsPickingRoute = targetRecord as WMSPickingRoute;
+                if (wmsPickingRoute.transType == InventTransType::Sales)
+                {
+                    targetJour = wmsPickingRoute;
+                }
+                break;
+    
+            case tableNum(WMSOrder) :
+                WMSOrder wmsOrder = targetRecord as WMSOrder;
+                if (wmsOrder.inventTransType == InventTransType::Sales)
+                {
+                    targetJour = wmsOrder;
+                }
+                break;
+    
+            case tableNum(WMSOrderTrans) :
+                WMSOrderTrans wmsOrderTrans = targetRecord as WMSOrderTrans;
+                wmsOrder      = wmsOrderTrans.wmsOrder();
+                if (wmsOrder.inventTransType == InventTransType::Sales)
+                {
+                    targetJour  = wmsOrder;
+                    targetTrans = wmsOrderTrans;
+                }
+                break;
+    
+            case tableNum(CustPackingSlipJour) :
+                CustPackingSlipJour custPackingSlipJour = targetRecord as CustPackingSlipJour;
+                targetJour          = custPackingSlipJour;
+                break;
+    
+            case tableNum(CustPackingSlipTrans) :
+                CustPackingSlipTrans custPackingSlipTrans = targetRecord as CustPackingSlipTrans;
+                targetJour           = custPackingSlipTrans.custPackingslipJour();
+                targetTrans          = custPackingSlipTrans;
+                break;
+    
+            case tableNum(CustInvoiceJour) :
+                CustInvoiceJour custInvoiceJour = targetRecord as CustInvoiceJour;
+                targetJour      = custInvoiceJour;
+                break;
+    
+            case tableNum(CustInvoiceTrans) :
+                CustInvoiceTrans custInvoiceTrans = targetRecord as CustInvoiceTrans;
+                targetJour       = custInvoiceTrans.custInvoiceJour();
+                targetTrans      = custInvoiceTrans;
+                break;
+    
+            case tableNum(CustConfirmJour) :
+                CustConfirmJour custConfirmJour = targetRecord as CustConfirmJour;
+                targetJour      = custConfirmJour;
+                break;
+    
+            case tableNum(CustConfirmTrans) :
+                CustConfirmTrans custConfirmTrans = targetRecord as CustConfirmTrans;
+                targetJour       = custConfirmTrans.custConfirmJour();
+                targetTrans      = custConfirmTrans;
+                break;
+    
+            case tableNum(VendReceiptsListJour) :
+                VendReceiptsListJour vendReceiptsListJour = targetRecord as VendReceiptsListJour;
+                targetJour           = vendReceiptsListJour;
+                break;
+    
+            case tableNum(VendReceiptsListTrans) :
+                VendReceiptsListTrans vendReceiptsListTrans = targetRecord as VendReceiptsListTrans;
+                select firstonly vendReceiptsListJour
+                    where vendReceiptsListJour.PurchId          == vendReceiptsListTrans.PurchId
+                       && vendReceiptsListJour.ReceiptsListId   == vendReceiptsListTrans.ReceiptsListId
+                       && vendReceiptsListJour.ReceiptsListDate == vendReceiptsListTrans.ReceiptsListDate;
+                targetJour   = vendReceiptsListJour;
+                targetTrans  = vendReceiptsListTrans;
+                break;
+    
+            case tableNum(VendPackingSlipJour) :
+                VendPackingSlipJour vendPackingSlipJour = targetRecord as VendPackingSlipJour;
+                targetJour          = vendPackingSlipJour;
+                break;
+    
+            case tableNum(VendPackingSlipTrans) :
+                VendPackingSlipTrans vendPackingSlipTrans = targetRecord as VendPackingSlipTrans;
+                targetJour           = vendPackingSlipTrans.VendPackingSlipJour();
+                targetTrans          = vendPackingSlipTrans;
+                break;
+    
+            case tableNum(VendInvoiceJour) :
+                vendInvoiceJour vendInvoiceJour = targetRecord as vendInvoiceJour;
+                targetJour      = vendInvoiceJour;
+                break;
+    
+            case tableNum(VendInvoiceTrans) :
+                VendInvoiceTrans vendInvoiceTrans = targetRecord as VendInvoiceTrans;
+                targetJour       = vendInvoiceTrans.vendInvoiceJour();
+                targetTrans      = vendInvoiceTrans;
+                break;
+
+            case tableNum(PurchTableAllVersions):
+                PurchTableAllVersions purchTableAllVersions = targetRecord as PurchTableAllVersions;
+                targetJour = purchTableAllVersions;
+                break;
+
+            case tableNum(PurchLineAllVersions):
+                PurchLineAllVersions purchLineAllVersionsLine = targetRecord as PurchLineAllVersions;
+                PurchTableAllVersions purchTableAllVersionsLine;
+                select firstonly purchTableAllVersionsLine
+                    where purchTableAllVersionsLine.PurchTableVersionRecId == purchLineAllVersionsLine.PurchTableVersionRecId;
+                targetJour = purchTableAllVersionsLine;
+                targetTrans = purchLineAllVersionsLine;
+                break;
+
+            case tableNum(CustQuotationConfirmJour) :
+                CustQuotationConfirmJour custQuotationConfirmJour = targetRecord as CustQuotationConfirmJour;
+                targetJour = custQuotationConfirmJour;
+                break;
+
+            case tableNum(CustQuotationConfirmTrans) :
+                custQuotationConfirmTrans custQuotationConfirmTrans = targetRecord as custQuotationConfirmTrans;
+                targetJour = custQuotationConfirmTrans.custQuotationConfirmJour();
+                targetTrans = custQuotationConfirmTrans;
+                break;   
+
+            case tableNum(ProdBOM) :
+                ProdBOM prodBOM = targetRecord as ProdBOM;
+                targetJour = prodBOM;
+                break;
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initReferencesSource</Name>
+				<Source><![CDATA[
+    protected void initReferencesSource()
+    {
+        switch (sourceRecord.TableId)
+        {
+            case tableNum(SalesQuotationTable) :
+                salesQuotationTable = sourceRecord as SalesQuotationTable;
+                custTable           = salesQuotationTable.custTable_CustAccount();
+                smmBusRelTable      = salesQuotationTable.smmBusRelTable();
+                break;
+    
+            case tableNum(SalesQuotationLine) :
+                salesQuotationLine	= sourceRecord as SalesQuotationLine;
+                salesQuotationTable = salesQuotationLine.salesQuotationTable();
+                custTable			= salesQuotationTable.custTable_CustAccount();
+                smmBusRelTable		= salesQuotationTable.smmBusRelTable();
+                inventTable			= salesQuotationLine.inventTable(); 
+                inventDistinctProductExpanded = InventDistinctProductExpanded::findByInventDim(salesQuotationLine.ItemId, salesQuotationLine.inventDim());
+                break;
+    
+            case tableNum(SalesTable) :
+                salesTable = sourceRecord as SalesTable;
+                custTable  = salesTable.custTable_CustAccount();
+                custIntentLetter_IT = CustIntentLetter_IT::findInternalId(salesTable.IntentLetterId_IT);
+                break;
+    
+            case tableNum(SalesLine) :
+                salesLine	 = sourceRecord as SalesLine;
+                salesTable	 = salesLine.salesTable();
+                custTable	 = custTable::find(salesLine.CustAccount);
+                inventTable	 = salesLine.inventTable();
+                inventDistinctProductExpanded = InventDistinctProductExpanded::findByInventDim(salesLine.ItemId, salesLine.inventDim());
+                break;
+    
+            case tableNum(PurchTable) :
+                purchTable = sourceRecord as PurchTable;
+                vendTable  = purchTable.vendTable_OrderAccount();
+                break;
+    
+            case tableNum(PurchLine) :
+                purchLine	= sourceRecord as PurchLine;
+                purchTable	= purchLine.purchTable();
+                vendTable	= purchTable.vendTable_OrderAccount();
+                inventTable = purchLine.inventTable();
+                inventDistinctProductExpanded = InventDistinctProductExpanded::findByInventDim(purchLine.ItemId, purchLine.inventDim());
+                break;
+
+            case tableNum(ProdTable):
+                prodTable = sourceRecord as ProdTable;
+                inventTable = prodTable.inventTable();
+                inventDistinctProductExpanded = InventDistinctProductExpanded::findByInventDim(prodTable.ItemId, prodTable.inventDim());
+                break;
+
+            case tableNum(SalesAgreementHeader):
+                salesAgreementHeader = sourceRecord as SalesAgreementHeader;
+                custTable = salesAgreementHeader.CustTable();
+                break;
+
+            case tablenum(PurchAgreementHeader):
+                purchAgreementHeader = sourceRecord as PurchAgreementHeader;
+                vendTable = purchAgreementHeader.vendTable();                
+                break;
+
+            case tableNum(AgreementLine):
+                agreementLine = sourceRecord as AgreementLine;
+                salesAgreementHeader = agreementLine.salesAgreementHeader();
+                purchAgreementHeader = agreementLine.purchAgreementHeader();
+                if (purchAgreementHeader.RecId)
+                {
+                    vendTable = purchAgreementHeader.vendTable();
+                }
+                else if (salesAgreementHeader.RecId)
+                {
+                    custTable = salesAgreementHeader.custTable();
+                }
+                inventTable = agreementLine.inventTable();
+                inventDistinctProductExpanded = InventDistinctProductExpanded::findByInventDim(agreementLine.ItemId, agreementLine.inventDim());
+                break;
+
+            case tableNum(BOM):
+                bom = sourceRecord as BOM;
+                inventTable = bom.inventTable();
+                inventDistinctProductExpanded = InventDistinctProductExpanded::findByInventDim(bom.ItemId, bom.inventDim());
+                break;
+
+            case tableNum(CustInvoiceTable) :
+                custInvoiceTable	= sourceRecord as CustInvoiceTable;
+                custTable		    = custInvoiceTable.custTable_OrderAccount();
+                custIntentLetter_IT = CustIntentLetter_IT::findInternalId(custInvoiceTable.IntentLetterId_IT);
+                break;
+        }
+
+        custGroup = CustGroup::find(custTable.CustGroup);
+        vendGroup = VendGroup::find(vendTable.vendGroup);
+        ecoResProduct = EcoResProduct::find(inventTable.Product);
+        ecoResDistinctProductVariant = EcoResDistinctProductVariant::find(inventDistinctProductExpanded.Product);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initReferences</Name>
+				<Source><![CDATA[
+    protected void initReferences()
+    {
+        // Set target Jour and Trans buffers
+        this.initReferencesTarget();
+
+        // Set source buffers
+        this.initReferencesSource();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmSourceRecord</Name>
+				<Source><![CDATA[
+    public Common parmSourceRecord(Common _sourceRecord = sourceRecord)
+    {
+        sourceRecord = _sourceRecord;
+    
+        return sourceRecord;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmTargetRecord</Name>
+				<Source><![CDATA[
+    public Common parmTargetRecord(Common _targetRecord = targetRecord)
+    {
+        targetRecord = _targetRecord;
+    
+        return targetRecord;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmTextBlockText</Name>
+				<Source><![CDATA[
+    public Str parmTextBlockText(Str _textBlockText = textBlockText)
+    {
+        textBlockText     = _textBlockText;
+    
+        return textBlockText;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>processPlaceHolder</Name>
+				<Source><![CDATA[
+    protected str processPlaceHolder(TableName _tableName, str _identifier)
+    {
+        anyType             value;
+        ;
+    
+        switch (_tableName)
+        {
+            case JournalTable:
+            case tableId2name(targetJour.TableId):
+                value  = this.getFieldValue(targetJour, _identifier);
+                break;
+    
+            case JournalTrans:
+            case tableId2name(targetTrans.TableId):
+                value  = this.getFieldValue(targetTrans, _identifier);
+                break;
+    
+            case SourceTable:
+                value  = this.getFieldValue(sourceRecord, _identifier);
+                break;
+    
+            case tableStr(InventTable):
+                value  = this.getFieldValue(inventTable, _identifier);
+                break;
+
+            case tableStr(CustTable):
+                value  = this.getFieldValue(custTable, _identifier);
+                break;
+    
+            case tableStr(SmmBusRelTable):
+                value  = this.getFieldValue(smmBusRelTable, _identifier);
+                break;
+    
+            case tableStr(VendTable):
+                value  = this.getFieldValue(vendTable, _identifier);
+                break;
+    
+            case tableStr(PurchTable):
+                value  = this.getFieldValue(purchTable, _identifier);
+                break;
+    
+            case tableStr(PurchLine):
+                value  = this.getFieldValue(purchLine, _identifier);
+                break;
+    
+            case tableStr(SalesTable):
+                value  = this.getFieldValue(salesTable, _identifier);
+                break;
+    
+            case tableStr(SalesLine):
+                value  = this.getFieldValue(salesLine, _identifier);
+                break;
+    
+            case tableStr(SalesQuotationTable):
+                value  = this.getFieldValue(salesQuotationTable, _identifier);
+                break;
+    
+            case tableStr(SalesQuotationLine):
+                value  = this.getFieldValue(salesQuotationLine, _identifier);
+                break;
+
+            case tableStr(ProdTable):
+                value = this.getFieldValue(prodTable, _identifier);
+                break;
+
+            case tablestr(SalesAgreementHeader):
+                value = this.getFieldValue(salesAgreementHeader, _identifier);
+                break;
+
+            case tablestr(PurchAgreementHeader):
+                value = this.getFieldValue(purchAgreementHeader, _identifier);
+                break;              
+  
+            case tablestr(AgreementLine):
+                value = this.getFieldValue(agreementLine, _identifier);
+                break; 
+ 
+            case tablestr(CustIntentLetter_IT):
+                value = this.getFieldValue(custIntentLetter_IT, _identifier);
+                break;
+    
+            case tablestr(CustInvoiceTable):
+                value = this.getFieldValue(custInvoiceTable, _identifier);
+                break;
+
+            case tablestr(EcoResProduct):
+                value = this.getFieldValue(ecoResProduct, _identifier);
+                break;
+
+            case tablestr(EcoResDistinctProductVariant):
+                value = this.getFieldValue(ecoResDistinctProductVariant, _identifier);
+                break;
+
+            case tablestr(CustGroup):
+                value = this.getFieldValue(custGroup, _identifier);
+                break;
+
+            case tablestr(VendGroup):
+                value = this.getFieldValue(vendGroup, _identifier);
+                break;
+
+            default:
+                value  = InterpError;
+        }
+    
+        if (typeOf(value) == Types::AnyType)
+        {
+            value = InterpError;
+        }
+    
+        return strFmt('%1', value);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>processPlaceHolderText</Name>
+				<Source><![CDATA[
+    protected str processPlaceHolderText(str _placeHolder)
+    {
+        str     tableName, identifier;
+        str     placeHolder = _placeHolder;
+        ;
+    
+        if (! _placeHolder)
+        {
+            return _placeHolder;
+        }
+    
+        placeHolder = strRem(placeHolder, TextPlaceHolderStart + TextPlaceHolderEnd);
+    
+        [tableName, identifier] = FWFTextBlockValueSubstitutor::str2con(placeHolder, PlaceHolderPartSeparator);
+        // str2con() converts "00123" into "123"
+    
+        if (! tableName || ! identifier)
+        {
+            return _placeHolder;
+        }
+    
+        placeHolder = this.processPlaceHolder(tableName, identifier);
+    
+        if (placeHolder == InterpError)
+        {
+            placeHolder = _placeholder;
+        }
+    
+        return placeholder;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>run</Name>
+				<Source><![CDATA[
+    public str run()
+    {
+        if (! this.containsPlaceholder())
+        {
+            return textBlockText;
+        }
+    
+        this.initReferences();
+    
+        resultText = this.formatText();
+    
+        return resultText;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>sourceRecord</Name>
+				<Source><![CDATA[
+    public Common sourceRecord()
+    {
+        return sourceRecord;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>construct</Name>
+				<Source><![CDATA[
+    public static FWFTextBlockValueSubstitutor construct()
+    {
+        return new FWFTextBlockValueSubstitutor();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>newParameters</Name>
+				<Source><![CDATA[
+    public static FWFTextBlockValueSubstitutor newParameters(
+        Common _sourceRecord,
+        Common _targetRecord,
+        str    _textBlockText
+        )
+    {
+        FWFTextBlockValueSubstitutor substitutor = FWFTextBlockValueSubstitutor::construct();
+    
+        substitutor.parmSourceRecord(_sourceRecord);
+        substitutor.parmTargetRecord(_targetRecord);
+        substitutor.parmTextBlockText(_textBlockText);
+    
+        return substitutor;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>str2con</Name>
+				<Source><![CDATA[
+    static container str2con(str _string, str _separator = FWFTextBlockValueSubstitutor::Comma, boolean _ignoreNearSeparator = false)
+    {
+        container con = connull();
+        int       pos, oldPos = 1;
+        str       tmpStr;
+        
+        do
+        {
+            pos    =  strscan(_string, _separator, pos ? pos + strlen(_separator) : 1, strlen(_string));
+            tmpStr =  substr(_string, oldPos, pos ? pos - oldPos : strlen(_string) + 1 - oldPos);
+            if (tmpStr || ! _ignoreNearSeparator)
+            {
+                con += tmpStr;
+            }
+            oldPos =  pos + strlen(_separator);
+        }
+        while (pos);
+        
+        return con;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>str2conEx</Name>
+				<Source><![CDATA[
+    static container str2conEx(str _value, str 10 _sep = FWFTextBlockValueSubstitutor::Comma)
+    {
+        int length = strlen(_value);
+        int i = 1;
+        int j = strscan(_value, _sep, 1, length);
+        container ret;
+        void add2Ret(str _current)
+        {
+            ret += _current;
+        }
+        ;
+        while (j)
+        {
+            add2Ret(substr(_value, i, j-i));
+            i = j+1;
+            j = strscan(_value, _sep, i, length);
+        }
+        add2Ret(substr(_value, i, length-i+1));
+        return ret;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>getAttribValue</Name>
+				<Source><![CDATA[
+    protected AnyType getAttribValue(Common _cursor, Name _attribName)
+    {
+        EcoResAttribute             attribute;
+        EcoResBooleanValue          ecoResBooleanValue;
+        EcoResDateTimeValue         ecoResDateTimeValue;
+        EcoResFloatValue            ecoResFloatValue;
+        EcoResCurrencyValue         ecoResCurrencyValue;
+        EcoResIntValue              ecoResIntValue;
+        EcoResTextValue             ecoResTextValue;
+        EcoResTextValueTranslation  ecoResTextValueTranslation;
+        EcoResValue                 value;
+        EcoResAttributeValue        attributeValue;
+        EcoResProductInstanceValue  productInstanceValue;
+        InventTable                 inventTableLocal;
+    
+        select firstOnly attribute
+            where attribute.Name == _attribName;
+
+        if (! attribute)
+        {
+            return InterpError;
+        }
+
+        if (_cursor.TableId == tableNum(InventTable))
+        {
+            inventTableLocal = _cursor as InventTable;
+        }
+
+        productInstanceValue = EcoResProductInstanceValue::findByProduct(inventTableLocal.Product);
+
+        select firstonly Attribute, InstanceValue, Value from attributeValue
+            where attributeValue.Attribute     == attribute.RecId
+               && attributeValue.InstanceValue == productInstanceValue.RecId;
+
+        value = EcoResValue::find(attributeValue.Value);
+
+        if (! value)
+        {
+            return '';
+        }
+    
+        switch (value.getInstanceRelationType())
+        {
+            case tablestr(EcoResBooleanValue):
+                ecoResBooleanValue = (value as EcoResBooleanValue);
+                return ecoResBooleanValue.BooleanValue;
+    
+            case tablestr(EcoResDateTimeValue):
+                ecoResDateTimeValue = (value as EcoResDateTimeValue);
+                return ecoResDateTimeValue.DateTimeValue;
+    
+            case tablestr(EcoResFloatValue):
+                ecoResFloatValue = (value as EcoResFloatValue);
+                return ecoResFloatValue.FloatValue;
+    
+            case tablestr(EcoResCurrencyValue):
+                ecoResCurrencyValue = (value as EcoResCurrencyValue);
+                return ecoResCurrencyValue.CurrencyValue;
+    
+            case tablestr(EcoResIntValue):
+                ecoResIntValue = (value as EcoResIntValue);
+                return ecoResIntValue.IntValue;
+    
+            case tablestr(EcoResTextValue):
+                ecoResTextValue = (value as EcoResTextValue);
+                select firstonly TextValue from ecoResTextValueTranslation
+                    where ecoResTextValueTranslation.Language == SysTranslationHelper::getPrimaryLanguage()
+                       && ecoResTextValueTranslation.TextValueTable == ecoResTextValue.RecId;
+                if (ecoResTextValueTranslation.RecId)
+                {
+                    return ecoResTextValueTranslation.TextValue;
+                }
+                return ecoResTextValue.TextValue;
+    
+            default:
+                //return InterpError;
+        }
+        return InterpError;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

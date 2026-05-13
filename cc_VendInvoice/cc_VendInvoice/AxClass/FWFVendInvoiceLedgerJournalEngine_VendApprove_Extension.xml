@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFVendInvoiceLedgerJournalEngine_VendApprove_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class for <c>LedgerJournalEngine_VendApprove</c> class.
+/// </summary>
+[ExtensionOf(classStr(LedgerJournalEngine_VendApprove))]
+final class FWFVendInvoiceLedgerJournalEngine_VendApprove_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>initValue</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Initializes the <c>LedgerJournalTrans</c> and <c>LedgerJournalTrans_Asset<c/>table.
+    /// </summary>
+    /// <param name = "_ledgerJournalTrans">The <c>LedgerJournalTrans</c> table to initialize.</param>
+    /// <param name = "_ledgerJournalTrans_Asset">The <c>LedgerJournalTrans_Asset</c> table to initialize.</param>
+    public void initValue(LedgerJournalTrans _ledgerJournalTrans, LedgerJournalTrans_Asset _ledgerJournalTrans_Asset)
+    {
+        next initValue(_ledgerJournalTrans, _ledgerJournalTrans_Asset);
+
+        _ledgerJournalTrans.FWFVendInvoiceDate = previousledgerJournalTrans.FWFVendInvoiceDate;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

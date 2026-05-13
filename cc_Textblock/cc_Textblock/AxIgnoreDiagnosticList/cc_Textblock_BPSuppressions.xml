@@ -1,0 +1,665 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<IgnoreDiagnostics xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>cc_Textblock_BPSuppressions</Name>
+  <Items>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockGroupAssignPanel</Path>
+      <Moniker>BPCheckInvalidInitFormMethodWarning</Moniker>
+      <Message>Form element statements should not be used before super() in init method of form FWFTextBlockGroupAssignPanel</Message>
+      <Justification>By design - have a look at SysUserGroupInfo.init()</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockUsage/FormDesign/FormDesign/FormTabControl/TextBlockUsageTab/FormTabPageControl/TabPageDetails/FormTabControl/DetailsTab/FormTabPageControl/TabPagePrintOnSalesFormLetters</Path>
+      <Moniker>BPCheckPassiveJoinUse</Moniker>
+      <Message>Use passive join on the datasource FWFTextBlockSetupParm which is bound to a tab page control on the form FWFTextBlockUsage.</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockUsage/FormDesign/FormDesign/FormTabControl/TextBlockUsageTab/FormTabPageControl/TabPageDetails/FormTabControl/DetailsTab/FormTabPageControl/TabPagePrintOnPurchFormLetters</Path>
+      <Moniker>BPCheckPassiveJoinUse</Moniker>
+      <Message>Use passive join on the datasource FWFTextBlockSetupParm which is bound to a tab page control on the form FWFTextBlockUsage.</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockUsage/FormDesign/FormDesign/FormTabControl/TextBlockUsageTab/FormTabPageControl/TabPageDetails/FormTabControl/DetailsTab/FormTabPageControl/TabPagePrintOnProductionReports</Path>
+      <Moniker>BPCheckPassiveJoinUse</Moniker>
+      <Message>Use passive join on the datasource FWFTextBlockSetupParm which is bound to a tab page control on the form FWFTextBlockUsage.</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>
+     <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockUsage/FormDesign/FormDesign/FormTabControl/TextBlockUsageTab/FormTabPageControl/TabPageDetails/FormTabControl/DetailsTab/FormTabPageControl/TabPagePrintOnProjectReports</Path>
+      <Moniker>BPCheckPassiveJoinUse</Moniker>
+      <Message>Use passive join on the datasource FWFTextBlockSetupParm which is bound to a tab page control on the form FWFTextBlockUsage.</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockUsage/FormDesign/FormDesign/FormTabControl/TextBlockUsageTab/FormTabPageControl/TabPageDetails/FormTabControl/DetailsTab/FormTabPageControl/TabPageRelatedOrders</Path>
+      <Moniker>BPCheckPassiveJoinUse</Moniker>
+      <Message>Use passive join on the datasource FWFTextBlockSetupParm which is bound to a tab page control on the form FWFTextBlockUsage.</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockUsage/FormDesign/FormDesign/FormTabControl/TextBlockUsageTab/FormTabPageControl/TabPageDetails/FormTabControl/DetailsTab/FormTabPageControl/TabPageDisplayOptions</Path>
+      <Moniker>BPCheckPassiveJoinUse</Moniker>
+      <Message>Use passive join on the datasource FWFTextBlockSetupParm which is bound to a tab page control on the form FWFTextBlockUsage.</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Informational</Severity>
+      <Path>dynamics://Class/FWFTextBlockEventHandler/Method/runDelete</Path>
+      <Moniker>BPCheckSkipStatementValidation</Moniker>
+      <Message>Set-based operation must invoke Skip statements in method runDelete in class FWFTextBlockEventHandler; otherwise, execution will fall back to a row by row operation.</Message>
+      <Justification>skipDeleteActions available</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockTable/FormDesign/FormDesign/FormTabControl/TabControl/FormTabPageControl/GeneralTab</Path>
+      <Moniker>BPWarningFormDesignOrControlsWithCustomPattern</Moniker>
+      <Message>BPWarningFormDesignOrControlsWithCustomPattern: 'GeneralTab' is using the 'Custom' pattern. Please apply one of the other available patterns.</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockTableHTML/FormDesign/FormDesign/FormGroupControl/ContentGroup</Path>
+      <Moniker>BPWarningFormDesignOrControlsWithCustomPattern</Moniker>
+      <Message>BPWarningFormDesignOrControlsWithCustomPattern: 'ContentGroup' is using the 'Custom' pattern. Please apply one of the other available patterns.</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockUsage/FormDesign/FormDesign</Path>
+      <Moniker>BPWarningFormDesignOrControlsWithCustomPattern</Moniker>
+      <Message>BPWarningFormDesignOrControlsWithCustomPattern: 'FormDesign' is using the 'Custom' pattern. Please apply one of the other available patterns.</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockValue/FormDesign/FormDesign/FormTabControl/DetailsTab/FormTabPageControl/TextTabPage</Path>
+      <Moniker>BPWarningFormDesignOrControlsWithCustomPattern</Moniker>
+      <Message>BPWarningFormDesignOrControlsWithCustomPattern: 'TextTabPage' is using the 'Custom' pattern. Please apply one of the other available patterns.</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Class/FWFTextBlockCorrectPoConfTableId</Path>
+      <Moniker>BPXmlDocMalformed</Moniker>
+      <Message>BPXmlDocMalformed: The XML documentation for 'FWFTextBlockCorrectPoConfTableId' is not well-formed.</Message>
+      <Justification>Cannot replace less-than signs.</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockGroupAssignPanel/FormDesign/FormDesign/FormTabControl/Tab/FormTabPageControl/GroupMembers</Path>
+      <Moniker>BPWarningFormDesignOrControlsWithCustomPattern</Moniker>
+      <Message>BPWarningFormDesignOrControlsWithCustomPattern: 'GroupMembers' is using the 'Custom' pattern. Please apply one of the other available patterns.</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockSetupGroup/FormDesign/FormDesign/FormTabControl/DetailsTab/FormTabPageControl/TabPagePrintOnSalesFormLetters</Path>
+      <Moniker>BPCheckPassiveJoinUse</Moniker>
+      <Message>Use passive join on the datasource FWFTextBlockSetupGroupParm which is bound to a tab page control on the form FWFTextBlockSetupGroup.</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockSetupGroup/FormDesign/FormDesign/FormTabControl/DetailsTab/FormTabPageControl/TabPagePrintOnPurchFormLetters</Path>
+      <Moniker>BPCheckPassiveJoinUse</Moniker>
+      <Message>Use passive join on the datasource FWFTextBlockSetupGroupParm which is bound to a tab page control on the form FWFTextBlockSetupGroup.</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockSetupGroup/FormDesign/FormDesign/FormTabControl/DetailsTab/FormTabPageControl/TabPagePrintOnProductionReports</Path>
+      <Moniker>BPCheckPassiveJoinUse</Moniker>
+      <Message>Use passive join on the datasource FWFTextBlockSetupGroupParm which is bound to a tab page control on the form FWFTextBlockSetupGroup.</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>   
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockSetupGroup/FormDesign/FormDesign/FormTabControl/DetailsTab/FormTabPageControl/TabPagePrintOnProjectReports</Path>
+      <Moniker>BPCheckPassiveJoinUse</Moniker>
+      <Message>Use passive join on the datasource FWFTextBlockSetupGroupParm which is bound to a tab page control on the form FWFTextBlockSetupGroup.</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockSetupGroup/FormDesign/FormDesign/FormTabControl/DetailsTab/FormTabPageControl/TabPageRelatedOrders</Path>
+      <Moniker>BPCheckPassiveJoinUse</Moniker>
+      <Message>Use passive join on the datasource FWFTextBlockSetupGroupParm which is bound to a tab page control on the form FWFTextBlockSetupGroup.</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockSetupGroup/FormDesign/FormDesign/FormTabControl/DetailsTab/FormTabPageControl/TabPageDisplayOptions</Path>
+      <Moniker>BPCheckPassiveJoinUse</Moniker>
+      <Message>Use passive join on the datasource FWFTextBlockSetupGroupParm which is bound to a tab page control on the form FWFTextBlockSetupGroup.</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockGroupAdd_Product</Path>
+      <Moniker>BPCheckInvalidInitFormMethodWarning</Moniker>
+      <Message>Form element statements should not be used before super() in init method of form FWFTextBlockGroupAdd_Product</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockGroupAdd_Supplier</Path>
+      <Moniker>BPCheckInvalidInitFormMethodWarning</Moniker>
+      <Message>Form element statements should not be used before super() in init method of form FWFTextBlockGroupAdd_Supplier</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockGroupAdd_Project</Path>
+      <Moniker>BPCheckInvalidInitFormMethodWarning</Moniker>
+      <Message>Form element statements should not be used before super() in init method of form FWFTextBlockGroupAdd_Project</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockGroupAdd_Customer</Path>
+      <Moniker>BPCheckInvalidInitFormMethodWarning</Moniker>
+      <Message>Form element statements should not be used before super() in init method of form FWFTextBlockGroupAdd_Customer</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockGroup/FormDesign/FormDesign/FormTabControl/RightSide_DetailsTab/FormTabPageControl/ReferenceTab</Path>
+      <Moniker>BPCheckPassiveJoinUse</Moniker>
+      <Message>Use passive join on the datasource FWFTextBlockGroupAssign which is bound to a tab page control on the form FWFTextBlockGroup.</Message>
+      <Justification>By design</Justification>
+    </Diagnostic>    
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockStaging/TableIndex/StagingIdx/TableIndexField/CompanyId</Path>
+      <Moniker>BPErrorTablePrimaryKeyNotMandatory</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockSetupGroupStaging/TableIndex/StagingIdx/TableIndexField/GroupId</Path>
+      <Moniker>BPErrorTablePrimaryKeyNotMandatory</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/TextBlockTable_CompanyId</Path>
+      <Moniker>BPErrorTablePrimaryKeyNotMandatory</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/TextBlockTable_LanguageId</Path>
+      <Moniker>BPErrorTablePrimaryKeyNotMandatory</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/ItemRelation</Path>
+      <Moniker>BPErrorTablePrimaryKeyNotMandatory</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/AccountRelation</Path>
+      <Moniker>BPErrorTablePrimaryKeyNotMandatory</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/ProductConfigurationId</Path>
+      <Moniker>BPErrorTablePrimaryKeyNotMandatory</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/ProductColorId</Path>
+      <Moniker>BPErrorTablePrimaryKeyNotMandatory</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/InventorySiteId</Path>
+      <Moniker>BPErrorTablePrimaryKeyNotMandatory</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/ProductSizeId</Path>
+      <Moniker>BPErrorTablePrimaryKeyNotMandatory</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/ProductStyleId</Path>
+      <Moniker>BPErrorTablePrimaryKeyNotMandatory</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://SecurityPrivilege/FWFTextBlockGroupAssignEntityMaintain</Path>
+      <Moniker>BPErrorPrivilegeNotCoveredByDuty</Moniker>
+      <Justification>by design - security role concept has to be set up by customer</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://SecurityPrivilege/FWFTextBlockProjMaintain</Path>
+      <Moniker>BPErrorPrivilegeNotCoveredByDuty</Moniker>
+      <Justification>by design - security role concept has to be set up by customer</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://SecurityPrivilege/FWFTextBlockUsageEntityMaintain</Path>
+      <Moniker>BPErrorPrivilegeNotCoveredByDuty</Moniker>
+      <Justification>by design - security role concept has to be set up by customer</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://SecurityPrivilege/FWFTextBlockEntityMaintain</Path>
+      <Moniker>BPErrorPrivilegeNotCoveredByDuty</Moniker>
+      <Justification>by design - security role concept has to be set up by customer</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://SecurityPrivilege/FWFTextBlockSetupGroupEntityView</Path>
+      <Moniker>BPErrorPrivilegeNotCoveredByDuty</Moniker>
+      <Justification>by design - security role concept has to be set up by customer</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://SecurityPrivilege/FWFTextBlockGroupAssignEntityView</Path>
+      <Moniker>BPErrorPrivilegeNotCoveredByDuty</Moniker>
+      <Justification>by design - security role concept has to be set up by customer</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://SecurityPrivilege/FWFTextBlockTransferOrderMaintain</Path>
+      <Moniker>BPErrorPrivilegeNotCoveredByDuty</Moniker>
+      <Justification>by design - security role concept has to be set up by customer</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://SecurityPrivilege/FWFTextBlockSetupGroupEntityMaintain</Path>
+      <Moniker>BPErrorPrivilegeNotCoveredByDuty</Moniker>
+      <Justification>by design - security role concept has to be set up by customer</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://SecurityPrivilege/FWFTextBlockGroupEntityView</Path>
+      <Moniker>BPErrorPrivilegeNotCoveredByDuty</Moniker>
+      <Justification>by design - security role concept has to be set up by customer</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://SecurityPrivilege/FWFTextBlockUsageEntityView</Path>
+      <Moniker>BPErrorPrivilegeNotCoveredByDuty</Moniker>
+      <Justification>by design - security role concept has to be set up by customer</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://SecurityPrivilege/FWFTextBlockGroupEntityMaintain</Path>
+      <Moniker>BPErrorPrivilegeNotCoveredByDuty</Moniker>
+      <Justification>by design - security role concept has to be set up by customer</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://SecurityPrivilege/FWFTextBlockEntityView</Path>
+      <Moniker>BPErrorPrivilegeNotCoveredByDuty</Moniker>
+      <Justification>by design - security role concept has to be set up by customer</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockStaging/TableIndex/StagingIdx/TableIndexField/Name</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockStaging/TableIndex/StagingIdx/TableIndexField/CompanyId</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockGroupAssignStaging/TableIndex/StagingIdx/TableIndexField/GroupId</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockGroupAssignStaging/TableIndex/StagingIdx/TableIndexField/Module</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockGroupAssignStaging/TableIndex/StagingIdx/TableIndexField/RefId</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockGroupStaging/TableIndex/StagingIdx/TableIndexField/Id</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockGroupStaging/TableIndex/StagingIdx/TableIndexField/Module</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockSetupGroupStaging/TableIndex/StagingIdx/TableIndexField/GroupId</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockSetupGroupStaging/TableIndex/StagingIdx/TableIndexField/Module</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/TextBlockTable_Name</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/TextBlockTable_CompanyId</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/TextBlockTable_LanguageId</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/ItemCode</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/ItemRelation</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/AccountType</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/AccountCode</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/AccountRelation</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/FromDate</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/ProductConfigurationId</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/ProductColorId</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/InventorySiteId</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/ProductSizeId</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockUsageStaging/TableIndex/StagingIdx/TableIndexField/ProductStyleId</Path>
+      <Moniker>BPErrorTablePrimaryKeyEditable</Moniker>
+      <Justification>okay in this case - staging table (data entity)</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Informational</Severity>
+      <Path>dynamics://Class/FWFTextBlockPurchLineCopyFromSource_Extension/Method/updateCopiedLine</Path>
+      <Moniker>BPCheckSkipStatementValidation</Moniker>
+      <Justification>must not skip delete method</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Informational</Severity>
+      <Path>dynamics://Class/FWFTextBlockSalesCopying_Extension/Method/copyLine</Path>
+      <Moniker>BPCheckSkipStatementValidation</Moniker>
+      <Justification>must not skip delete method</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Informational</Severity>
+      <Path>dynamics://Class/FWFTextBlockPurchCopying_Extension/Method/copyHeaderFromSource</Path>
+      <Moniker>BPCheckSkipStatementValidation</Moniker>
+      <Justification>must not skip delete method</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Informational</Severity>
+      <Path>dynamics://Class/FWFTextBlockSalesCopying_Extension/Method/copyFromSourceTable</Path>
+      <Moniker>BPCheckSkipStatementValidation</Moniker>
+      <Justification>must not skip delete method</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Informational</Severity>
+      <Path>dynamics://Class/FWFTextBlockSalesQuotationLineCopyFromSource_Extension/Method/copyLine</Path>
+      <Moniker>BPCheckSkipStatementValidation</Moniker>
+      <Justification>must not skip delete method</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Informational</Severity>
+      <Path>dynamics://Class/FWFTextBlockEventHandler_Trans_PoConfirm/Method/arichivatePurchLine</Path>
+      <Moniker>BPCheckSkipStatementValidation</Moniker>
+      <Justification>must not skip update method</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Informational</Severity>
+      <Path>dynamics://Class/FWFTextBlockSalesQuotationCopying_Extension/Method/initSalesQuotationTableFromTmpFrmVirtualHeader</Path>
+      <Moniker>BPCheckSkipStatementValidation</Moniker>
+      <Justification>must not skip delete method</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockTable/FormDesign/FormDesign/FormTabControl/TabControl/FormTabPageControl/TabPageDetails/FormTabControl/DetailsTab/FormTabPageControl/TabPagePrintOnSalesFormLetters</Path>
+      <Moniker>BPCheckPassiveJoinUse</Moniker>
+      <Message>Use passive join on the datasource FWFTextBlockTableParm which is bound to a tab page control on the form FWFTextBlockTable.</Message>
+      <Justification>checked - okay in this case</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockTable/FormDesign/FormDesign/FormTabControl/TabControl/FormTabPageControl/TabPageDetails/FormTabControl/DetailsTab/FormTabPageControl/TabPagePrintOnPurchFormLetters</Path>
+      <Moniker>BPCheckPassiveJoinUse</Moniker>
+      <Message>Use passive join on the datasource FWFTextBlockTableParm which is bound to a tab page control on the form FWFTextBlockTable.</Message>
+      <Justification>checked - okay in this case</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockTable/FormDesign/FormDesign/FormTabControl/TabControl/FormTabPageControl/TabPageDetails/FormTabControl/DetailsTab/FormTabPageControl/TabPagePrintOnProductionReports</Path>
+      <Moniker>BPCheckPassiveJoinUse</Moniker>
+      <Message>Use passive join on the datasource FWFTextBlockTableParm which is bound to a tab page control on the form FWFTextBlockTable.</Message>
+      <Justification>checked - okay in this case</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockTable/FormDesign/FormDesign/FormTabControl/TabControl/FormTabPageControl/TabPageDetails/FormTabControl/DetailsTab/FormTabPageControl/TabPagePrintOnProjectReports</Path>
+      <Moniker>BPCheckPassiveJoinUse</Moniker>
+      <Message>Use passive join on the datasource FWFTextBlockTableParm which is bound to a tab page control on the form FWFTextBlockTable.</Message>
+      <Justification>checked - okay in this case</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockTable/FormDesign/FormDesign/FormTabControl/TabControl/FormTabPageControl/TabPageDetails/FormTabControl/DetailsTab/FormTabPageControl/TabPageRelatedOrders</Path>
+      <Moniker>BPCheckPassiveJoinUse</Moniker>
+      <Message>Use passive join on the datasource FWFTextBlockTableParm which is bound to a tab page control on the form FWFTextBlockTable.</Message>
+      <Justification>checked - okay in this case</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Form/FWFTextBlockTable/FormDesign/FormDesign/FormTabControl/TabControl/FormTabPageControl/TabPageDetails/FormTabControl/DetailsTab/FormTabPageControl/TabPageDisplayOptions</Path>
+      <Moniker>BPCheckPassiveJoinUse</Moniker>
+      <Message>Use passive join on the datasource FWFTextBlockTableParm which is bound to a tab page control on the form FWFTextBlockTable.</Message>
+      <Justification>checked - okay in this case</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Table/FWFTextBlockTable/Method/initSetupRefRecId</Path>
+      <Moniker>BPCheckInsertMethodInLoop</Moniker>
+      <Message>Insert method can be replaced with RecordInsertList in method initSetupRefRecId</Message>
+      <Justification>checked - okay in this case</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Informational</Severity>
+      <Path>dynamics://Class/FWFTextBlockPurchRFQCaseCopying_Extension/Method/copyHeader</Path>
+      <Moniker>BPCheckSkipStatementValidation</Moniker>
+      <Message>Set-based operation must invoke Skip statements in method copyHeader in class FWFTextBlockPurchRFQCaseCopying_Extension; otherwise, execution will fall back to a row by row operation.</Message>
+      <Justification>checked - okay in this case</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Informational</Severity>
+      <Path>dynamics://Class/FWFTextBlockPurchRFQCaseCopying_Extension/Method/copyLine</Path>
+      <Moniker>BPCheckSkipStatementValidation</Moniker>
+      <Message>Set-based operation must invoke Skip statements in method copyLine in class FWFTextBlockPurchRFQCaseCopying_Extension; otherwise, execution will fall back to a row by row operation.</Message>
+      <Justification>checked - okay in this case</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Informational</Severity>
+      <Path>dynamics://Class/FWFTextBlockPurchCopying_PurchReq_Extension/Method/copyHeader</Path>
+      <Moniker>BPCheckSkipStatementValidation</Moniker>
+      <Message>Set-based operation must invoke Skip statements in method copyHeader in class FWFTextBlockPurchCopying_PurchReq_Extension; otherwise, execution will fall back to a row by row operation.</Message>
+      <Justification>checked - okay in this case</Justification>
+    </Diagnostic>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Informational</Severity>
+      <Path>dynamics://Class/FWFTextBlockPurchCopying_PurchReq_Extension/Method/copyLine</Path>
+      <Moniker>BPCheckSkipStatementValidation</Moniker>
+      <Message>Set-based operation must invoke Skip statements in method copyLine in class FWFTextBlockPurchCopying_PurchReq_Extension; otherwise, execution will fall back to a row by row operation.</Message>
+      <Justification>checked - okay in this case</Justification>
+    </Diagnostic>
+  </Items>
+</IgnoreDiagnostics>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxFormExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>ReqGroup.FWFTextBlock</Name>
+	<ControlModifications />
+	<Controls>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControly1xz3vdv1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormGroupControl">
+				<Name>FWFTextBlock</Name>
+				<Type>Group</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormCheckBoxControl">
+						<Name>FWFTextBlock_FWFTextBlockCopyFromSalesOrder</Name>
+						<Type>CheckBox</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<DataField>FWFTextBlockCopyFromSalesOrder</DataField>
+						<DataSource>ReqGroup</DataSource>
+					</AxFormControl>
+				</Controls>
+				<DataGroup>FWFTextBlock</DataGroup>
+				<DataSource>ReqGroup</DataSource>
+			</FormControl>
+			<Parent>Various</Parent>
+		</AxFormExtensionControl>
+	</Controls>
+	<DataSourceModifications />
+	<DataSourceReferences />
+	<DataSources />
+	<Parts />
+	<PropertyModifications />
+</AxFormExtension>

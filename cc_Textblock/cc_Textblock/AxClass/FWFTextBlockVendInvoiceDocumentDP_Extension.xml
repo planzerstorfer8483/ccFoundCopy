@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockVendInvoiceDocumentDP_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of <c>VendInvoiceDocumentDP</c> for text block management
+/// </summary>
+[ExtensionOf(classStr(VendInvoiceDocumentDP))]
+final class FWFTextBlockVendInvoiceDocumentDP_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>insertVendInvoiceDocumentTmp</Name>
+				<Source><![CDATA[
+    public void insertVendInvoiceDocumentTmp(NoYes _purchInvoiceTransOrTaxTrans, NoYes _vendPaymSched)
+    {
+        next insertVendInvoiceDocumentTmp(_purchInvoiceTransOrTaxTrans, _vendPaymSched);
+
+        VendInvoiceDocumentTmp vendInvoiceDocumentTmpLocal = this.vendInvoiceDocumentTmp;
+        vendInvoiceDocumentTmpLocal.FWFTextBlockHeaderText = '';
+        vendInvoiceDocumentTmpLocal.FWFTextBlockFooterText = '';
+        vendInvoiceDocumentTmpLocal.FWFTextBlockHeaderTextLine = '';
+        vendInvoiceDocumentTmpLocal.FWFTextBlockFooterTextLine = '';
+        vendInvoiceDocumentTmpLocal.update();
+
+        if (isFirstRecord)
+        {
+            FWFTextBlockReportTextInit::newParameters(this.vendInvoiceDocumentTmp, this.vendInvoiceJour).addTexts();
+        }
+  
+        if (!this.vendInvoiceDocumentTmp.TaxCode)
+        {
+            if (this.vendInvoiceDocumentTmp.ItemId || this.vendInvoiceTrans.isCategoryBased())
+            {
+                FWFTextBlockReportTextInit::newParameters(this.vendInvoiceDocumentTmp, this.vendInvoiceTrans).addLineTexts();
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

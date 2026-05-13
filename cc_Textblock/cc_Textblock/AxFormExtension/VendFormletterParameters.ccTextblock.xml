@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxFormExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>VendFormletterParameters.ccTextblock</Name>
+	<ControlModifications />
+	<Controls>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControl3g3uho4m1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormTabPageControl">
+				<Name>FWFTextBlock</Name>
+				<Type>TabPage</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormGroupControl">
+						<Name>FWFTextBlockHeader</Name>
+						<Skip>Yes</Skip>
+						<Type>Group</Type>
+						<WidthMode>SizeToAvailable</WidthMode>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormStaticTextControl">
+								<Name>FWFTextBlockHeaderMainInstruction</Name>
+								<Skip>Yes</Skip>
+								<Type>StaticText</Type>
+								<WidthMode>SizeToAvailable</WidthMode>
+								<FormControlExtension
+									i:nil="true" />
+								<Style>MainInstruction</Style>
+								<Text>@FWFTextBlock:TextBlockPurchCopyDefaultValues</Text>
+							</AxFormControl>
+						</Controls>
+						<AllowUserSetup>No</AllowUserSetup>
+						<FrameType>None</FrameType>
+						<Style>TOCTitleContainer</Style>
+					</AxFormControl>
+					<AxFormControl xmlns=""
+						i:type="AxFormGroupControl">
+						<Name>FWFTextBlockGroup</Name>
+						<HeightMode>SizeToAvailable</HeightMode>
+						<Pattern>FieldsFieldGroups</Pattern>
+						<PatternVersion>1.1</PatternVersion>
+						<Type>Group</Type>
+						<WidthMode>SizeToAvailable</WidthMode>
+						<FormControlExtension
+							i:nil="true" />
+						<Controls>
+							<AxFormControl xmlns=""
+								i:type="AxFormGroupControl">
+								<Name>FWFTextBlockPurchTable</Name>
+								<Type>Group</Type>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>FWFTextBlockPurchTable_FWFTextBlockCopyingHeader</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>FWFTextBlockCopyingHeader</DataField>
+										<DataSource>VendFormletterParameters</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>FWFTextBlockPurchTable_FWFTextBlockCopyingLine</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>FWFTextBlockCopyingLine</DataField>
+										<DataSource>VendFormletterParameters</DataSource>
+									</AxFormControl>
+								</Controls>
+								<DataGroup>FWFTextBlockPurchTable</DataGroup>
+								<DataSource>VendFormletterParameters</DataSource>
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormGroupControl">
+								<Name>FWFTextBlockPurchRFQCaseTable</Name>
+								<Type>Group</Type>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>FWFTextBlockPurchRFQCaseTable_FWFTextBlockCopyingHeaderRFQCase</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>FWFTextBlockCopyingHeaderRFQCase</DataField>
+										<DataSource>VendFormletterParameters</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>FWFTextBlockPurchRFQCaseTable_FWFTextBlockCopyingLineRFQCase</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>FWFTextBlockCopyingLineRFQCase</DataField>
+										<DataSource>VendFormletterParameters</DataSource>
+									</AxFormControl>
+								</Controls>
+								<DataGroup>FWFTextBlockPurchRFQCaseTable</DataGroup>
+								<DataSource>VendFormletterParameters</DataSource>
+							</AxFormControl>
+							<AxFormControl xmlns=""
+								i:type="AxFormGroupControl">
+								<Name>FWFTextBlockPurchReqTable</Name>
+								<Type>Group</Type>
+								<FormControlExtension
+									i:nil="true" />
+								<Controls>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>FWFTextBlockPurchReqTable_FWFTextBlockCopyingHeaderReq</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>FWFTextBlockCopyingHeaderReq</DataField>
+										<DataSource>VendFormletterParameters</DataSource>
+									</AxFormControl>
+									<AxFormControl xmlns=""
+										i:type="AxFormCheckBoxControl">
+										<Name>FWFTextBlockPurchReqTable_FWFTextBlockCopyingLineReq</Name>
+										<Type>CheckBox</Type>
+										<FormControlExtension
+											i:nil="true" />
+										<DataField>FWFTextBlockCopyingLineReq</DataField>
+										<DataSource>VendFormletterParameters</DataSource>
+									</AxFormControl>
+								</Controls>
+								<DataGroup>FWFTextBlockPurchReqTable</DataGroup>
+								<DataSource>VendFormletterParameters</DataSource>
+							</AxFormControl>
+						</Controls>
+						<ColumnsMode>Fill</ColumnsMode>
+						<FrameType>None</FrameType>
+					</AxFormControl>
+				</Controls>
+				<Caption>@FWFTextBlock:TextBlockSubMenuLabel</Caption>
+			</FormControl>
+			<Parent>Tab</Parent>
+		</AxFormExtensionControl>
+	</Controls>
+	<DataSourceModifications />
+	<DataSourceReferences />
+	<DataSources />
+	<Parts />
+	<PropertyModifications />
+</AxFormExtension>

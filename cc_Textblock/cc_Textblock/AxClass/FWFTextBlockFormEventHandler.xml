@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockFormEventHandler</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+class FWFTextBlockFormEventHandler
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>DirPartyTable_Post_updateControls</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Enables/disables some button on form <c>DirPartyTable</c>.
+    /// </summary>
+    /// <param name="_args">The <c>DirPartyTable</c> formrun.</param>
+    [PostHandlerFor(formStr(DirPartyTable), formMethodStr(DirPartyTable, updateControls))]
+    public static void DirPartyTable_Post_updateControls(XppPrePostArgs _args)
+    {
+        FormRun                     form = _args.getThis();
+        FormDataSource              dirPartyTable_ds  = form.dataSource(formdatasourcestr(DirPartyTable, DirPartyTable)) as FormDataSource;
+        FormFunctionButtonControl   buttonFWFTextBlockUsageEx = form.design().controlName(formControlStr(DirPartyTable, FWFTextBlockUsageEx_GAB));
+
+        buttonFWFTextBlockUsageEx.enabled(DirPartyTableHelper::isCustomer(dirPartyTable_ds.cursor().RecId) || DirPartyTableHelper::isvendor(dirPartyTable_ds.cursor().RecId));
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>CovRule_OnModified</Name>
+				<Source><![CDATA[
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    [FormDataFieldEventHandler(formDataFieldStr(ReqGroup, ReqGroup, CovRule), FormDataFieldEventType::Modified),
+	SuppressBPWarning('BPParameterNotUsed', 'Parameter required by the event interface.')]
+    public static void CovRule_OnModified(FormDataObject _sender, FormDataFieldEventArgs _e)
+    {
+        FormDatasource	reqGroupDS = _sender.datasource();
+        ReqGroup		reqGroup	= reqGroupDS.cursor() as ReqGroup;
+
+        if (reqGroup.CovRule == ReqCovType::Req)
+        {
+            reqGroupDS.object(fieldNum(ReqGroup, FWFTextBlockCopyFromSalesOrder)).enabled(true);
+        }
+		else
+        {
+            reqGroup.FWFTextBlockCopyFromSalesOrder = NoYes::No;
+            reqGroupDS.object(fieldNum(ReqGroup, FWFTextBlockCopyFromSalesOrder)).enabled(false);
+        }
+		
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>ReqGroup_OnActivated</Name>
+				<Source><![CDATA[
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    [FormDataSourceEventHandler(formDataSourceStr(ReqGroup, ReqGroup), FormDataSourceEventType::Activated),
+	SuppressBPWarning('BPParameterNotUsed', 'Parameter required by the event interface.')]
+    public static void ReqGroup_OnActivated(FormDataSource _sender, FormDataSourceEventArgs _e)
+    {
+        ReqGroup reqGroup = _sender.cursor() as ReqGroup;
+
+        if (reqGroup.CovRule == ReqCovType::Req)
+        {
+            _sender.object(fieldNum(ReqGroup, FWFTextBlockCopyFromSalesOrder)).enabled(true);
+        }
+        else
+        {
+            _sender.object(fieldNum(ReqGroup, FWFTextBlockCopyFromSalesOrder)).enabled(false);
+        }
+
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>ccHasTextblock_OnClicked</Name>
+				<Source><![CDATA[
+    [FormControlEventHandler(formControlStr(ProdTableListPage,					ccHasTextblock),				FormControlEventType::Clicked), 
+     FormControlEventHandler(formControlStr(BOMConsistOf,						ccHasTextblock),				FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(BOMTable,							ccHasTextblock),				FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(CustConfirmJournal,					ccHasTextblock),				FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(CustConfirmJournal,					ccHasTextblock_Line),			FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(CustInvoiceJournal,					ccHasTextblock),				FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(CustInvoiceJournal,					ccHasTextblock_Line),			FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(CustPackingSlipJournal,				ccHasTextblock),				FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(CustPackingSlipJournal,				ccHasTextblock_Line),			FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(CustQuotationConfirmationJournal,	ccHasTextblock),				FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(CustQuotationConfirmationJournal,	ccHasTextblock_Line),			FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(CustQuotationJournal,	            ccHasTextblock),				FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(CustQuotationJournal,	            ccHasTextblock_Line),			FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(CustFreeInvoice,					ccHasTextblock),				FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(VendInvoiceJournal,					ccHasTextblock),				FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(VendInvoiceJournal,					ccHasTextblock_Line),			FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(VendPackingSlipJournal,				ccHasTextblock),				FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(VendPackingSlipJournal,				ccHasTextblock_Line),			FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(VendPurchOrderJournal,				ccHasTextblock),				FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(VendPurchOrderJournal,				ccHasTextblock_Line),			FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(SalesTable,							ccHasTextblock),				FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(SalesTable,							ccHasTextblock_Line),			FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(ReturnTable,						ccHasTextblock),				FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(ReturnTable,						ccHasTextblock_Line),			FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(PurchTable,							ccHasTextblock),				FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(PurchTable,							ccHasTextblock_Line),			FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(SalesQuotationTable,				ccHasTextblock),				FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(SalesQuotationTable,				ccHasTextblock_Line),			FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(SalesQuotationProjTable,			ccHasTextblock),				FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(SalesQuotationProjTable,			ccHasTextblock_Line),			FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(SalesQuotationListPage,				ccHasTextblock),				FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(SalesTableListPage,					ccHasTextblock),				FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(ReturnTableListPage,				ccHasTextblock),				FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(ProdBOM,							ccHasTextblock),				FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(ReqTransPo,							ccHasTextblock),				FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(PurchAgreement,						ccHasTextblock),				FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(PurchAgreement,						ccHasTextblock_Line),			FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(SalesAgreement,						ccHasTextblock),				FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(SalesAgreement,						ccHasTextblock_Line),			FormControlEventType::Clicked),
+	 FormControlEventHandler(formControlStr(SalesAgreementListPage,				ccHasTextblock),				FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(ProjInvoiceJournal,					ccHasTextblock),				FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(ProjInvoiceJournal,					ccHasTextblock_Item_Sales),		FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(ProjInvoiceJournal,					ccHasTextblock_Item_Project),	FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(ProjInvoiceJournalV2,				ccHasTextblock),				FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(ProjInvoiceJournalV2,				ccHasTextblock_Item_Sales),		FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(ProjInvoiceJournalV2,				ccHasTextblock_Item_Project),	FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(ProjInvoiceListPage,				ccHasTextblock),				FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(ProjInvoiceProposalDetail,			ccHasTextblock),				FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(ProjInvoiceProposalDetail,			ccHasTextblock_ItemSalesLine),	FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(ProjInvoiceProposalDetail,			ccHasTextblock_ItemProject),	FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(ProjInvoiceProposalDetailV2,		ccHasTextblock),				FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(ProjInvoiceProposalDetailV2,		ccHasTextblock_ItemSalesLine),	FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(ProjInvoiceProposalDetailV2,		ccHasTextblock_ItemProject),	FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(ProjInvoiceProposalListPage,		ccHasTextblock),				FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(InventTransferJour,		            ccHasTextblock),				FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(PurchAgreementHistory,      		ccHasTextblock_Line),		    FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(SalesAgreementHistory,		        ccHasTextblock_Line),			FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(PurchReqTableListPage,		        ccHasTextblock),			    FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(PurchReqTable,      		        ccHasTextblock),		    	FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(PurchReqTable,      		        ccHasTextblock_Line),			FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(PurchRFQCaseTableListPage,          ccHasTextblock),			    FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(PurchRFQCaseTable,  		        ccHasTextblock_Line),			FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(VendRFQJournal,                     ccHasTextblock),			    FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(VendRFQJournal,		                ccHasTextblock_Line),			FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(PurchRFQReplyTable,		            ccHasTextblock_Line),			FormControlEventType::Clicked),
+     FormControlEventHandler(formControlStr(PurchRFQVendReply,		            ccHasTextblock_Line),			FormControlEventType::Clicked),
+    SuppressBPWarning('BPParameterNotUsed', 'Parameter required by the event interface.')]
+	public static void ccHasTextblock_OnClicked(FormControl _sender, FormControlEventArgs _e)
+    {
+        Args args = new Args();
+        args.record(_sender.dataSourceObject().cursor());
+        args.caller(_sender.formRun());
+        if (args.record().RecId)
+        {
+            new MenuFunction(MenuItemDisplayStr(FWFTextBlockValue), MenuItemType::Display).run(args);
+        }
+        else
+        {
+            warning(strFmt("@FWFTextBlock:WarningRecordMissing" , tableId2PName(args.record().TableId)));
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxFormExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>LedgerJournalTransVendInvoice.FWFVendInvoice</Name>
+	<ControlModifications>
+		<AxExtensionModification xmlns="">
+			<Name>DocumentDateGrid</Name>
+			<PropertyModifications>
+				<AxPropertyModification>
+					<Name>Label</Name>
+				</AxPropertyModification>
+			</PropertyModifications>
+		</AxExtensionModification>
+		<AxExtensionModification xmlns="">
+			<Name>DocumentDate</Name>
+			<PropertyModifications>
+				<AxPropertyModification>
+					<Name>Label</Name>
+				</AxPropertyModification>
+			</PropertyModifications>
+		</AxExtensionModification>
+	</ControlModifications>
+	<Controls>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControlxt5cwp3u1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormDateControl">
+				<Name>FWFVendInvoice_LedgerJournalTrans_FWFVendInvoiceDate</Name>
+				<Type>Date</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<DataField>FWFVendInvoiceDate</DataField>
+				<DataSource>LedgerJournalTrans</DataSource>
+			</FormControl>
+			<Parent>GroupInvoice</Parent>
+			<PositionType>AfterItem</PositionType>
+			<PreviousSibling>PurchIdRange</PreviousSibling>
+		</AxFormExtensionControl>
+	</Controls>
+	<DataSources />
+	<Parts />
+	<PropertyModifications />
+</AxFormExtension>

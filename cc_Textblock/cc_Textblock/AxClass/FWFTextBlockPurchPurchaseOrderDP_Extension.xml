@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockPurchPurchaseOrderDP_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of <c>PurchPurchaseOrderDP</c> for text block management
+/// </summary>
+[ExtensionOf(classStr(PurchPurchaseOrderDP))]
+final class FWFTextBlockPurchPurchaseOrderDP_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>initializePurchaseOrderHeader</Name>
+				<Source><![CDATA[
+    protected PurchPurchaseOrderHeader initializePurchaseOrderHeader(VendPurchOrderJour _vendPurchOrderJour)
+    {
+        PurchPurchaseOrderHeader purchPurchaseOrderHeaderCreated = next initializePurchaseOrderHeader(_vendPurchOrderJour);
+
+        FWFTextBlockReportTextInit::newParameters(purchPurchaseOrderHeaderCreated, _vendPurchOrderJour).addTexts();
+
+        return purchPurchaseOrderHeaderCreated;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initializeOrderLine</Name>
+				<Source><![CDATA[
+    protected PurchPurchaseOrderTmp initializeOrderLine(PurchPurchaseOrderHeader _purchaseOrderHeader, boolean _highlightUpdated, PurchPurchaseOrderDPOrderLineQuerySelection _orderLineSelection)
+    {
+        PurchPurchaseOrderTmp purchPurchaseOrderTmpCreated = next initializeOrderLine(_purchaseOrderHeader, _highlightUpdated, _orderLineSelection);
+
+        if (purchPurchaseOrderTmpCreated.PurchOrderTransOrTaxTrans == NoYes::Yes)
+        {
+            FWFTextBlockReportTextInit::newParametersPoConform(purchPurchaseOrderTmpCreated, _orderLineSelection.parmPurchLineAllVersions(), this.isProformaPrint()).addTexts();
+        }
+
+        return purchPurchaseOrderTmpCreated;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

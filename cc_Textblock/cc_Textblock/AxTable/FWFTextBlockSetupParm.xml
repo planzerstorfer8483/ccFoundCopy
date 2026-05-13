@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxTable xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockSetupParm</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+public class FWFTextBlockSetupParm extends FWFTextBlockParm
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>find</Name>
+				<Source><![CDATA[
+    public static FWFTextBlockSetupParm find(
+        RecId       _recId,
+        boolean     _update = false)
+    {
+        FWFTextBlockSetupParm  parm;
+    
+        parm.selectForUpdate(_update);
+    
+        if (_recId)
+        {
+            select firstonly parm
+                where parm.RecId == _recId;
+        }
+    
+        return parm;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+	<DeveloperDocumentation>@FWFTextBlock:TextBlockSetupParmDevDoc</DeveloperDocumentation>
+	<Label>@FWFTextBlock:TextBlockSetup</Label>
+	<TableGroup>Group</TableGroup>
+	<CacheLookup>Found</CacheLookup>
+	<Extends>FWFTextBlockParm</Extends>
+	<SaveDataPerCompany>No</SaveDataPerCompany>
+	<SupportInheritance>Yes</SupportInheritance>
+	<DeleteActions />
+	<FieldGroups>
+		<AxTableFieldGroup>
+			<Name>AutoReport</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoLookup</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoIdentification</Name>
+			<AutoPopulate>Yes</AutoPopulate>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoSummary</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoBrowse</Name>
+			<Fields />
+		</AxTableFieldGroup>
+	</FieldGroups>
+	<Fields />
+	<FullTextIndexes />
+	<Indexes />
+	<Mappings />
+	<Relations>
+		<AxTableRelation xmlns=""
+			i:type="AxTableRelationForeignKey">
+			<Name>FWFTextBlockParm_1</Name>
+			<Cardinality>ZeroOne</Cardinality>
+			<OnDelete>Cascade</OnDelete>
+			<RelatedTable>FWFTextBlockParm</RelatedTable>
+			<RelatedTableCardinality>ExactlyOne</RelatedTableCardinality>
+			<RelationshipType>Specialization</RelationshipType>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>RecId</Name>
+					<Field>RecId</Field>
+					<RelatedField>RecId</RelatedField>
+				</AxTableRelationConstraint>
+			</Constraints>
+			<Index>RecId</Index>
+		</AxTableRelation>
+	</Relations>
+	<StateMachines />
+</AxTable>

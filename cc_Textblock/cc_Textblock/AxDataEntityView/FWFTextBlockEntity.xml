@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxDataEntityView xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockEntity</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+public class FWFTextBlockEntity extends common
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>insertEntityDataSource</Name>
+				<Source><![CDATA[
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name = "_entityCtx"></param>
+    /// <param name = "_dataSourceCtx"></param>
+    /// <returns></returns>
+    public boolean insertEntityDataSource(DataEntityRuntimeContext _entityCtx, DataEntityDataSourceRuntimeContext _dataSourceCtx)
+    {
+        boolean ret;
+    
+        ret = super(_entityCtx, _dataSourceCtx);
+    
+        if (_dataSourceCtx.name() == dataEntityDataSourceStr(FWFTextBlockEntity, FWFTextBlockLanguage))
+        {
+            this.insertUpdateTextBlockValue(_entityCtx, _dataSourceCtx);
+        }
+
+        return ret;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>postLoad</Name>
+				<Source><![CDATA[
+    /// <summary>
+    ///
+    /// </summary>
+    public void postLoad()
+    {
+        FWFTextBlockTable       textBlockTable;
+        FWFTextBlockValue       textBlockValue;
+        FWFTextBlockInstance    textBlockInstance;
+        FWFTextBlockLanguage    textBlockLanguage;
+
+        super();
+
+        textBlockTable      = FWFTextBlockTable::findNameModule(this.Name, this.Module, this.CompanyId);
+        textBlockLanguage   = FWFTextBlockLanguage::find(textBlockTable.RecId, this.TextBlockTable_LanguageId);
+        textBlockInstance   = FWFTextBlockInstance::find(textBlockLanguage.RecId, textBlockLanguage.TableId);
+        textBlockValue      = FWFTextBlockValue::find(textBlockInstance.ValueRecId);
+
+        this.TextBlockValue_TextBlock = textBlockValue.TextBlock;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>updateEntityDataSource</Name>
+				<Source><![CDATA[
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name = "_entityCtx"></param>
+    /// <param name = "_dataSourceCtx"></param>
+    /// <returns></returns>
+    public boolean updateEntityDataSource(DataEntityRuntimeContext _entityCtx, DataEntityDataSourceRuntimeContext _dataSourceCtx)
+    {
+        boolean ret;
+    
+        ret = super(_entityCtx, _dataSourceCtx);
+
+        if (_dataSourceCtx.name() == dataEntityDataSourceStr(FWFTextBlockEntity, FWFTextBlockLanguage))
+        {
+            this.insertUpdateTextBlockValue(_entityCtx, _dataSourceCtx);
+        }
+    
+        return ret;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>insertUpdateTextBlockValue</Name>
+				<Source><![CDATA[
+    private void insertUpdateTextBlockValue(DataEntityRuntimeContext _entityCtx, DataEntityDataSourceRuntimeContext _dataSourceCtx)
+    {
+        FWFTextBlockValue       textBlockValue;
+        FWFTextBlockInstance    textBlockInstance;
+        FWFTextBlockLanguage    textBlockLanguage;
+        FWFTextBlockEntity      textBlockEntity;
+        FWFTextBlockTable	    textBlockTable;
+        FWFTextBlockTableParm   textBlockTableParm;
+     
+        textBlockLanguage   = _dataSourceCtx.getBuffer();
+        textBlockEntity     = _entityCtx.getEntityRecord();
+
+        textBlockTable = FWFTextBlockTable::find(textBlockEntity.RecId);
+        if (!textBlockTable.SetupRefRecId)
+        {
+            ttsbegin;
+            textBlockTableParm.initValue();
+            textBlockTableParm.insert();
+            textBlockTable.selectForUpdate(true);
+            textBlockTable.SetupRefRecId = textBlockTableParm.RecId;
+            textBlockTable.update();
+            ttscommit;
+        }
+        
+        textBlockInstance = FWFTextBlockInstance::find(textBlockLanguage.RecId, textBlockLanguage.TableId);
+        if (! textBlockInstance)
+        {
+            textBlockInstance.RefRecId   = textBlockLanguage.RecId;
+            textBlockInstance.RefTableId = textBlockLanguage.TableId;
+            textBlockInstance.write();
+        }
+        
+        textBlockValue = FWFTextBlockValue::findOrCreate(textBlockEntity.TextBlockValue_TextBlock);
+
+        textBlockInstance.selectForUpdate(true);
+        textBlockInstance.ValueRecId = textBlockValue.RecId;
+        textBlockInstance.update();
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+	<FormRef>FWFTextBlockTable</FormRef>
+	<Label>@FWFTextBlock:TextBlock</Label>
+	<DataManagementEnabled>Yes</DataManagementEnabled>
+	<DataManagementStagingTable>FWFTextBlockStaging</DataManagementStagingTable>
+	<IsPublic>Yes</IsPublic>
+	<PrimaryKey>EntityKey</PrimaryKey>
+	<PublicCollectionName>TextBlocks</PublicCollectionName>
+	<PublicEntityName>TextBlock</PublicEntityName>
+	<SupportsSetBasedSqlOperations>Yes</SupportsSetBasedSqlOperations>
+	<DeleteActions />
+	<FieldGroups>
+		<AxTableFieldGroup>
+			<Name>AutoReport</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoLookup</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoIdentification</Name>
+			<AutoPopulate>Yes</AutoPopulate>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoSummary</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoBrowse</Name>
+			<Fields />
+		</AxTableFieldGroup>
+	</FieldGroups>
+	<Fields>
+		<AxDataEntityViewField xmlns=""
+			i:type="AxDataEntityViewMappedField">
+			<Name>CompanyId</Name>
+			<DataField>CompanyId</DataField>
+			<DataSource>FWFTextBlockTable</DataSource>
+		</AxDataEntityViewField>
+		<AxDataEntityViewField xmlns=""
+			i:type="AxDataEntityViewMappedField">
+			<Name>ICCopy</Name>
+			<DataField>ICCopy</DataField>
+			<DataSource>FWFTextBlockTable</DataSource>
+		</AxDataEntityViewField>
+		<AxDataEntityViewField xmlns=""
+			i:type="AxDataEntityViewMappedField">
+			<Name>Module</Name>
+			<DataField>Module</DataField>
+			<DataSource>FWFTextBlockTable</DataSource>
+		</AxDataEntityViewField>
+		<AxDataEntityViewField xmlns=""
+			i:type="AxDataEntityViewMappedField">
+			<Name>Name</Name>
+			<DataField>Name</DataField>
+			<DataSource>FWFTextBlockTable</DataSource>
+		</AxDataEntityViewField>
+		<AxDataEntityViewField xmlns=""
+			i:type="AxDataEntityViewMappedField">
+			<Name>TextBlockTable_LanguageId</Name>
+			<DataField>LanguageId</DataField>
+			<DataSource>FWFTextBlockLanguage</DataSource>
+		</AxDataEntityViewField>
+		<AxDataEntityViewField xmlns=""
+			i:type="AxDataEntityViewUnmappedFieldString">
+			<Name>TextBlockValue_TextBlock</Name>
+			<Label>@SYS13887</Label>
+			<ExtendedDataType>Notes</ExtendedDataType>
+			<IsComputedField>No</IsComputedField>
+		</AxDataEntityViewField>
+	</Fields>
+	<Keys>
+		<AxDataEntityViewKey>
+			<Name>EntityKey</Name>
+			<Fields>
+				<AxDataEntityViewKeyField>
+					<DataField>Name</DataField>
+				</AxDataEntityViewKeyField>
+				<AxDataEntityViewKeyField>
+					<DataField>Module</DataField>
+				</AxDataEntityViewKeyField>
+				<AxDataEntityViewKeyField>
+					<DataField>CompanyId</DataField>
+				</AxDataEntityViewKeyField>
+				<AxDataEntityViewKeyField>
+					<DataField>TextBlockTable_LanguageId</DataField>
+				</AxDataEntityViewKeyField>
+			</Fields>
+		</AxDataEntityViewKey>
+	</Keys>
+	<Mappings />
+	<Ranges />
+	<Relations />
+	<StateMachines />
+	<ViewMetadata>
+		<Name>Metadata</Name>
+		<SourceCode>
+			<Methods>
+				<Method>
+					<Name>classDeclaration</Name>
+					<Source><![CDATA[
+[Query]
+public class Metadata extends QueryRun
+{
+}
+]]></Source>
+				</Method>
+			</Methods>
+		</SourceCode>
+		<DataSources>
+			<AxQuerySimpleRootDataSource>
+				<Name>FWFTextBlockTable</Name>
+				<DynamicFields>Yes</DynamicFields>
+				<Table>FWFTextBlockTable</Table>
+				<DataSources>
+					<AxQuerySimpleEmbeddedDataSource>
+						<Name>FWFTextBlockLanguage</Name>
+						<DynamicFields>Yes</DynamicFields>
+						<Table>FWFTextBlockLanguage</Table>
+						<DataSources />
+						<DerivedDataSources />
+						<Fields />
+						<Ranges />
+						<FetchMode>OneToN</FetchMode>
+						<Relations>
+							<AxQuerySimpleDataSourceRelation>
+								<Name>QueryDataSourceRelation1</Name>
+								<JoinDataSource>FWFTextBlockTable</JoinDataSource>
+								<JoinRelationName>FWFTextBlockTable</JoinRelationName>
+							</AxQuerySimpleDataSourceRelation>
+						</Relations>
+					</AxQuerySimpleEmbeddedDataSource>
+				</DataSources>
+				<DerivedDataSources />
+				<Fields />
+				<Ranges />
+				<GroupBy />
+				<Having />
+				<OrderBy />
+			</AxQuerySimpleRootDataSource>
+		</DataSources>
+	</ViewMetadata>
+</AxDataEntityView>

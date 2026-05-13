@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockCorrectPoConfTableId</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Job to correct extended texts associated with confirmed purchase order lines. Possible the RefTableId in <c>FWFTextBlockInstance</c>
+/// table is wrong with confirmed purchase order lines (tableid is PurchLineAllVersions.TableId instead of PurchLineHistory.TableId. Only
+/// confirmed purchase order lines are affected, no other document lines.
+///
+/// Job neccessary starting with version 8.1.3.0 of ccTextBlock 
+/// 
+/// In <c>FWFTextBlockInstance</c> table following RefTableId's should be stored:
+/// * Assign an extended text to a purch line -> RefTableId = PurchLine.TableId, RefRecId = PurchLine.RecId
+/// * Post a purchase order -> RefTableId = PurchLineAllVersion.TableId, RefRecId = PurchLineAllVersions.RecId (the same RecId as PurchLine.RecId)
+/// * change a purch line (standard duplicates PurchLine to PurchLineHistory) -> RefTableId = PurchLineHistory.TableId, PurchLineHistory.RecId
+/// 
+/// Start command: https://<url>/?cmp=<company>&mi=sysClassRunner&cls=FWFTextBlockCorrectPoConfTableId
+///
+/// A dialog will be displayed when starting this class. User can select a purchase order number to correct only extended textes for a 
+/// specified purchase order, otherwise all purchase order line extended texts will be corrected.
+/// </summary>
+class FWFTextBlockCorrectPoConfTableId
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>main</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Runs the class with the specified arguments.
+    /// </summary>
+    /// <param name = "_args">The specified arguments.</param>
+    public static void main(Args _args)
+    {
+        FWFTextBlockInstance textBlockInstance;
+        PurchLineAllVersions purchLineAllVersions;
+        Dialog dlg;
+        DialogField dlgFieldPurchId;
+        PurchId purchId;
+        ;
+        dlg = new Dialog();
+        dlgFieldPurchId = dlg.addField(extendedTypeStr(PurchId));
+        if (dlg.run())
+        {
+            purchId = dlgFieldPurchId.value();
+
+            while select forupdate textBlockInstance
+                where textBlockInstance.RefTableId == tableNum(PurchLineAllVersions)
+                join RecId, IsArchived from purchLineAllVersions
+                    where purchLineAllVersions.RecId == textBlockInstance.RefRecId
+                       && purchLineAllVersions.IsArchived
+                       && (purchLineAllVersions.PurchId == purchId || !purchId)
+            {
+                ttsbegin;
+                textBlockInstance.RefTableId = tableNum(PurchLineHistory);
+                textBlockInstance.update();
+                ttscommit;
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockMpsMasterPlanningEvents_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(classstr(MpsMasterPlanningEvents))]
+public static final class FWFTextBlockMpsMasterPlanningEvents_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>jobCompletedSuccessfully</Name>
+				<Source><![CDATA[
+    public static void jobCompletedSuccessfully(MpsMasterPlanningJobCompletedSuccessfullyEventArgs _args)
+    {
+        FWFTextBlockEventHandler handler;
+        ReqTrans reqTrans, issueReqTrans;
+        ReqTransCov reqTransCov;
+        ReqPO reqPO;
+        ReqGroup reqGroup;
+        ReqPO reqPOUpd;
+        Query affectedPlannedOrdersTransQuery;
+        QueryRun affectedPlannedOrdersTransQueryRun;
+        Query affectedPlannedOrdersQuery;
+        QueryRun affectedPlannedOrdersQueryRun;
+
+        ttsbegin;
+        affectedPlannedOrdersTransQuery = _args.parmPostProcessingQueryBuilder().buildAffectedReqTransQuery();
+        affectedPlannedOrdersTransQueryRun = new QueryRun(affectedPlannedOrdersTransQuery);
+
+        while (affectedPlannedOrdersTransQueryRun.next())
+        {
+            reqTrans = affectedPlannedOrdersTransQueryRun.get(tableNum(ReqTrans));
+            handler = FWFTextBlockEventHandler::newParameters(reqTrans, EventLogType::Insert);
+            handler.run();
+
+            if (reqTrans.Direction == InventDirection::Receipt)
+            {
+                select firstonly reqTransCov
+                    where reqTransCov.ReceiptRecId == reqTrans.RecId;
+
+                if (reqTransCov)
+                {
+                    issueReqTrans = ReqTrans::findRecId(reqTransCov.IssueRecId);
+                }
+
+                if (issueReqTrans)
+                {
+                    reqGroup = ReqGroup::find(issueReqTrans.inventTable().ReqGroupId);
+                    if (reqGroup.CovRule == ReqCovType::Req && reqGroup.FWFTextBlockCopyFromSalesOrder)
+                    {
+                        if (issueReqTrans.RefType == ReqRefType::Sales)
+                        {
+                            select forupdate reqPOUpd
+                                where reqPOUpd.PlanVersion == reqTrans.PlanVersion
+                                   && reqPOUpd.RefId == reqTrans.RefId;
+
+                            if (reqPOUpd && !reqPOUpd.FWFTextBlockSalesLineFromRefRecId)
+                            {
+                                reqPOUpd.FWFTextBlockSalesLineFromRefRecId = InventTransOriginSalesLine::salesLine(issueReqTrans.InventTransOrigin).RecId;
+                                reqPOUpd.doUpdate();
+                            }
+                        }
+                        else if (issueReqTrans.RefType == ReqRefType::ProdLine || issueReqTrans.RefType == ReqRefType::PmfFormulaLine)
+                        {
+                            select forupdate reqPOUpd
+                                where reqPOUpd.PlanVersion == reqTrans.PlanVersion
+                                   && reqPOUpd.RefId == reqTrans.RefId;
+
+                            if (reqPOUpd && !reqPOUpd.FWFTextBlockProdBOMFromRefRecId)
+                            {
+                                reqPOUpd.FWFTextBlockProdBOMFromRefRecId = InventTransOriginProdBOM::prodBOM(issueReqTrans.InventTransOrigin).RecId;
+                                reqPOUpd.doUpdate();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        ttscommit;
+
+        ttsbegin;
+        affectedPlannedOrdersQuery    = _args.parmPostProcessingQueryBuilder().buildAffectedPlannedOrdersQuery();
+        affectedPlannedOrdersQueryRun = new QueryRun(affectedPlannedOrdersQuery);
+
+        while (affectedPlannedOrdersQueryRun.next())
+        {
+            reqPo = affectedPlannedOrdersQueryRun.get(tableNum(ReqPO));
+            handler = FWFTextBlockEventHandler::newParameters(reqPO, EventLogType::Insert);
+            handler.run();
+        }
+        ttscommit;
+
+        next jobCompletedSuccessfully(_args);
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

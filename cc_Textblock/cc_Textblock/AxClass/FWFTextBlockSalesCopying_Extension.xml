@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockSalesCopying_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(classStr(SalesCopying))]
+final class FWFTextBlockSalesCopying_Extension
+{
+    private NoYes   copyHeaderTB;
+    private NoYes   copyLineTB;
+
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>initParametersFromContract</Name>
+				<Source><![CDATA[
+    public void initParametersFromContract(SalesOrderCopyingContract _salesOrderCopyingContract)
+    {
+        next initParametersFromContract(_salesOrderCopyingContract);
+
+        this.parmCopyHeaderTextBlock(_salesOrderCopyingContract.parmCopyHeaderTextBlock());
+        this.parmCopyLineTextBlock(_salesOrderCopyingContract.parmCopyLineTextBlock());
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmCopyHeaderTextBlock</Name>
+				<Source><![CDATA[
+    public NoYes parmCopyHeaderTextBlock(NoYes _copyHeaderTB = copyHeaderTB)
+    {
+        copyHeaderTB = _copyHeaderTB;
+        return copyHeaderTB;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmCopyLineTextBlock</Name>
+				<Source><![CDATA[
+    public NoYes parmCopyLineTextBlock(NoYes _copyLineTB = copyLineTB)
+    {
+        copyLineTB = _copyLineTB;
+        return copyLineTB;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>copyFromSourceTable</Name>
+				<Source><![CDATA[
+    protected Common copyFromSourceTable(TmpFrmVirtual _tmpFrmVirtualHeader)
+    {
+        FWFTextBlockInstance    sourceInstance, targetInstance;
+        Common                  sourceRecord = next copyFromSourceTable(_tmpFrmVirtualHeader);
+
+        if (this.parmCopyHeaderTextBlock())
+        {
+            //delete texts from setup
+            delete_from targetInstance
+                where targetInstance.RefTableId == salesTable.TableId
+                   && targetInstance.RefRecId   == salesTable.RecId;
+            
+            while select sourceInstance
+                where sourceInstance.RefTableId == sourceRecord.TableId
+                   && sourceInstance.RefRecId   == sourceRecord.RecId
+            {
+                targetInstance = sourceInstance.copyToTarget(salesTable, true);
+            }
+        }
+
+        return sourceRecord;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>copyLine</Name>
+				<Source><![CDATA[
+    protected void copyLine(SalesLine _salesLine, SalesLineCopyFromSource _salesLineCopyFromSource)
+    {
+        FWFTextBlockInstance    sourceInstance, targetInstance;
+        Common                  sourceRecord;
+        
+        next copyLine(_salesLine, _salesLineCopyFromSource);
+
+        sourceRecord = _salesLineCopyFromSource.retrieveSource();
+
+        if (this.parmCopyLineTextBlock())
+        {
+            //delete texts from setup
+            delete_from targetInstance
+                where targetInstance.RefTableId == _salesLine.TableId
+                   && targetInstance.RefRecId   == _salesLine.RecId;
+
+            while select sourceInstance
+                where sourceInstance.RefTableId == sourceRecord.TableId
+                   && sourceInstance.RefRecId   == sourceRecord.RecId
+            {
+                targetInstance = sourceInstance.copyToTarget(_salesLine, true);
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

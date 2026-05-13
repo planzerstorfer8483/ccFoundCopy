@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockProdPicklistDP_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of <c>ProdPicklistDP</c> for text block management
+/// </summary>
+[ExtensionOf(classStr(ProdPicklistDP))]
+final class FWFTextBlockProdPicklistDP_Extension
+{
+
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>initializeProdPickListTmp</Name>
+				<Source><![CDATA[
+    protected void initializeProdPickListTmp(InventTransferLine _inventTransferLine)
+    {
+        FWFTextBlockReportTextInit reportTextInit;
+
+        next initializeProdPickListTmp(_inventTransferLine);
+
+        //Until December 2025, only item texts from the ProdBOM were included.
+        //If a report uses only ONE table for header and line data, we are normally using the fields FWFTextBlockHeader and FWFTextBlockFooter on the header
+        //and FWFTextBlockHeaderLine and FWFTextBlockFooterLine on the line by default.
+        //Unfortunately, the "wrong" names were used here, namely FWFTextBlockHeaderText and FWFTextBlockFooterText for line texts.
+        //To ensure backward compatibility, we continue to use these "wrong" names here instead of changing them to the correct ones.
+        //Therefore, we have introduced the new field names FWFTextBlockHeaderTextPO and FWFTextBlockFooterTextPO for the header texts.
+
+        // texts from prod BOM (print on "line level")
+        reportTextInit = FWFTextBlockReportTextInit::newParameters(prodPickListTmp, this.prodJournalBOM.prodBOM());
+        reportTextInit.addTextsProductionPaper(ProdJournalType::Picklist);
+
+        // texts from prod table (print on "header level")
+        reportTextInit.parmFieldNoHeaderText(fieldName2id(prodPickListTmp.TableId, identifierStr(FWFTextBlockHeaderTextPO)));
+        reportTextInit.parmFieldNoFooterText(fieldName2id(prodPickListTmp.TableId, identifierStr(FWFTextBlockFooterTextPO)));
+        reportTextInit.parmSource(this.prodTable);
+        reportTextInit.addTextsProductionPaper(ProdJournalType::Picklist);
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

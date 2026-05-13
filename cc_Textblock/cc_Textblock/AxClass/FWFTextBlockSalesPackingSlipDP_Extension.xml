@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockSalesPackingSlipDP_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of <c>SalesPackingSlipDP</c> for text block management
+/// </summary>
+[ExtensionOf(classStr(SalesPackingSlipDP))]
+final class FWFTextBlockSalesPackingSlipDP_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>initializeSalesPackingSlipHeader</Name>
+				<Source><![CDATA[
+    protected SalesPackingSlipHeaderTmp initializeSalesPackingSlipHeader()
+    {
+        SalesPackingSlipHeaderTmp salesPackingSlipHeaderTmpCreated = next initializeSalesPackingSlipHeader();
+
+        FWFTextBlockReportTextInit::newParameters(salesPackingSlipHeaderTmpCreated, this.parmCustPackingSlipJour()).addTexts();
+
+        return salesPackingSlipHeaderTmpCreated;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initializeSalesPackingSlipLine</Name>
+				<Source><![CDATA[
+    protected SalesPackingSlipDetailsTmp initializeSalesPackingSlipLine(SalesPackingSlipHeaderTmp _salesPackingSlipHeaderTmp, SalesPackingSlipDPPackingSlipLineQuerySelection _packingSlipLineSelection)
+    {
+        SalesPackingSlipDetailsTmp salesPackingSlipDetailsTmpCreated = next initializeSalesPackingSlipLine(_salesPackingSlipHeaderTmp, _packingSlipLineSelection);
+
+        FWFTextBlockReportTextInit::newParameters(salesPackingSlipDetailsTmpCreated, _packingSlipLineSelection.parmCustPackingSlipTrans()).addTexts();
+
+        return salesPackingSlipDetailsTmpCreated;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

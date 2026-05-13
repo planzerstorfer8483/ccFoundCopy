@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockPurchCopying_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(classStr(PurchCopying))]
+final class FWFTextBlockPurchCopying_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>instantiatePurchLineCopyFromSource</Name>
+				<Source><![CDATA[
+    protected PurchLineCopyFromSource instantiatePurchLineCopyFromSource(
+        PurchLine     _purchLine,
+        TmpFrmVirtual _tmpFrmVirtualLine)
+    {
+        PurchLineCopyFromSource contract;
+
+        contract = next instantiatePurchLineCopyFromSource(_purchLine, _tmpFrmVirtualLine);
+        contract.parmCopyHeaderTextBlock(copyHeaderTB);
+        contract.parmCopyLineTextBlock(copyLineTB);
+
+        return contract;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>copyHeaderFromSource</Name>
+				<Source><![CDATA[
+    protected Common copyHeaderFromSource(TmpFrmVirtual _tmpFrmVirtualHeader)
+    {
+        FWFTextBlockInstance    sourceInstance, targetInstance;
+        Common                  sourceRecord = next copyHeaderFromSource(_tmpFrmVirtualHeader);
+
+        if (this.parmCopyHeaderTextBlock())
+        {
+            //delete texts from setup
+            delete_from targetInstance
+                where targetInstance.RefTableId == purchTable.TableId
+                   && targetInstance.RefRecId   == purchTable.RecId;
+            
+            //if copying from confirmation - the textblock references VendPurchOrderJour not PurchTableHistory
+            if (sourceRecord.TableId == tableNum(PurchTableHistory))
+            {
+                sourceRecord = VendPurchOrderJour::findRecId(_tmpFrmVirtualHeader.RecordNo);
+            }
+
+            while select sourceInstance
+                where sourceInstance.RefTableId == sourceRecord.TableId
+                   && sourceInstance.RefRecId   == sourceRecord.RecId
+            {
+                targetInstance = sourceInstance.copyToTarget(purchTable, true);
+            }
+        }
+
+        return sourceRecord;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

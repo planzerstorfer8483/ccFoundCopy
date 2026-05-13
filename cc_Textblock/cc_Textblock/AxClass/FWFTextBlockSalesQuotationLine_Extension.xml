@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockSalesQuotationLine_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(tableStr(SalesQuotationLine))]
+final class FWFTextBlockSalesQuotationLine_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>displayHasTextblock</Name>
+				<Source><![CDATA[
+    [SysClientCacheDataMethodAttribute(true)]
+    public display container displayHasTextblock()
+    {
+        return FWFTextBlockHelper::hasTextblock(this);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>update</Name>
+				<Source><![CDATA[
+    public void  update(boolean  _dropInvent,
+                        Common   _childBuffer,
+                        boolean  _updateOrderLineOfDeliverySchedule,
+                        boolean  _isCalledFromPSAActivityEstimates
+                        )
+    {
+        next update(_dropInvent, _childBuffer, _updateOrderLineOfDeliverySchedule, _isCalledFromPSAActivityEstimates);
+
+        if (this.FWFTextBlockReInitRequired)
+        {
+            this.FWFTextBlockReInitRequired = NoYes::No;
+            this.doUpdate();
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

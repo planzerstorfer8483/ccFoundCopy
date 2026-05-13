@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockPurchCopying_PurchReq_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(classStr(PurchCopying_PurchReq))]
+final class FWFTextBlockPurchCopying_PurchReq_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>copyHeader</Name>
+				<Source><![CDATA[
+    void copyHeader()
+    {
+        FWFTextBlockInstance    sourceInstance, targetInstance;
+        Common                  sourceRecord;
+        
+        if (this.tmpFrmVirtualLines.TableNum == tableNum(PurchReqLine))
+        {
+            sourceRecord = PurchReqTable::findPurchReqId(this.tmpFrmVirtualLines.Id);
+        }
+
+        next copyHeader();
+
+        if (this.parmCopyHeaderTextBlock())
+        {
+            //delete texts from setup
+            delete_from targetInstance
+                where targetInstance.RefTableId == purchReqTable.TableId
+                   && targetInstance.RefRecId   == purchReqTable.RecId;
+            
+            while select sourceInstance
+                where sourceInstance.RefTableId == sourceRecord.TableId
+                   && sourceInstance.RefRecId   == sourceRecord.RecId
+            {
+                targetInstance = sourceInstance.copyToTarget(purchReqTable, true);
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>copyLine</Name>
+				<Source><![CDATA[
+    protected void copyLine(TmpFrmVirtual _tmpFrmVirtualLines)
+    {
+        FWFTextBlockInstance    sourceInstance, targetInstance;
+        PurchReqLine            purchReqLine;
+        Common                  sourceRecord = PurchReqLine::find(_tmpFrmVirtualLines.RecordNo);
+        
+        next copyLine(_tmpFrmVirtualLines);
+
+        if (this.parmCopyLineTextBlock())
+        {
+            select firstonly purchReqLine order by RecId desc;
+
+            //delete texts from setup
+            delete_from targetInstance
+                where targetInstance.RefTableId == purchReqLine.TableId
+                   && targetInstance.RefRecId   == purchReqLine.RecId;
+
+            while select sourceInstance
+                where sourceInstance.RefTableId == sourceRecord.TableId
+                   && sourceInstance.RefRecId   == sourceRecord.RecId
+            {
+                targetInstance = sourceInstance.copyToTarget(purchReqLine, true);
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

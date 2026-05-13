@@ -1,0 +1,1257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxTable xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockUsage</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+public class FWFTextBlockUsage extends common
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>checkAccountRelation</Name>
+				<Source><![CDATA[
+    boolean  checkAccountRelation()
+    {
+        boolean  ok = true;
+    
+        switch(this.AccountCode)
+        {
+            case TableGroupAll::Table   :
+                switch (this.AccountType)
+                {
+                    case FWFTextBlockAccountRelationType::Cust:
+                        if (!CustTable::exist(this.AccountRelation))
+                        {
+                            ok = checkFailed("@SYS17074");
+                        }
+                        break;
+
+                    case FWFTextBlockAccountRelationType::Vend:
+                        if (!VendTable::exist(this.AccountRelation))
+                        {
+                            ok = checkFailed("@SYS17074");
+                        }
+                        break;
+
+                    case FWFTextBlockAccountRelationType::Proj:
+                        if (!ProjTable::exist(this.AccountRelation))
+                        {
+                            ok = checkFailed("@SYS17074");
+                        }
+                        break;
+                }
+
+                break;
+    
+            case TableGroupAll::GroupId :
+                switch (this.AccountType)
+                {
+                    case FWFTextBlockAccountRelationType::Cust:
+                        if (!FWFTextBlockGroup::exist(this.AccountRelation, FWFTextBlockModule::Customer))
+                        {
+                            ok = checkFailed("@SYS17074");
+                        }
+                        break;
+
+                    case FWFTextBlockAccountRelationType::Vend:
+                        if (!FWFTextBlockGroup::exist(this.AccountRelation, FWFTextBlockModule::Supplier))
+                        {
+                            ok = checkFailed("@SYS17074");
+                        }
+                        break;
+
+                    case FWFTextBlockAccountRelationType::Proj:
+                        if (!FWFTextBlockGroup::exist(this.AccountRelation, FWFTextBlockModule::Project))
+                        {
+                            ok = checkFailed("@SYS17074");
+                        }
+                        break;
+                }
+                break;
+    
+            case TableGroupAll::All     :
+                if (this.AccountRelation)
+                {
+                    ok = checkFailed("@SYS17074");
+                }
+                break;
+        }
+    
+        return ok;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>checkDate</Name>
+				<Source><![CDATA[
+    boolean  checkDate()
+    {
+        boolean  ok = true;
+    
+        if (this.ToDate  < this.FromDate)
+        {
+            if (this.ToDate)
+            {
+                ok = checkFailed("@SYS16982");
+            }
+        }
+    
+        return ok;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>checkItemRelation</Name>
+				<Source><![CDATA[
+    boolean  checkItemRelation()
+    {
+        boolean  ok = true;
+    
+        switch(this.ItemCode)
+        {
+            case TableGroupAll::Table       :
+                if (! InventTable::exist(this.ItemRelation))
+                {
+                    ok = checkFailed("@SYS17075");
+                }
+                ok = ok && this.checkProductDimensions();
+                break;
+    
+            case TableGroupAll::GroupId     :
+                if (! FWFTextBlockGroup::exist(this.ItemRelation, FWFTextBlockModule::ReleasedProduct))
+                {
+                    ok = checkFailed("@SYS17075");
+                }
+                break;
+    
+            case TableGroupAll::All         :
+                if (this.ItemRelation)
+                {
+                    ok = checkFailed("@SYS17075");
+                }
+                break;
+        }
+    
+        return ok;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>checkProductDimensions</Name>
+				<Source><![CDATA[
+    boolean  checkProductDimensions()
+    {
+        if (this.ItemCode != TableGroupAll::Table || ! this.ItemRelation)
+        {
+            return true;
+        }
+    
+        return this.inventDim().validateWriteProductDimensions(this.ItemRelation,false);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>checkTextBlockTable</Name>
+				<Source><![CDATA[
+    public boolean checkTextBlockTable()
+    {
+        FWFTextBlockTable   textBlockTable = FWFTextBlockTable::find(this.TextBlockRecId);
+    
+        if (! textBlockTable.isValidForCompany(this.dataAreaId))
+        {
+            return checkFailed(strFmt("@FWFTextBlock:ErrorTextBlockCannotBeUsedMsg", "@SYS89809", textBlockTable.CompanyId));
+        }
+    
+        return true;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>custVendName</Name>
+				<Source><![CDATA[
+    //BP Deviation documented
+    server display Name custVendName()
+    {
+        Name name;
+    
+        switch (this.AccountCode)
+        {
+            case TableGroupAll::Table:
+                switch (this.AccountType)
+                {
+                    case FWFTextBlockAccountRelationType::Cust:
+                        name = CustTable::find(this.AccountRelation).name();
+                        break;
+                    case FWFTextBlockAccountRelationType::Vend:
+                        name = VendTable::find(this.AccountRelation).name();
+                        break;
+                    case FWFTextBlockAccountRelationType::Proj:
+                        name = ProjTable::find(this.AccountRelation).Name;
+                        break;
+                }
+                break;
+            case TableGroupAll::GroupId:
+                switch (this.AccountType)
+                {
+                    case FWFTextBlockAccountRelationType::Cust:
+                        name = FWFTextBlockGroup::findGroupModule(this.AccountRelation, FWFTextBlockModule::Customer).Description;
+                        break;
+                    case FWFTextBlockAccountRelationType::Vend:
+                        name = FWFTextBlockGroup::findGroupModule(this.AccountRelation, FWFTextBlockModule::Supplier).Description;
+                        break;
+                }
+                break;
+        }
+        return name;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>defaultText</Name>
+				<Source><![CDATA[
+    // BP deviation documented
+    public display Description255 defaultText()
+    {
+        FWFTextBlockLanguage        textBlockLanguage = FWFTextBlockLanguage::find(
+                                                                this.TextBlockRecId,
+                                                                CompanyInfo::findDataArea(this.dataAreaId).LanguageId
+                                                                );
+    
+        return textBlockLanguage.editValue(false, '');
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>initValue</Name>
+				<Source><![CDATA[
+    void  initValue()
+    {
+        super();
+    
+        this.AccountType = FWFTextBlockAccountRelationType::Cust;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>insert</Name>
+				<Source><![CDATA[
+    void  insert()
+    {
+        this.updateRelations();
+    
+        super();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>inventDim</Name>
+				<Source><![CDATA[
+    InventDim inventDim(boolean _forUpdate = false)
+    {
+        return InventDim::find(this.InventDimId,_forUpdate);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>itemId</Name>
+				<Source><![CDATA[
+    ItemId itemId()
+    {
+        if (this.ItemCode == TableGroupAll::Table)
+        {
+            return this.ItemRelation;
+        }
+    
+        return '';
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>modifiedField</Name>
+				<Source><![CDATA[
+    public void modifiedField(fieldId _fieldId)
+    {
+        super(_fieldId);
+    
+        switch (_fieldId)
+        {
+            case fieldNum(FWFTextBlockUsage, AccountType):
+                this.AccountCode     = TableGroupAll::All;
+                this.AccountRelation = '';
+                break;
+    
+            case fieldNum(FWFTextBlockUsage, ItemCode):
+                this.ItemRelation = '';
+                break;
+    
+            case fieldNum(FWFTextBlockUsage, AccountCode):
+                this.AccountRelation = '';
+                break;
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>setupParm</Name>
+				<Source><![CDATA[
+    public FWFTextBlockSetupParm setupParm()
+    {
+        return FWFTextBlockSetupParm::find(this.SetupRefRefId);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>setupGroup</Name>
+				<Source><![CDATA[
+    public FWFTextBlockSetupGroup setupGroup()
+    {
+        FWFTextBlockModule	module;
+
+        if (this.ProductType == FWFTextBlockProductType::None)
+        {
+            switch (this.AccountType)
+            {
+                case FWFTextBlockAccountRelationType::Cust :
+                    module = FWFTextBlockModule::Customer;
+                    break;
+
+                case FWFTextBlockAccountRelationType::Vend :
+                    module = FWFTextBlockModule::Supplier;
+                    break;
+
+                case FWFTextBlockAccountRelationType::Proj :
+                    module = FWFTextBlockModule::Project;
+                    break;
+            }
+        }
+        else
+        {
+            module = FWFTextBlockModule::ReleasedProduct;
+        }
+
+        return FWFTextBlockSetupGroup::findGroupModule(this.SetupGroupId, module);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>setupGroupParm</Name>
+				<Source><![CDATA[
+    public FWFTextBlockSetupGroupParm setupGroupParm()
+    {
+        return FWFTextBlockSetupGroupParm::find(this.setupGroup().SetupRecId);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>tableParm</Name>
+				<Source><![CDATA[
+    public FWFTextBlockTableParm tableParm()
+    {
+        return FWFTextBlockTableParm::find(this.textBlockTable().SetupRefRecId);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>update</Name>
+				<Source><![CDATA[
+    void update()
+    {
+        this.updateRelations();
+    
+        super();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>updateRelations</Name>
+				<Source><![CDATA[
+    public void updateRelations()
+    {
+        if (this.AccountCode == TableGroupAll::All)
+        {
+            this.AccountRelation = '';
+        }
+    
+        if (this.ProductType == FWFTextBlockProductType::ReleasedProduct)
+        {
+            if (this.ItemCode == TableGroupAll::All)
+            {
+                this.ItemRelation   = '';
+                this.InventDimId    = InventDim::inventDimIdBlank();
+            }
+    
+            if (this.ItemCode != TableGroupAll::Table)
+            {
+                this.InventDimId    = InventDim::inventDimIdBlank();
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>validateField</Name>
+				<Source><![CDATA[
+    boolean  validateField(fieldId  fieldId)
+    {
+        boolean  ok = true;
+    
+        switch(fieldId)
+        {
+            case(fieldNum(FWFTextBlockUsage, FromDate)) :
+            case(fieldNum(FWFTextBlockUsage, ToDate))   :
+                ok = this.checkDate();
+                break;
+            case(fieldNum(FWFTextBlockUsage, ItemRelation)) :
+                ok = this.checkItemRelation();
+                break;
+            case(fieldNum(FWFTextBlockUsage, AccountRelation)) :
+                ok = this.checkAccountRelation();
+                break;
+            case(fieldNum(FWFTextBlockUsage, TextBlockRecId)) :
+                ok = super(fieldId);
+                if (ok)
+                {
+                    ok = this.checkTextBlockTable();
+                }
+                break;
+            default :
+                ok = super(fieldId);
+        }
+    
+        return ok;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>validateWrite</Name>
+				<Source><![CDATA[
+    boolean  validateWrite()
+    {
+        boolean  ok = true;
+    
+        ok = super();
+    
+        if (! this.checkDate())
+        {
+            ok = false;
+        }
+    
+        if (! this.checkItemRelation())
+        {
+            ok = false;
+        }
+    
+        if (! this.checkAccountRelation())
+        {
+            ok = false;
+        }
+    
+        return ok;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>textBlockTable</Name>
+				<Source><![CDATA[
+    public FWFTextBlockTable textBlockTable(FWFTextBlockTable _relatedTable = null)
+    {
+        if (prmIsDefault(_relatedTable))
+        {
+            return this.setLink('textBlockTable');
+        }
+        else
+        {
+            return this.setLink('textBlockTable', _relatedTable);
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>hasTextBlock</Name>
+				<Source><![CDATA[
+    /// <summary>
+    ///
+    /// </summary>
+    public static boolean hasTextBlock(Common _common, FWFTextBlockAccountRelationType _type)
+    {
+        boolean			  ret = false;
+        FWFTextBlockUsage usage;
+        CustVendTable	  custVendTable = _common as CustVendTable;
+
+        select firstonly usage
+            where usage.AccountType		== _type
+               && usage.AccountCode		== TableGroupAll::Table
+               && usage.AccountRelation == custVendTable.AccountNum;
+
+        if (usage)
+        {
+            ret = true;
+        }
+
+        return ret;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>module</Name>
+				<Source><![CDATA[
+    public FWFTextBlockModule module()
+    {
+        FWFTextBlockModule	ret;
+
+        if (this.ProductType == FWFTextBlockProductType::None)
+        {
+            switch (this.AccountType)
+            {
+                case FWFTextBlockAccountRelationType::Cust :
+                    ret = FWFTextBlockModule::Customer;
+                    break;
+
+                case FWFTextBlockAccountRelationType::Vend :
+                    ret = FWFTextBlockModule::Supplier;
+                    break;
+
+                case FWFTextBlockAccountRelationType::Proj :
+                    ret = FWFTextBlockModule::Project;
+                    break;
+            }
+        }
+        else
+        {
+            ret = FWFTextBlockModule::ReleasedProduct;
+        }
+
+        return ret;
+        
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+	<DeveloperDocumentation>@FWFTextBlock:TextBlockUsageDevDoc</DeveloperDocumentation>
+	<FormRef>FWFTextBlockUsage</FormRef>
+	<Label>@FWFTextBlock:AssignExtendedFormLetterNotes</Label>
+	<TableGroup>Transaction</TableGroup>
+	<TitleField1>AccountRelation</TitleField1>
+	<TitleField2>AccountType</TitleField2>
+	<CacheLookup>NotInTTS</CacheLookup>
+	<ClusteredIndex>TextBlockUsageIdx</ClusteredIndex>
+	<ModifiedDateTime>Yes</ModifiedDateTime>
+	<PrimaryIndex>RecId</PrimaryIndex>
+	<ReplacementKey>TextBlockUsageIdx</ReplacementKey>
+	<TableContents>DefaultData</TableContents>
+	<DeleteActions>
+		<AxTableDeleteAction>
+			<Name>FWFTextBlockSetupParm</Name>
+			<DeleteAction>Cascade</DeleteAction>
+			<Relation></Relation>
+			<Table>FWFTextBlockSetupParm</Table>
+		</AxTableDeleteAction>
+	</DeleteActions>
+	<FieldGroups>
+		<AxTableFieldGroup>
+			<Name>AutoReport</Name>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>AccountType</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>AccountCode</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>AccountRelation</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>ItemCode</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>ItemRelation</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>FromDate</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>ToDate</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoLookup</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoIdentification</Name>
+			<AutoPopulate>Yes</AutoPopulate>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>TextBlockRecId</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>ProductType</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>ItemCode</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>ItemRelation</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>AccountType</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>AccountCode</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>AccountRelation</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>InventDimId</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>FromDate</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoSummary</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>AutoBrowse</Name>
+			<Fields />
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>Identification</Name>
+			<Label>@SYS5711</Label>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>AccountType</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>AccountCode</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>AccountRelation</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>ItemCode</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>ItemRelation</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>FromDate</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>ToDate</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+		<AxTableFieldGroup>
+			<Name>InternalFields</Name>
+			<Label>@SYS83290</Label>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>SetupRefRefId</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>ProductType</DataField>
+				</AxTableFieldGroupField>
+				<AxTableFieldGroupField>
+					<DataField>TextBlockRecId</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+	</FieldGroups>
+	<Fields>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>AccountCode</Name>
+			<EnumType>TableGroupAll</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>AccountRelation</Name>
+			<ExtendedDataType>FWFTextBlockAccountRelation</ExtendedDataType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>AccountType</Name>
+			<HelpText>@FWFTextBlock:SelectAccountType</HelpText>
+			<EnumType>FWFTextBlockAccountRelationType</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldDate">
+			<Name>FromDate</Name>
+			<ExtendedDataType>FromDate</ExtendedDataType>
+			<HelpText>@SYS13946</HelpText>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>InventDimId</Name>
+			<AllowEdit>No</AllowEdit>
+			<ExtendedDataType>InventDimId</ExtendedDataType>
+			<IgnoreEDTRelation>Yes</IgnoreEDTRelation>
+			<Visible>No</Visible>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>ItemCode</Name>
+			<EnumType>TableGroupAll</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>ItemRelation</Name>
+			<ExtendedDataType>ItemRelation</ExtendedDataType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>ProductType</Name>
+			<AllowEdit>No</AllowEdit>
+			<EnumType>FWFTextBlockProductType</EnumType>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldInt64">
+			<Name>SetupRefRefId</Name>
+			<AllowEdit>No</AllowEdit>
+			<ExtendedDataType>RefRecId</ExtendedDataType>
+			<HelpText>@FWFTextBlock:TextBlockSetupHelp</HelpText>
+			<Label>@FWFTextBlock:TextBlockSetup</Label>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldInt64">
+			<Name>TextBlockRecId</Name>
+			<ExtendedDataType>FWFTextBlockRecId</ExtendedDataType>
+			<Label>@SYS2595</Label>
+			<Mandatory>Yes</Mandatory>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldDate">
+			<Name>ToDate</Name>
+			<ExtendedDataType>ToDate</ExtendedDataType>
+			<HelpText>@SYS13526</HelpText>
+		</AxTableField>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldString">
+			<Name>SetupGroupId</Name>
+			<ExtendedDataType>FWFTextBlockSetupGroupId</ExtendedDataType>
+		</AxTableField>
+	</Fields>
+	<FullTextIndexes />
+	<Indexes>
+		<AxTableIndex>
+			<Name>TextBlockUsageIdx</Name>
+			<AlternateKey>Yes</AlternateKey>
+			<Fields>
+				<AxTableIndexField>
+					<DataField>TextBlockRecId</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>ProductType</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>ItemCode</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>ItemRelation</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>AccountType</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>AccountCode</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>AccountRelation</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>InventDimId</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>FromDate</DataField>
+				</AxTableIndexField>
+			</Fields>
+		</AxTableIndex>
+		<AxTableIndex>
+			<Name>AccountIdx</Name>
+			<AllowDuplicates>Yes</AllowDuplicates>
+			<Fields>
+				<AxTableIndexField>
+					<DataField>AccountCode</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>AccountRelation</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>ItemCode</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>ItemRelation</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>FromDate</DataField>
+				</AxTableIndexField>
+			</Fields>
+		</AxTableIndex>
+		<AxTableIndex>
+			<Name>ItemIdx</Name>
+			<AllowDuplicates>Yes</AllowDuplicates>
+			<Fields>
+				<AxTableIndexField>
+					<DataField>ItemCode</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>ItemRelation</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>AccountCode</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>AccountRelation</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>FromDate</DataField>
+				</AxTableIndexField>
+			</Fields>
+		</AxTableIndex>
+		<AxTableIndex>
+			<Name>ItemDimIdx</Name>
+			<AllowDuplicates>Yes</AllowDuplicates>
+			<Fields>
+				<AxTableIndexField>
+					<DataField>ItemRelation</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>ItemCode</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>InventDimId</DataField>
+				</AxTableIndexField>
+				<AxTableIndexField>
+					<DataField>AccountCode</DataField>
+				</AxTableIndexField>
+			</Fields>
+		</AxTableIndex>
+	</Indexes>
+	<Mappings />
+	<Relations>
+		<AxTableRelation>
+			<Name>CustTable</Name>
+			<Cardinality>ZeroMore</Cardinality>
+			<RelatedTable>CustTable</RelatedTable>
+			<RelatedTableCardinality>ZeroOne</RelatedTableCardinality>
+			<RelationshipType>Association</RelationshipType>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>AccountType</Name>
+					<Field>AccountType</Field>
+					<ValueStr>FWFTextBlockAccountRelationType::Cust</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>AccountCode</Name>
+					<Field>AccountCode</Field>
+					<ValueStr>TableGroupAll::Table</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>AccountRelation</Name>
+					<Field>AccountRelation</Field>
+					<RelatedField>AccountNum</RelatedField>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+		<AxTableRelation xmlns=""
+			i:type="AxTableRelationForeignKey">
+			<Name>InventDim</Name>
+			<Cardinality>ZeroMore</Cardinality>
+			<OnDelete>Restricted</OnDelete>
+			<RelatedTable>InventDim</RelatedTable>
+			<RelatedTableCardinality>ZeroOne</RelatedTableCardinality>
+			<RelationshipType>Association</RelationshipType>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>InventDimId</Name>
+					<Field>InventDimId</Field>
+					<RelatedField>inventDimId</RelatedField>
+				</AxTableRelationConstraint>
+			</Constraints>
+			<Index>DimIdIdx</Index>
+		</AxTableRelation>
+		<AxTableRelation>
+			<Name>InventTable</Name>
+			<Cardinality>ZeroMore</Cardinality>
+			<RelatedTable>InventTable</RelatedTable>
+			<RelatedTableCardinality>ZeroOne</RelatedTableCardinality>
+			<RelationshipType>Association</RelationshipType>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>ProductType</Name>
+					<Field>ProductType</Field>
+					<ValueStr>FWFTextBlockProductType::ReleasedProduct</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>ItemCode</Name>
+					<Field>ItemCode</Field>
+					<ValueStr>TableGroupAll::Table</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>ItemRelation</Name>
+					<Field>ItemRelation</Field>
+					<RelatedField>ItemId</RelatedField>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+		<AxTableRelation>
+			<Name>TextBlockSetupParm</Name>
+			<Cardinality>ZeroMore</Cardinality>
+			<RelatedTable>FWFTextBlockSetupParm</RelatedTable>
+			<RelatedTableCardinality>ZeroOne</RelatedTableCardinality>
+			<RelatedTableRole>TextBlockSetupParm</RelatedTableRole>
+			<RelationshipType>Association</RelationshipType>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>SetupRefRefId</Name>
+					<Field>SetupRefRefId</Field>
+					<RelatedField>RecId</RelatedField>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+		<AxTableRelation>
+			<Name>TextBlockTable</Name>
+			<Cardinality>ZeroMore</Cardinality>
+			<CreateNavigationPropertyMethods>Yes</CreateNavigationPropertyMethods>
+			<RelatedTable>FWFTextBlockTable</RelatedTable>
+			<RelatedTableCardinality>ExactlyOne</RelatedTableCardinality>
+			<RelatedTableRole>textBlockTable</RelatedTableRole>
+			<RelationshipType>Association</RelationshipType>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>TextBlockRecId</Name>
+					<Field>TextBlockRecId</Field>
+					<RelatedField>RecId</RelatedField>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+		<AxTableRelation>
+			<Name>VendTable</Name>
+			<Cardinality>ZeroMore</Cardinality>
+			<RelatedTable>VendTable</RelatedTable>
+			<RelatedTableCardinality>ZeroOne</RelatedTableCardinality>
+			<RelationshipType>Association</RelationshipType>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>AccountType</Name>
+					<Field>AccountType</Field>
+					<ValueStr>FWFTextBlockAccountRelationType::Vend</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>AccountCode</Name>
+					<Field>AccountCode</Field>
+					<ValueStr>TableGroupAll::Table</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>AccountRelation</Name>
+					<Field>AccountRelation</Field>
+					<RelatedField>AccountNum</RelatedField>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+		<AxTableRelation>
+			<Name>FWFTextBlockGroup_Prod</Name>
+			<RelatedTable>FWFTextBlockGroup</RelatedTable>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>ItemCode</Name>
+					<Field>ItemCode</Field>
+					<ValueStr>TableGroupAll::GroupId</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>ItemRelation</Name>
+					<Field>ItemRelation</Field>
+					<RelatedField>Id</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>ProductType</Name>
+					<Field>ProductType</Field>
+					<ValueStr>FWFTextBlockProductType::ReleasedProduct</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintRelatedFixed">
+					<Name>Module</Name>
+					<RelatedField>Module</RelatedField>
+					<ValueStr>FWFTextBlockModule::ReleasedProduct</ValueStr>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+		<AxTableRelation>
+			<Name>FWFTextBlockGroup_Cust</Name>
+			<RelatedTable>FWFTextBlockGroup</RelatedTable>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>AccountCode</Name>
+					<Field>AccountCode</Field>
+					<ValueStr>TableGroupAll::GroupId</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>AccountRelation</Name>
+					<Field>AccountRelation</Field>
+					<RelatedField>Id</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>AccountType</Name>
+					<Field>AccountType</Field>
+					<ValueStr>FWFTextBlockAccountRelationType::Cust</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintRelatedFixed">
+					<Name>Module</Name>
+					<RelatedField>Module</RelatedField>
+					<ValueStr>FWFTextBlockModule::Customer</ValueStr>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+		<AxTableRelation>
+			<Name>FWFTextBlockGroup_Vend</Name>
+			<RelatedTable>FWFTextBlockGroup</RelatedTable>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>AccountCode</Name>
+					<Field>AccountCode</Field>
+					<ValueStr>TableGroupAll::GroupId</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>AccountRelation</Name>
+					<Field>AccountRelation</Field>
+					<RelatedField>Id</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>AccountType</Name>
+					<Field>AccountType</Field>
+					<ValueStr>FWFTextBlockAccountRelationType::Vend</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintRelatedFixed">
+					<Name>Module</Name>
+					<RelatedField>Module</RelatedField>
+					<ValueStr>FWFTextBlockModule::Supplier</ValueStr>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+		<AxTableRelation>
+			<Name>FWFTextBlockGroup_Proj</Name>
+			<RelatedTable>FWFTextBlockGroup</RelatedTable>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>AccountCode</Name>
+					<Field>AccountCode</Field>
+					<ValueStr>TableGroupAll::GroupId</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>AccountRelation</Name>
+					<Field>AccountRelation</Field>
+					<RelatedField>Id</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>AccountType</Name>
+					<Field>AccountType</Field>
+					<ValueStr>FWFTextBlockAccountRelationType::Proj</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintRelatedFixed">
+					<Name>Module</Name>
+					<RelatedField>Module</RelatedField>
+					<ValueStr>FWFTextBlockModule::Project</ValueStr>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+		<AxTableRelation>
+			<Name>FWFTextBlockSetupGroup_Cust</Name>
+			<RelatedTable>FWFTextBlockSetupGroup</RelatedTable>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>SetupGroupId</Name>
+					<Field>SetupGroupId</Field>
+					<RelatedField>GroupId</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>AccountType</Name>
+					<Field>AccountType</Field>
+					<ValueStr>FWFTextBlockAccountRelationType::Cust</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>ProductType</Name>
+					<Field>ProductType</Field>
+					<ValueStr>FWFTextBlockProductType::None</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintRelatedFixed">
+					<Name>Module</Name>
+					<RelatedField>Module</RelatedField>
+					<ValueStr>FWFTextBlockModule::Customer</ValueStr>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+		<AxTableRelation>
+			<Name>FWFTextBlockSetupGroup_Vend</Name>
+			<RelatedTable>FWFTextBlockSetupGroup</RelatedTable>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>SetupGroupId</Name>
+					<Field>SetupGroupId</Field>
+					<RelatedField>GroupId</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>AccountType</Name>
+					<Field>AccountType</Field>
+					<ValueStr>FWFTextBlockAccountRelationType::Vend</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>ProductType</Name>
+					<Field>ProductType</Field>
+					<ValueStr>FWFTextBlockProductType::None</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintRelatedFixed">
+					<Name>Module</Name>
+					<RelatedField>Module</RelatedField>
+					<ValueStr>FWFTextBlockModule::Supplier</ValueStr>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+		<AxTableRelation>
+			<Name>FWFTextBlockSetupGroup_Prod</Name>
+			<RelatedTable>FWFTextBlockSetupGroup</RelatedTable>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>SetupGroupId</Name>
+					<Field>SetupGroupId</Field>
+					<RelatedField>GroupId</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>ProductType</Name>
+					<Field>ProductType</Field>
+					<ValueStr>FWFTextBlockProductType::ReleasedProduct</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintRelatedFixed">
+					<Name>Module</Name>
+					<RelatedField>Module</RelatedField>
+					<ValueStr>FWFTextBlockModule::ReleasedProduct</ValueStr>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+		<AxTableRelation>
+			<Name>FWFTextBlockSetupGroup_Proj</Name>
+			<RelatedTable>FWFTextBlockSetupGroup</RelatedTable>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>SetupGroupId</Name>
+					<Field>SetupGroupId</Field>
+					<RelatedField>GroupId</RelatedField>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>AccountType</Name>
+					<Field>AccountType</Field>
+					<ValueStr>FWFTextBlockAccountRelationType::Proj</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>ProductType</Name>
+					<Field>ProductType</Field>
+					<ValueStr>FWFTextBlockProductType::None</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintRelatedFixed">
+					<Name>Module</Name>
+					<RelatedField>Module</RelatedField>
+					<ValueStr>FWFTextBlockModule::Project</ValueStr>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+		<AxTableRelation>
+			<Name>ProjTable</Name>
+			<Cardinality>ZeroMore</Cardinality>
+			<RelatedTable>ProjTable</RelatedTable>
+			<RelatedTableCardinality>ZeroOne</RelatedTableCardinality>
+			<RelationshipType>Association</RelationshipType>
+			<Constraints>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>AccountType</Name>
+					<Field>AccountType</Field>
+					<ValueStr>FWFTextBlockAccountRelationType::Proj</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintFixed">
+					<Name>AccountCode</Name>
+					<Field>AccountCode</Field>
+					<ValueStr>TableGroupAll::Table</ValueStr>
+				</AxTableRelationConstraint>
+				<AxTableRelationConstraint xmlns=""
+					i:type="AxTableRelationConstraintField">
+					<Name>AccountRelation</Name>
+					<Field>AccountRelation</Field>
+					<RelatedField>ProjId</RelatedField>
+				</AxTableRelationConstraint>
+			</Constraints>
+		</AxTableRelation>
+	</Relations>
+	<StateMachines />
+</AxTable>

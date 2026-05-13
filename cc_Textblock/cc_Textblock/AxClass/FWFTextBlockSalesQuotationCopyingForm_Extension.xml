@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockSalesQuotationCopyingForm_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(formStr(SalesQuotationCopying))]
+final class FWFTextBlockSalesQuotationCopyingForm_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>createContract</Name>
+				<Source><![CDATA[
+    protected SalesQuotationCopyingContract createContract()
+    {
+        SalesQuotationCopyingContract contract = next createContract();
+
+        contract.parmCopyHeaderTextBlock(CopyTextblock_Header.value());
+        contract.parmCopyLineTextBlock(CopyTextblock_Line.value());
+
+        return contract;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>init</Name>
+				<Source><![CDATA[
+    void  init()
+    {
+
+        next init();
+
+        if (callerSalesQuotationTable.QuotationType == QuotationType::Project)
+        {
+            ProjFormletterParameters param = ProjFormletterParameters::find();
+            CopyTextblock_Header.value(param.FWFTextBlockQuotationCopyingHeader);
+            CopyTextblock_Line.value(param.FWFTextBlockQuotationCopyingLine);
+        }
+        else //QuotationType::Sales
+        {
+            CustFormletterParameters param = CustFormletterParameters::find();
+            CopyTextblock_Header.value(param.FWFTextBlockQuotationCopyingHeader);
+            CopyTextblock_Line.value(param.FWFTextBlockQuotationCopyingLine);
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

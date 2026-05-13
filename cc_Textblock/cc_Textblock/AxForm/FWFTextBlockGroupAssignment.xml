@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxForm xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>FWFTextBlockGroupAssignment</Name>
+	<SourceCode>
+		<Methods xmlns="">
+			<Method>
+				<Name>classDeclaration</Name>
+				<Source><![CDATA[
+[Form]
+public class FWFTextBlockGroupAssignment extends FormRun
+{
+    FWFTextBlockModule	module;
+    Common				callerTable;
+    str 20				refId;
+
+
+}
+]]></Source>
+			</Method>
+			<Method>
+				<Name>init</Name>
+				<Source><![CDATA[
+    /// <summary>
+    ///
+    /// </summary>
+    public void init()
+    {
+        super();
+		
+        if (element.args().parmEnumType() == enumNum(FWFTextBlockModule))
+        {
+            module = element.args().parmEnum();
+        }
+
+        switch (module)
+        {
+            case FWFTextBlockModule::Customer:
+                element.design().caption("@FWFTextBlock:CustTextBlockGroupAssign");
+                break;
+
+            case FWFTextBlockModule::Supplier:
+                element.design().caption("@FWFTextBlock:VendTextBlockGroupAssign");
+                break;
+
+            case FWFTextBlockModule::ReleasedProduct:
+                element.design().caption("@FWFTextBlock:ProdTextBlockGroupAssign");
+                break;
+
+            case FWFTextBlockModule::Project:
+                element.design().caption("@FWFTextBlock:ProjTextBlockGroupAssign");
+                break;
+        }
+
+        if (element.args() && element.args().record())
+        {
+            callerTable = element.args().record();
+        }
+
+        switch(callerTable.TableId)
+        {
+            case tableNum(CustTable) :
+                CustTable	custTable = callerTable as CustTable;
+                refId = custTable.AccountNum;
+                break;
+    
+            case tableNum(VendTable) :
+                VendTable	vendTable = callerTable as VendTable;
+                refId = vendTable.AccountNum;
+                break;
+    
+            case tableNum(InventTable)  :
+                InventTable inventTable = callerTable as InventTable;
+                refId = inventTable.ItemId;
+                break;
+
+            case tableNum(ProjTable)  :
+                ProjTable projTable = callerTable as ProjTable;
+                refId = projTable.ProjId;
+                break;
+        }
+
+        FWFTextBlockGroupAssign_ds.query().dataSourceTable(tableNum(FWFTextBlockGroupAssign)).clearRanges();
+        FWFTextBlockGroupAssign_ds.query().dataSourceTable(tableNum(FWFTextBlockGroupAssign)).clearDynalinks();
+        FWFTextBlockGroupAssign_ds.query().dataSourceTable(tableNum(FWFTextBlockGroupAssign)).addRange(fieldNum(FWFTextBlockGroupAssign, Module)).value(queryValue(module));
+        FWFTextBlockGroupAssign_ds.query().dataSourceTable(tableNum(FWFTextBlockGroupAssign)).addRange(fieldNum(FWFTextBlockGroupAssign, RefId)).value(queryValue(refId));
+        
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+		<DataSources xmlns="">
+			<DataSource>
+				<Name>FWFTextBlockGroupAssign</Name>
+				<Methods />
+				<Fields>
+					<Field>
+						<DataField>GroupId</DataField>
+						<Methods>
+							<Method>
+								<Name>lookup</Name>
+								<Source><![CDATA[
+            /// <summary>
+            ///
+            /// </summary>
+            /// <param name = "_formControl"></param>
+            /// <param name = "_filterStr"></param>
+            public void lookup(FormControl _formControl, str _filterStr)
+            {
+                FWFTextBlockGroup::lookup(_formControl, module);
+            }
+
+]]></Source>
+							</Method>
+						</Methods>
+					</Field>
+				</Fields>
+			</DataSource>
+		</DataSources>
+		<DataControls xmlns="" />
+		<Members xmlns="" />
+	</SourceCode>
+	<DataSources>
+		<AxFormDataSource xmlns="">
+			<Name>FWFTextBlockGroupAssign</Name>
+			<Table>FWFTextBlockGroupAssign</Table>
+			<Fields>
+				<AxFormDataSourceField>
+					<DataField>DataAreaId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>GroupId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>Module</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>Partition</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>RecId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>RefId</DataField>
+				</AxFormDataSourceField>
+				<AxFormDataSourceField>
+					<DataField>TableId</DataField>
+				</AxFormDataSourceField>
+			</Fields>
+			<ReferencedDataSources />
+			<InsertIfEmpty>No</InsertIfEmpty>
+			<DataSourceLinks />
+			<DerivedDataSources />
+		</AxFormDataSource>
+	</DataSources>
+	<Design>
+		<Caption xmlns="">@FWFTextBlock:TextBlockGroupAssign</Caption>
+		<DataSource xmlns="">FWFTextBlockGroupAssign</DataSource>
+		<Pattern xmlns="">SimpleList</Pattern>
+		<PatternVersion xmlns="">1.1</PatternVersion>
+		<Style xmlns="">SimpleList</Style>
+		<TitleDataSource xmlns="">FWFTextBlockGroupAssign</TitleDataSource>
+		<Controls xmlns="">
+			<AxFormControl xmlns=""
+				i:type="AxFormActionPaneControl">
+				<Name>ActionPane</Name>
+				<Type>ActionPane</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls />
+			</AxFormControl>
+			<AxFormControl xmlns=""
+				i:type="AxFormGroupControl">
+				<Name>CustomFilterGroup</Name>
+				<Pattern>CustomAndQuickFilters</Pattern>
+				<PatternVersion>1.1</PatternVersion>
+				<Type>Group</Type>
+				<WidthMode>SizeToAvailable</WidthMode>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl>
+						<Name>QuickFilterControl</Name>
+						<FormControlExtension>
+							<Name>QuickFilterControl</Name>
+							<ExtensionComponents />
+							<ExtensionProperties>
+								<AxFormControlExtensionProperty>
+									<Name>targetControlName</Name>
+									<Type>String</Type>
+								</AxFormControlExtensionProperty>
+								<AxFormControlExtensionProperty>
+									<Name>placeholderText</Name>
+									<Type>String</Type>
+								</AxFormControlExtensionProperty>
+								<AxFormControlExtensionProperty>
+									<Name>defaultColumnName</Name>
+									<Type>String</Type>
+								</AxFormControlExtensionProperty>
+							</ExtensionProperties>
+						</FormControlExtension>
+					</AxFormControl>
+				</Controls>
+				<ArrangeMethod>HorizontalLeft</ArrangeMethod>
+				<FrameType>None</FrameType>
+				<Style>CustomFilter</Style>
+				<ViewEditMode>Edit</ViewEditMode>
+			</AxFormControl>
+			<AxFormControl xmlns=""
+				i:type="AxFormGridControl">
+				<Name>Grid</Name>
+				<Type>Grid</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<Controls>
+					<AxFormControl xmlns=""
+						i:type="AxFormStringControl">
+						<Name>FWFTextBlockGroupList_GroupId</Name>
+						<Type>String</Type>
+						<FormControlExtension
+							i:nil="true" />
+						<DataField>GroupId</DataField>
+						<DataSource>FWFTextBlockGroupAssign</DataSource>
+					</AxFormControl>
+				</Controls>
+				<Style>Tabular</Style>
+			</AxFormControl>
+		</Controls>
+	</Design>
+	<Parts />
+</AxForm>

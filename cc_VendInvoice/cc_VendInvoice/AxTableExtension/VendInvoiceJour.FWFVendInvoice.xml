@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxTableExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>VendInvoiceJour.FWFVendInvoice</Name>
+	<FieldGroupExtensions>
+		<AxTableFieldGroupExtension>
+			<Name>Administration</Name>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>FWFVendInvoiceDate</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroupExtension>
+	</FieldGroupExtensions>
+	<FieldGroups />
+	<FieldModifications />
+	<Fields>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldDate">
+			<Name>FWFVendInvoiceDate</Name>
+			<ExtendedDataType>FWFVendInvoiceDate</ExtendedDataType>
+		</AxTableField>
+	</Fields>
+	<Indexes />
+	<Mappings />
+	<PropertyModifications />
+	<Relations />
+</AxTableExtension>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockPSAProjInvoiceDP_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(classStr(PSAProjInvoiceDP))]
+final class FWFTextBlockPSAProjInvoiceDP_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>populatePSAProjInvoiceHeaderTmp</Name>
+				<Source><![CDATA[
+	protected void populatePSAProjInvoiceHeaderTmp()
+    {
+        next populatePSAProjInvoiceHeaderTmp();
+
+        FWFTextBlockReportTextInit::newParameters(this.tmpPSAProjInvoiceHeader, this.projInvoiceJour).addTexts();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>populatePSAProjInvoiceTmp</Name>
+				<Source><![CDATA[
+    protected void populatePSAProjInvoiceTmp(Common _cursor, char _lineSign)
+    {
+        next populatePSAProjInvoiceTmp(_cursor, _lineSign);
+
+        if (_cursor.TableId == tableNum(ProjInvoiceItem))
+        {
+            FWFTextBlockReportTextInit::newParameters(this.tmpPSAProjInvoice, this.projInvoiceItem).addTexts();
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>populateProformaPSAProjectInvoiceLine</Name>
+				<Source><![CDATA[
+    protected void populateProformaPSAProjectInvoiceLine(Common _cursor, char _lineSign)
+    {
+        next populateProformaPSAProjectInvoiceLine(_cursor, _lineSign);
+
+        if (_cursor.TableId == tableNum(ProjProposalItem))
+        {
+            FWFTextBlockReportTextInit::newParameters(this.tmpPSAProjInvoice, _cursor).addTexts();
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

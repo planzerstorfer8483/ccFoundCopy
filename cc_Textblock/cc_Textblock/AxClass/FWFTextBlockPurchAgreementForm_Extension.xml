@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFTextBlockPurchAgreementForm_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(formStr(PurchAgreement))]
+final class FWFTextBlockPurchAgreementForm_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>fwfTextBlockInstanceFormClosed</Name>
+				<Source><![CDATA[
+    public void fwfTextBlockInstanceFormClosed()
+    {
+        PurchAgreementHeader_ds.reread();
+        PurchAgreementHeader_ds.refresh();
+        PurchAgreementHeader_ds.selectionChanged();
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

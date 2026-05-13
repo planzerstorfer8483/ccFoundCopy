@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxTableExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>ReqGroup.FWFTextBlock</Name>
+	<FieldGroupExtensions />
+	<FieldGroups>
+		<AxTableFieldGroup>
+			<Name>FWFTextBlock</Name>
+			<Label>@FWFTextBlock:TextBlock</Label>
+			<Fields>
+				<AxTableFieldGroupField>
+					<DataField>FWFTextBlockCopyFromSalesOrder</DataField>
+				</AxTableFieldGroupField>
+			</Fields>
+		</AxTableFieldGroup>
+	</FieldGroups>
+	<FieldModifications />
+	<Fields>
+		<AxTableField xmlns=""
+			i:type="AxTableFieldEnum">
+			<Name>FWFTextBlockCopyFromSalesOrder</Name>
+			<ExtendedDataType>NoYesId</ExtendedDataType>
+			<Label>@FWFTextBlock:CopyExtendedFormLetterNotes</Label>
+			<EnumType>NoYes</EnumType>
+		</AxTableField>
+	</Fields>
+	<FullTextIndexes />
+	<Indexes />
+	<Mappings />
+	<PropertyModifications />
+	<RelationExtensions />
+	<RelationModifications />
+	<Relations />
+</AxTableExtension>
