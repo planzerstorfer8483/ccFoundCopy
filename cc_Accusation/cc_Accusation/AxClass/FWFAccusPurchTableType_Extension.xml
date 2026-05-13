@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFAccusPurchTableType_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of class <c>PurchTableType</c> for accusation.
+/// </summary>
+[ExtensionOf(classStr(PurchTableType))]
+final class FWFAccusPurchTableType_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>canInvoiceBeUpdated</Name>
+				<Source><![CDATA[
+    boolean canInvoiceBeUpdated(boolean _excludePending)
+    {
+        boolean ok = next canInvoiceBeUpdated(_excludePending);
+
+        if (!ok && this.purchTable.FWFAccusStatus == NoYes::Yes)
+        {
+            ok = FWFAccusHelper::purchCanAccusCreditNoteBeUpdated(this.purchTable.PurchId);
+        }
+
+        return ok;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

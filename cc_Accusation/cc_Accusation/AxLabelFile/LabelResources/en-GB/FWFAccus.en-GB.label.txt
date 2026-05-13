@@ -1,0 +1,8 @@
+NewLabel0=Label files created on 12/23/2016 09:30:25 for label file Id FWFAccus and language en-GB
+ ;Label file comment - see above label
+AccusStatus=Accusation
+ ;New Comment
+AccusStatusHelp=The purchase is underdelivered, a credit note is required
+ ;New Comment
+InvoiceCorrection=Invoice correction
+ ;New Comment

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFAccus_PurchEditLinesForm_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of class <c>PurchEditLinesForm</c> for accusation.
+/// </summary>
+[ExtensionOf(classStr(PurchEditLinesForm))]
+final class FWFAccus_PurchEditLinesForm_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>FWFaccusNotification</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Determines if accusation is activ or inactive.
+    /// </summary>
+    /// <returns>Returns always False.</returns>
+    public boolean FWFaccusNotification()
+    {
+        return false;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

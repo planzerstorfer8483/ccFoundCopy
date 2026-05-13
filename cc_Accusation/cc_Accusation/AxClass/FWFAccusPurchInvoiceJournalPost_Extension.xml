@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFAccusPurchInvoiceJournalPost_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of <c>PurchInvoiceJournalPost</c> for for accusation.
+/// </summary>
+[ExtensionOf(classStr(PurchInvoiceJournalPost))]
+final class FWFAccusPurchInvoiceJournalPost_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>postInventory</Name>
+				<Source><![CDATA[
+    protected void postInventory()
+    {
+        next postInventory();
+
+        if (this.vendInvoiceTrans.Qty < 0 && this.vendInvoiceInfoLine.purchParmUpdate().SpecQty == PurchUpdate::FWFAccusInvoicePriceCorrection)
+        {
+            MarkupAdjustment::adjustInvoice(this.vendInvoiceInfoLine.ReceiveNow,
+                                            this.vendInvoiceInfoLine.lineAmountExclTax(this.vendInvoiceTrans.InvoiceDate),
+                                            this.ledgerVoucher,
+                                            this.vendInvoiceTrans,
+                                            this.purchLine,
+                                            this.vendInvoiceTrans,
+                                            false);
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>updateJournalLine</Name>
+				<Source><![CDATA[
+    protected void updateJournalLine()
+    {
+        if (!this.vendInvoiceTrans.inventQty &&
+            !this.vendInvoiceTrans.QtyPhysical &&
+            this.vendInvoiceTrans.Qty < 0.00 &&
+            this.purchParmUpdate.SpecQty == PurchUpdate::FWFAccusInvoicePriceCorrection)
+        {
+            VendInvoiceTrans vendInvoiceTransLocal = this.vendInvoiceTrans;
+
+            vendInvoiceTransLocal.Qty = 0.0;
+
+            this.vendInvoiceTrans = vendInvoiceTransLocal;
+        }
+
+        next updateJournalLine();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>updateSourceLine</Name>
+				<Source><![CDATA[
+    protected void updateSourceLine()
+    {
+        PurchLine   localPurchLine = this.purchLine;
+
+        if (this.vendInvoiceInfoLine.vendInvoiceInfoTable().FWFAccusStatus)
+        {
+            ttsbegin;
+            localPurchLine.selectForUpdate(true);
+            FWFAccusHelper::setPurchAccusStatus(localPurchLine);
+            localPurchLine.doUpdate();
+            ttscommit;
+        }
+
+        next updateSourceLine();
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

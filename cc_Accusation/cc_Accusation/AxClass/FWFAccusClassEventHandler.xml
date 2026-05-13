@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFAccusClassEventHandler</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Handles events related with classes used by accusation.
+/// </summary>
+class FWFAccusClassEventHandler
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>InventUpd_Physical_Post_newInventUpdFinancial</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Do some additinal initialization to <c>InventUpd_Physical</c>.
+    /// </summary>
+    /// <param name="_args">The event arguments.</param>
+    [PostHandlerFor(classStr(InventUpd_Physical), staticMethodStr(InventUpd_Physical, newInventUpdFinancial))]
+    public static void InventUpd_Physical_Post_newInventUpdFinancial(XppPrePostArgs _args)
+    {
+        InventUpd_Financial inventUpdFinancial = _args.getArg(identifierstr(_financial)) as InventUpd_Financial;
+        InventUpd_Physical  inventUpdPhysical  = _args.getReturnValue() as InventUpd_Physical;
+
+        inventUpdPhysical.parmFWFCreditNoteAccusMode(inventUpdFinancial.parmFWFCreditNoteAccusMode());
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>PurchQuantity_Post_qtyInvent</Name>
+				<Source><![CDATA[
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="_args">The event arguments.</param>
+    [PostHandlerFor(classStr(PurchQuantity), methodStr(PurchQuantity, qtyInvent))]
+    public static void PurchQuantity_Post_qtyInvent(XppPrePostArgs _args)
+    {
+        if (_args.getThis() is PurchQuantity_Invoice)
+        {
+            PurchUpdate purchUpdate = _args.getArg(identifierStr(specQty));
+
+            if (purchUpdate == PurchUpdate::FWFAccusInvoicePriceCorrection)
+            {
+                _args.setReturnValue([0, 0, 0]);
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>PurchQuantity_Post_calcInventQty</Name>
+				<Source><![CDATA[
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="_args">The event arguments.</param>
+    [PostHandlerFor(classStr(PurchQuantity), methodStr(PurchQuantity, calcInventQty))]
+    public static void PurchQuantity_Post_calcInventQty(XppPrePostArgs _args)
+    {
+        if (_args.getThis() is PurchQuantity_Invoice)
+        {
+            PurchUpdate purchUpdate = _args.getArg(identifierStr(specQty));
+
+            if (purchUpdate == PurchUpdate::FWFAccusInvoicePriceCorrection)
+            {
+                _args.setReturnValue(0);
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>PurchQuantity_Post_qtyPurch</Name>
+				<Source><![CDATA[
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="_args"></param>
+    [PostHandlerFor(classStr(PurchQuantity), methodStr(PurchQuantity, qtyPurch))]
+    public static void PurchQuantity_Post_qtyPurch(XppPrePostArgs _args)
+    {
+        if (_args.getThis() is PurchQuantity_Invoice)
+        {
+            PurchUpdate purchUpdate = _args.getArg(identifierStr(specQty));
+            PurchLine   purchLine   = _args.getArg(identifierStr(purchLine)) as PurchLine;
+
+            if (purchUpdate == PurchUpdate::FWFAccusInvoicePriceCorrection)
+            {
+                _args.setReturnValue([-purchLine.invoicedInTotal(), 0, 0]);
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>PurchQuantity_Post_calcPurchQty</Name>
+				<Source><![CDATA[
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="_args"></param>
+    [PostHandlerFor(classStr(PurchQuantity), methodStr(PurchQuantity, calcPurchQty))]
+    public static void PurchQuantity_Post_calcPurchQty(XppPrePostArgs _args)
+    {
+        if (_args.getThis() is PurchQuantity_Invoice)
+        {
+            PurchUpdate purchUpdate = _args.getArg(identifierStr(specQty));
+            PurchLine   purchLine   = _args.getArg(identifierStr(purchLine)) as PurchLine;
+
+            if (purchUpdate == PurchUpdate::FWFAccusInvoicePriceCorrection)
+            {
+                _args.setReturnValue(-purchLine.invoicedInTotal());
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>PurchFormletterProvider_Pre_checkJournal</Name>
+				<Source><![CDATA[
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="_args">The event arguments.</param>
+    [PreHandlerFor(classStr(PurchFormletterProvider), methodStr(PurchFormletterProvider, checkJournal))]
+    public static void PurchFormletterProvider_Pre_checkJournal(XppPrePostArgs _args)
+    {
+        PurchFormletterProvider purchFrmLetterProvider = _args.getThis() as PurchFormletterProvider;
+        PurchParmUpdate purchParmUpdate = purchFrmLetterProvider.parmParmUpdate() as PurchParmUpdate;
+        
+        if (purchParmUpdate.SpecQty == PurchUpdate::FWFAccusInvoicePriceCorrection)
+        {
+            PurchTotals purchTotals = purchFrmLetterProvider.parmTotals() as PurchTotals;
+            RecordSortedList recordListPurchLine;
+            PurchLine purchLine;            
+
+            recordListPurchLine = purchTotals.recordListPurchLine();
+            recordListPurchLine.first(purchLine);
+            while (purchLine)
+            {
+                purchLine.PurchQty = -purchLine.PurchQty;
+                recordListPurchLine.ins(purchLine, true);
+
+                if (!recordListPurchLine.next(purchLine))
+                {
+                    break;
+                }
+            }
+
+            purchTotals.recordListPurchLine(recordListPurchLine);
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>formletterParmData_Post_createData</Name>
+				<Source><![CDATA[
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="_args"></param>
+    [PostHandlerFor(classStr(formletterParmData), methodStr(formletterParmData, createData))]
+    public static void formletterParmData_Post_createData(XppPrePostArgs _args)
+    {
+        formletterParmData frmLetterParmData = _args.getThis() as formletterParmData;
+        PurchParmUpdate purchParmUpdate = frmLetterParmData.parmParmUpdate() as PurchParmUpdate;
+
+        if (purchParmUpdate.SpecQty == PurchUpdate::FWFAccusInvoicePriceCorrection)
+        {
+            frmLetterParmData.reSelect();
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

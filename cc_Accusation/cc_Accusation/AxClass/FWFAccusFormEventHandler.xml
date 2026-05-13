@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFAccusFormEventHandler</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Handles events related with forms used by accusation.
+/// </summary>
+class FWFAccusFormEventHandler
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>VendEditInvoice_Post_run</Name>
+				<Source><![CDATA[
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="_args">The event arguments.</param>
+    [PostHandlerFor(formStr(VendEditInvoice), formMethodStr(VendEditInvoice, run))]
+    public static void VendEditInvoice_Post_run(XppPrePostArgs _args)
+    {
+        FormRun         formRun = _args.getThis() as FormRun;
+        VendIInvoice    vendEditInvoiceForm = formRun as VendIInvoice;
+        FormDataSource  formDSVendInvoiceInfoTable = formRun.dataSource(formDataSourceStr(VendEditInvoice, VendInvoiceInfoTable));
+        FormDataSource  formDSVendInvoiceInfoLine  = formRun.dataSource(formDataSourceStr(VendEditInvoice, VendInvoiceInfoLine));
+        PurchParmUpdate purchParmUpdate = formRun.dataSource(formDataSourceStr(VendEditInvoice, PurchParmUpdate)).cursor() as PurchParmUpdate;
+
+        formDSVendInvoiceInfoTable.object(fieldNum(VendInvoiceInfoTable, FWFAccusStatus)).visible(vendEditInvoiceForm.getPurchEditLinesForm_Invoice().FWFaccusNotification());
+        formDSVendInvoiceInfoLine.object(fieldNum(VendInvoiceInfoLine, ReceiveNow)).allowEdit(vendEditInvoiceForm.getPurchEditLinesForm_Invoice().editReceiveNow() && purchParmUpdate.SpecQty != PurchUpdate::FWFAccusInvoicePriceCorrection);
+
+        if (purchParmUpdate.SpecQty == PurchUpdate::FWFAccusInvoicePriceCorrection)
+        {
+            VendInvoiceInfoTable    vendInvoiceInfoTable = formDSVendInvoiceInfoTable.cursor() as VendInvoiceInfoTable;
+            vendInvoiceInfoTable.FWFAccusStatus = NoYes::Yes;
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>VendEditInvoice_Post_specQtyChanged</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Handles the postEvent of <c>specQtyChanged</c> method of <c>VendEditInvoice</c> form.
+    /// </summary>
+    /// <param name="_args">The event arguments.</param>
+    [PostHandlerFor(formStr(VendEditInvoice), formMethodStr(VendEditInvoice, specQtyChanged))]
+    public static void VendEditInvoice_Post_specQtyChanged(XppPrePostArgs _args)
+    {
+        FormRun frmRunVendEditInvoice = _args.getThis() as FormRun;
+        PurchParmUpdate purchParmUpdate = frmRunVendEditInvoice.dataSource(formDataSourceStr(VendEditInvoice, PurchParmUpdate)).cursor() as PurchParmUpdate;
+        FormDataSource frmDSVendInvoiceInfoTable = frmRunVendEditInvoice.dataSource(formDataSourceStr(VendEditInvoice, VendInvoiceInfoTable));
+        VendInvoiceInfoTable vendInvoiceInfoTable = frmDSVendInvoiceInfoTable.cursor() as VendInvoiceInfoTable;
+
+        frmDSVendInvoiceInfoTable.object(fieldNum(VendInvoiceInfoTable, FWFAccusStatus)).enabled(purchParmUpdate.SpecQty != PurchUpdate::FWFAccusInvoicePriceCorrection);
+        if (purchParmUpdate.SpecQty == PurchUpdate::FWFAccusInvoicePriceCorrection)
+        {
+            vendInvoiceInfoTable.FWFAccusStatus = NoYes::Yes;
+        }
+        else
+        {
+            VendInvoiceInfoTable.FWFAccusStatus = NoYes::No;
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>VendInvoiceInfoLine_OnActivated</Name>
+				<Source><![CDATA[
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="_sender"></param>
+    /// <param name="_e"></param>
+    [FormDataSourceEventHandler(formDataSourceStr(VendEditInvoice, VendInvoiceInfoLine), FormDataSourceEventType::Activated),
+        SuppressBPWarningAttribute('BPParameterNotUsed', 'No use for parameter _e')]
+    public static void VendInvoiceInfoLine_OnActivated(FormDataSource _sender, FormDataSourceEventArgs _e)
+    {
+        VendInvoiceInfoTable    vendInvoiceInfoTable = _sender.formRun().dataSource(formDataSourceStr(VendEditInvoice, VendInvoiceInfoTable)).cursor() as VendInvoiceInfoTable;
+
+        if (vendInvoiceInfoTable.InvoiceType == PurchInvoiceType::VendorAdvance)
+        {
+            _sender.object(fieldnum(VendInvoiceInfoLine, ReceiveNow)).allowEdit(false);
+        }
+        else
+        {
+            VendIInvoice    vendEditInvoiceForm = _sender.formRun() as VendIInvoice;
+            PurchParmUpdate purchParmUpdate = _sender.formRun().dataSource(formDataSourceStr(VendEditInvoice, PurchParmUpdate)).cursor() as PurchParmUpdate;
+
+            _sender.object(fieldNum(VendInvoiceInfoLine, ReceiveNow)).allowEdit(vendEditInvoiceForm.getPurchEditLinesForm_Invoice().editReceiveNow() && purchParmUpdate.SpecQty != PurchUpdate::FWFAccusInvoicePriceCorrection);
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

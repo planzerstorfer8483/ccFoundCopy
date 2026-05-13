@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<IgnoreDiagnostics xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>cc_Accusation_BPSuppressions</Name>
+  <Items>
+    <Diagnostic>
+      <DiagnosticType>BestPractices</DiagnosticType>
+      <Severity>Warning</Severity>
+      <Path>dynamics://Class/FWFAccusHelper/Method/updateAccusAdjustment</Path>
+      <Moniker>BPCheckSelectForUpdateAbsent</Moniker>
+      <Message>Select forupdate is used in method 'updateAccusAdjustment', but no update operation was found.</Message>
+      <Justification>By design - need to hand over the inventTrans marked 'as forUpdate' to standard method></Justification>
+    </Diagnostic>
+  </Items>
+</IgnoreDiagnostics>

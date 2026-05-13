@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFAccusPurchFormletterProvider_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(classStr(PurchFormletterProvider))]
+final class FWFAccusPurchFormletterProvider_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>validateInvoiceQuantityAgainstPurchaseLine</Name>
+				<Source><![CDATA[
+    protected boolean validateInvoiceQuantityAgainstPurchaseLine(VendInvoiceInfoLine _vendInvoiceInfoLine)
+    {
+        VendDocumentTableMap  parmHeader      = this.parmHeader;
+        PurchParmUpdate       purchParmUpdate = parmHeader.purchParmUpdate();
+        boolean               ok = false;
+        int infologLineStart = infologLine() + 1;
+
+        if (purchParmUpdate.SpecQty == PurchUpdate::FWFAccusInvoicePriceCorrection)
+        {
+            _vendInvoiceInfoLine.ReceiveNow = -_vendInvoiceInfoLine.ReceiveNow;
+        }
+
+        ok = next validateInvoiceQuantityAgainstPurchaseLine(_vendInvoiceInfoLine);
+
+        if (purchParmUpdate.SpecQty == PurchUpdate::FWFAccusInvoicePriceCorrection)
+        {
+            _vendInvoiceInfoLine.ReceiveNow = -_vendInvoiceInfoLine.ReceiveNow;
+
+            infolog.cut(infologLineStart, infologLine());
+        }
+
+        if (purchParmUpdate.SpecQty != PurchUpdate::FWFAccusInvoicePriceCorrection)
+        {
+            return ok;   
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFAccusInventMovement_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of class <c>InventMovement</c> for accusation.
+/// </summary>
+[ExtensionOf(classStr(InventMovement))]
+final class FWFAccusInventMovement_Extension
+{
+    private boolean isCreditNoteAccusMode;
+    private AmountCur newCostAmountMST;
+
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>FWFgetInventType</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Returns the current InventType.
+    /// </summary>
+    /// <returns>The <c>InventType</c> object.</returns>
+    public InventType FWFgetInventType()
+    {
+        return inventType;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>performFinancialLedgerUpdate</Name>
+				<Source><![CDATA[
+    protected boolean performFinancialLedgerUpdate(LedgerVoucher _ledgerVoucher, InventTrans _inventTrans, InventUpdate _updateNow, InventOnhand _inventOnhand, InventTrans _inventTransUpd_RU)
+    {
+        boolean performOk;
+
+        this.isCreditNoteAccusMode = _updateNow.parmFWFCreditNoteAccusMode();
+        this.newCostAmountMST = _updateNow.parmProjCostAmountMST();
+
+        performOk = next performFinancialLedgerUpdate(_ledgerVoucher, _inventTrans, _updateNow, _inventOnhand, _inventTransUpd_RU);
+
+        this.isCreditNoteAccusMode = false;
+
+        return performOk;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>addLedgerVoucherTransactionAmountsForFinancialUpdate</Name>
+				<Source><![CDATA[
+    protected void addLedgerVoucherTransactionAmountsForFinancialUpdate(LedgerVoucher _ledgerVoucher, InventTrans _inventTrans, LedgerVoucherObject _ledgerVoucherObject, CurrencyExchangeHelper _currencyExchHelper, InventTransPosting _inventTransPosting)
+    {
+        InventTrans inventTransLocal = _inventTrans.data();
+        if (this.isCreditNoteAccusMode)
+        {
+            inventTransLocal.CostAmountPhysical = this.newCostAmountMST;
+        }
+
+        next addLedgerVoucherTransactionAmountsForFinancialUpdate(_ledgerVoucher, inventTransLocal, _ledgerVoucherObject, _currencyExchHelper, _inventTransPosting);
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

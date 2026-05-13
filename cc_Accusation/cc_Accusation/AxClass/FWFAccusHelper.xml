@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFAccusHelper</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Helper class, includes common methods which are relevant to accusation.
+/// </summary>
+class FWFAccusHelper
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>setPurchAccusStatus</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name = "_purchLine"></param>
+    /// <param name = "_inventTransIdSum"></param>
+    public static void setPurchAccusStatus(PurchLine _purchLine, InventTransIdSum _inventTransIdSum = null)
+    {
+        Qty                 invoicedInTotal = FWFAccusHelper::purchQtyInvoicedInTotalUnit(_purchLine);
+        InventTransOriginId inventTransOriginId;
+        
+        _purchLine.FWFAccusStatus = NoYes::No;
+        
+        if (invoicedInTotal > 0 && _purchLine.RemainPurchFinancial < 0 && _purchLine.RemainPurchPhysical == 0)
+        {
+            if (! _inventTransIdSum)
+            {
+                inventTransOriginId = InventTransOrigin::findByInventTransId(_purchLine.InventTransId).RecId;
+                _inventTransIdSum   = InventTransIdSum::newTransOriginId(inventTransOriginId);
+                
+            }
+            if (_inventTransIdSum.financial() > 0 &&
+                //_purchLine.SalesPurchLine::calcQtyOrdered(invoicedInTotal) > _inventTransIdSum.financial())   ´//SalesPurchLine::calcQtyOrdered --> obsolete
+                _purchLine.calcQtyOrdered(invoicedInTotal) > _inventTransIdSum.financial())
+            {
+                _purchLine.FWFAccusStatus = NoYes::Yes;
+            }
+        }
+        
+        if (invoicedInTotal != 0 && _purchLine.RemainPurchFinancial == 0)
+        {
+            if (_purchLine.calcLineAmount(invoicedInTotal) < FWFAccusHelper::purchAmountInvoicedInTotal(_purchLine))
+            {
+                _purchLine.FWFAccusStatus = NoYes::Yes;
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>purchQtyInvoicedInTotalUnit</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name = "_purchLine"></param>
+    /// <returns></returns>
+    public static PurchQty purchQtyInvoicedInTotalUnit(PurchLine _purchLine)
+    {
+        VendInvoiceTrans    vendInvoiceTrans;
+        PurchQty            ret;
+
+        while select sum(Qty) from vendInvoiceTrans
+            group by PurchUnit
+            where vendInvoiceTrans.InventTransId == _purchLine.InventTransId
+        {
+            if (vendInvoiceTrans.PurchUnit != _purchLine.PurchUnit)
+            {
+                ret += UnitOfMeasureConverter::convert(vendInvoiceTrans.Qty,
+                                                   UnitOfMeasure::unitOfMeasureIdBySymbol(vendInvoiceTrans.PurchUnit),
+                                                   UnitOfMeasure::unitOfMeasureIdBySymbol(_purchLine.PurchUnit),
+                                                   NoYes::Yes,
+                                                   InventTable::itemProduct(_purchLine.ItemId));
+            }
+            else
+            {
+                ret += vendInvoiceTrans.Qty;
+            }
+        }
+        return ret;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>purchAmountInvoicedInTotal</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name = "_purchLine"></param>
+    /// <param name = "_vendInvoiceJour"></param>
+    /// <returns></returns>
+    public static AmountCur purchAmountInvoicedInTotal(PurchLine _purchLine, VendInvoiceJour _vendInvoiceJour = null)
+    {
+        VendInvoiceTrans    vendInvoiceTrans;
+        VendInvoiceJour     vendInvoiceJour;
+        AmountCur           ret;
+
+        while select sum(LineAmount) from vendInvoiceTrans
+            group by CurrencyCode, PurchId, InvoiceId, InvoiceDate, NumberSequenceGroup, InternalInvoiceId
+            where vendInvoiceTrans.InventTransId                    == _purchLine.InventTransId
+               && ((_vendInvoiceJour
+               && vendInvoiceTrans.PurchID                          == _vendInvoiceJour.PurchId
+               && vendInvoiceTrans.InvoiceId                        == _vendInvoiceJour.InvoiceId
+               && vendInvoiceTrans.InvoiceDate                      == _vendInvoiceJour.InvoiceDate
+               && vendInvoiceTrans.NumberSequenceGroup              == _vendInvoiceJour.numberSequenceGroup
+               && vendInvoiceTrans.InternalInvoiceId                == _vendInvoiceJour.InternalInvoiceId)
+               || (! _vendInvoiceJour))
+        {
+            if (vendInvoiceTrans.CurrencyCode != _purchLine.CurrencyCode)
+            {
+                vendInvoiceJour = _vendInvoiceJour ? _vendInvoiceJour : vendInvoiceTrans.vendInvoiceJour();
+                ret += CurrencyExchangeHelper::curAmount(CurrencyExchangeHelper::MSTAmount(vendInvoiceTrans.LineAmount,
+                                                           vendInvoiceJour.CurrencyCode,
+                                                           vendInvoiceJour.InvoiceDate,
+                                                           Currency::noYes2UnknownNoYes(VendInvoiceJour.Triangulation),
+                                                           vendInvoiceJour.ExchRate,
+                                                           vendInvoiceJour.ExchRateSecondary,
+                                                           false),
+                                       _purchLine.CurrencyCode,
+                                       vendInvoiceJour.InvoiceDate,
+                                       Currency::noYes2UnknownNoYes(VendInvoiceJour.Triangulation),
+                                       0,
+                                       0,
+                                       true);
+            }
+            else
+            {
+                ret += vendInvoiceTrans.LineAmount;
+            }
+        }
+        return ret;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>purchCanAccusCreditNoteBeUpdated</Name>
+				<Source><![CDATA[
+    /// <summary>
+    ///
+    /// </summary>
+    public static boolean purchCanAccusCreditNoteBeUpdated(PurchId _purchId)
+    {
+        PurchLine   purchLine;
+        boolean     ok = false;
+
+        while select purchLine
+            where purchLine.PurchId     == _purchId
+            && purchLine.FWFAccusStatus == NoYes::Yes
+        {
+            if (purchLine.calcLineAmount(FWFAccusHelper::purchQtyInvoicedInTotalUnit(purchLine) != FWFAccusHelper::purchAmountInvoicedInTotal(purchLine)))
+            {
+                ok = true;
+                break;
+            }
+        }
+
+        return ok;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>updateAccusAdjustment</Name>
+				<Source><![CDATA[
+    public static void updateAccusAdjustment(InventUpd_Financial _updateFinancial, CostAmount _costAmountCur, TransDate _transDate)
+    {
+        boolean                 ok = true;
+        InventTrans             inventTrans;
+        CostAmount              inventTransAdjustAmount, costAmountMST;
+        InventTransAdjust       inventTransAdjust;
+        InventAdjustAllocate    inventAdjustAllocate;
+        InventAdjustPost        inventAdjustPost;
+        Voucher                 voucher   = _updateFinancial.parmLedgerVoucher().findLedgerVoucherObject().parmVoucher();
+        TransDate               transDate = _updateFinancial.parmLedgerVoucher().findLedgerVoucherObject(voucher).parmTransDate();
+        InventUpd_Physical      inventUpd_Physical;
+
+        if (! _updateFinancial.movement().checkUpdateStandard(_updateFinancial.parmLedgerVoucher().lastTransDate()))
+        {
+            ok = false;
+        }
+        
+        costAmountMST = CurrencyExchangeHelper::amountCur2MST(_costAmountCur,
+                                            _updateFinancial.parmCurrencyCode(),
+                                            _updateFinancial.parmExchRate(),
+                                            transDate,
+                                            _updateFinancial.parmExchRateSecondary(),
+                                            Currency::unknownNoYes2Noyes(_updateFinancial.parmExchRatesTriangulation()));
+
+        // Copied from movement.checkUpdateFinancial
+        if (! costAmountMST || ! _updateFinancial.movement().FWFgetInventType().canInventUpdFinancial())
+        {
+            ok = checkFailed("@SYS24414");
+        }
+
+        if (! ok)
+        {
+            throw error("@SYS18447");
+        }
+
+        if (! _updateFinancial.movement().mustBeBookedFinancially() || ! _updateFinancial.movement().mustBeBookedBalanceSheet())
+        {
+            throw error("@SYS2009");
+        }
+
+        inventTransAdjust    = new InventTransAdjust(transDate, voucher);
+        inventAdjustAllocate = new InventAdjustAllocate(_updateFinancial.movement().transIdSum().financial(), costAmountMST);
+        inventAdjustPost     = new InventAdjustPost(voucher, transDate, InventAdjustmentSpec::Total, LedgerTransTxt::PurchCreditNoteLedger);
+
+
+        inventUpd_Physical = InventUpd_Physical::newInventUpdFinancial(_updateFinancial.movement(),
+                                                                   _updateFinancial,
+                                                                   _updateFinancial.FWFparmPhysical(), 
+                                                                   _updateFinancial.FWFparmPhysicalUnit(),
+                                                                   CurrencyExchangeHelper::mstAmount(_costAmountCur,
+                                                                                       _updateFinancial.parmCurrencyCode(),
+                                                                                       _transDate,
+                                                                                       _updateFinancial.parmExchRatesTriangulation(),
+                                                                                       _updateFinancial.parmExchRate(),
+                                                                                       _updateFinancial.parmExchRateSecondary()));
+
+        inventUpd_Physical.updateNow(_updateFinancial.parmLedgerVoucher());
+
+        while select forUpdate inventTrans order by InventDimId
+            where inventTrans.InventTransOrigin == _updateFinancial.movement().inventTransOriginId()
+               && inventTrans.StatusReceipt     == StatusReceipt::Purchased
+               && inventTrans.StatusIssue       == StatusIssue::None
+               && inventTrans.CostAmountPosted
+        {
+            if (inventAdjustAllocate.isAllocated())
+            {
+                break;
+            }
+
+            inventTransAdjustAmount = inventAdjustAllocate.calcAdjustment(inventTrans);
+            inventTransAdjust.updateNow(inventTrans,
+                                    NoYes::Yes,                 // only open
+                                    NoYes::No,                  // do not change stdCostPrice
+                                    inventTransAdjustAmount,
+                                    true,                       // use null operations account
+                                    LedgerPostingType::None,    // null operationsPosting
+                                    0,                          // empty operationsAccount
+                                    true,                       // use balance posting
+                                    _updateFinancial.movement().postingBalanceSheet(),
+                                    _updateFinancial.movement().accountBalanceSheet(),
+                                    true,
+                                    _updateFinancial.parmLedgerVoucher());
+        }
+
+        if (! inventAdjustAllocate.isAllocated())
+        {
+            throw error("@SYS15814");
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

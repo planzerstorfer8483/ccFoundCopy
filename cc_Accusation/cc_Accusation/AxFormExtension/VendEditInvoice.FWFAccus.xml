@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxFormExtension xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Dynamics.AX.Metadata.V6">
+	<Name>VendEditInvoice.FWFAccus</Name>
+	<ControlModifications />
+	<Controls>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControl1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormCheckBoxControl">
+				<Name>FWFAccus_VendInvoiceInfoTable_FWFAccusStatus</Name>
+				<Type>CheckBox</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<DataField>FWFAccusStatus</DataField>
+				<DataSource>VendInvoiceInfoTable</DataSource>
+			</FormControl>
+			<Parent>gridParmTable</Parent>
+			<PositionType>AfterItem</PositionType>
+			<PreviousSibling>PurchParmTable_PackingSlipId</PreviousSibling>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControl2</Name>
+			<FormControl xmlns=""
+				i:type="AxFormCheckBoxControl">
+				<Name>FWFAccus_InvoiceDetails_FWFAccusStatus</Name>
+				<Type>CheckBox</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<DataField>FWFAccusStatus</DataField>
+				<DataSource>VendInvoiceInfoTable</DataSource>
+			</FormControl>
+			<Parent>InvoiceDetails_OtherGroup</Parent>
+		</AxFormExtensionControl>
+		<AxFormExtensionControl xmlns="">
+			<Name>FormExtensionControlmm2irvae1</Name>
+			<FormControl xmlns=""
+				i:type="AxFormCheckBoxControl">
+				<Name>FWFAccus_LineViewDetails_FWFAccusStatus</Name>
+				<Type>CheckBox</Type>
+				<FormControlExtension
+					i:nil="true" />
+				<DataField>FWFAccusStatus</DataField>
+				<DataSource>VendInvoiceInfoTable</DataSource>
+			</FormControl>
+			<Parent>groupOtherInvoiceDetails</Parent>
+		</AxFormExtensionControl>
+	</Controls>
+	<DataSources />
+	<Parts />
+	<PropertyModifications />
+</AxFormExtension>

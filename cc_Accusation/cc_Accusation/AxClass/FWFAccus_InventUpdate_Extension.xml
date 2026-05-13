@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFAccus_InventUpdate_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of class <c>InventUpdate</c> for accusation.
+/// </summary>
+[ExtensionOf(classStr(InventUpdate))]
+final class FWFAccus_InventUpdate_Extension
+{
+    private boolean creditNoteAccusAdjustMode;
+
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>parmFWFCreditNoteAccusMode</Name>
+				<Source><![CDATA[
+    public boolean parmFWFCreditNoteAccusMode(boolean _creditNoteAccusAdjustMode = this.creditNoteAccusAdjustMode)
+    {
+        this.creditNoteAccusAdjustMode = _creditNoteAccusAdjustMode;
+        return creditNoteAccusAdjustMode;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

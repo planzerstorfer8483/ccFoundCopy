@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFAccusVendDocumentLineType_Invoice_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Extension class of class <c>VendDocumentLineType_Invoice</c> for accusation.
+/// </summary>
+[ExtensionOf(classStr(VendDocumentLineType_Invoice))]
+final class FWFAccusVendDocumentLineType_Invoice_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>initPrice</Name>
+				<Source><![CDATA[
+    protected void initPrice()
+    {
+        next initPrice();
+
+        if (this.purchParmUpdate().SpecQty == PurchUpdate::FWFAccusInvoicePriceCorrection)
+        {
+            AmountCur lineAmountAccus = this.vendDocumentLineMap().ReceiveNow < 0 ?
+                                       -this.vendDocumentLineMap().LineAmount - FWFAccusHelper::purchAmountInvoicedInTotal(this.purchLine()) :
+                                        this.vendDocumentLineMap().LineAmount - FWFAccusHelper::purchAmountInvoicedInTotal(this.purchLine());
+
+            if (lineAmountAccus != 0.0)
+            {
+                this.vendDocumentLineMap().LineAmount = lineAMountAccus;
+                this.vendDocumentLineMap().PurchPrice = PriceDisc::amount2Price(this.vendDocumentLineMap().LineAmount,
+                                                                                this.vendDocumentLineMap().discPercent(),
+                                                                                this.vendDocumentLineMap().PurchMarkup,
+                                                                                this.vendDocumentLineMap().ReceiveNow,
+                                                                                this.vendDocumentLineMap().discAmount(),
+                                                                                this.vendDocumentLineMap().PriceUnit,
+                                                                                this.vendDocumentLineMap().currencyCode,
+                                                                                this.vendDocumentLineMap().PurchPrice);
+            }
+            else
+            {
+                this.vendDocumentLineMap().ReceiveNow = 0.0;   //Parmline should not be created
+            }
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

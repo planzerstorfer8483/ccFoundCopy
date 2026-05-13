@@ -1,0 +1,8 @@
+NewLabel0=Label files created on 12/23/2016 09:30:24 for label file Id FWFAccus and language de-DE
+ ;Label file comment - see above label
+AccusStatus=Belastungsanzeige
+ ;New Comment
+AccusStatusHelp=Die Bestellung wurde belastungspflichtig unterliefert. Die Gutschrift ist erforderlich
+ ;New Comment
+InvoiceCorrection=Rechnungsausgleich
+ ;New Comment

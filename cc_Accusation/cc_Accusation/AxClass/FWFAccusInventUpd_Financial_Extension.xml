@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFAccusInventUpd_Financial_Extension</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+[ExtensionOf(classStr(InventUpd_Financial))]
+final class FWFAccusInventUpd_Financial_Extension
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>FWFparmPhysical</Name>
+				<Source><![CDATA[
+        /// <summary>
+    /// Return the physical value.
+    /// </summary>
+    /// <returns>The physical value.</returns>
+    public InventQty FWFparmPhysical(InventQty _physical = physical)
+    {
+        physical = _physical;
+        return physical;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>FWFparmPhysicalUnit</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Sets the physicalUnit value.
+    /// </summary>
+    /// <param name = "_physicalUnit">The UnitQty to set.</param>
+    public UnitQty FWFparmPhysicalUnit(UnitQty _physicalUnit = physicalUnit)
+    {
+        physicalUnit = _physicalUnit;
+        return physicalUnit;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>checkUpdateMovement</Name>
+				<Source><![CDATA[
+    public boolean checkUpdateMovement()
+    {
+        boolean ok;
+        int infologLineStart = infologLine() + 1;
+        
+        ok = next checkUpdateMovement();
+
+        if (!ok && this.parmFWFCreditNoteAccusMode())
+        {
+            ok = true;
+
+            infolog.cut(infologLineStart, infologLine());
+        }
+
+        return ok;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>updateNow</Name>
+				<Source><![CDATA[
+    public CostAmountSecCur_RU updateNow()
+    {
+        CostAmountSecCur_RU costAmountMSTSecCur = next updateNow();
+
+        if (this.parmFWFCreditNoteAccusMode() &&
+            movement.mustBeUnitControlled()   &&
+            financialUnit < 0                 &&
+            ! financial                       &&
+            ! physical                        &&
+            ! physicalUnit)
+        {
+            ttsbegin;
+
+            using (var cache = movement.constructRecordViewCache())
+            {
+                FWFAccusHelper::updateAccusAdjustment(this, this.parmCostAmountCur(), this.ledgerVoucher.lastTransDate());
+            }
+
+            ttscommit;
+        }
+
+        return costAmountMSTSecCur;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>newPurchInvoice</Name>
+				<Source><![CDATA[
+    public static InventUpd_Financial newPurchInvoice(
+        InventMov_Purch         _inventMovement,
+        LedgerVoucher           _ledgerVoucher,
+        InvoiceId               _invoiceNum,
+        AmountCur               _amountCur,
+        CurrencyCode            _currencyCode,
+        ExchRate                _exchRate,
+        ExchrateSecondary       _exchrateSecondary,
+        ExchRatesTriangulation  _exchRatesTriangulation,
+        VendInvoiceInfoLine     _vendInvoiceInfoLine,
+        VendInvoiceInfoSubLine  _vendInvoiceInfoSubLine)
+    {        
+        InventUpd_Financial financial = next newPurchInvoice(_inventMovement, _ledgerVoucher, _invoiceNum, _amountCur, _currencyCode, _exchRate, _exchrateSecondary, _exchRatesTriangulation, _vendInvoiceInfoLine, _vendInvoiceInfoSubLine);
+        financial.parmFWFCreditNoteAccusMode(_vendInvoiceInfoLine.vendInvoiceInfoTable().FWFAccusStatus);
+        if (financial.parmFWFCreditNoteAccusMode() && financial.movement().mustBeUnitControlled())
+        {
+            if (!financial.parmRemainPhysicalUnit() &&
+                !financial.parmRemainPhysical()     &&
+                !financial.FWFparmPhysical())
+            {
+                financial.FWFparmPhysicalUnit(0.0);
+            }
+        }
+
+        return financial;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

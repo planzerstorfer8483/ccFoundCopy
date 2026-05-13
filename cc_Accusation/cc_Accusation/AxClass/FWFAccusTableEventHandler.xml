@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>FWFAccusTableEventHandler</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Handles events related with tables used by accusation.
+/// </summary>
+class FWFAccusTableEventHandler
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>PurchTable_Post_existInvoice</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Handles the post event of <c>existInvoice</c> of <c>PurchTable</c> table.
+    /// </summary>
+    /// <param name="_args">The event arguments.</param>
+    [PostHandlerFor(tableStr(PurchTable), tableMethodStr(PurchTable, existInvoice))]
+    public static void PurchTable_Post_existInvoice(XppPrePostArgs _args)
+    {
+        PurchTable  purchTable = _args.getThis() as PurchTable;
+
+        if (purchTable.PurchStatus == PurchStatus::Invoiced && purchTable.FWFAccusStatus == NoYes::Yes)
+        {
+            boolean includeNew = _args.getArg(identifierStr(_includeNew));
+            PurchTable  purchTableDummy;
+            purchTableDummy.PurchId = purchTable.PurchId;
+            purchTableDummy.PurchStatus = PurchStatus::Backorder;
+
+            _args.setReturnValue(purchTableDummy.existInvoice(includeNew));
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>VendInvoiceInfoTable_Post_copyFromHeader</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Handles the post event of <c>copyFromHeader</c> of <c>VendInvoiceInfoTable</c> table.
+    /// </summary>
+    /// <param name="_args">The event arguments.</param>
+    [PostHandlerFor(tableStr(VendInvoiceInfoTable), tableMethodStr(VendInvoiceInfoTable, copyFromHeader))]
+    public static void VendInvoiceInfoTable_Post_copyFromHeader(XppPrePostArgs _args)
+    {
+        VendInvoiceInfoTable    vendInvoiceInfoTable = _args.getThis() as VendInvoiceInfoTable;
+        VendInvoiceInfoTable    headerVendInvoiceInfoTable = _args.getArg(identifierStr(_header)) as VendInvoiceInfoTable;
+
+        VendInvoiceInfoTable.FWFAccusStatus = headerVendInvoiceInfoTable.FWFAccusStatus;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>PurchTable_Pre_updateBackStatus</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Handles the prevent of <c>updateBackStatus</c> method of <c>PurchTable</c> table.
+    /// </summary>
+    /// <param name="_args">The <c>PurchTable</c> record.</param>
+    [PreHandlerFor(tableStr(PurchTable), tableMethodStr(PurchTable, updateBackStatus))]
+    public static void PurchTable_Pre_updateBackStatus(XppPrePostArgs _args)
+    {
+        PurchTable purchTable = _args.getThis() as PurchTable;
+        PurchLine   purchLine;
+
+        select firstonly RecId
+            from purchLine
+            where purchLine.PurchId        == purchTable.PurchId
+               && purchLine.FWFAccusStatus == NoYes::Yes;
+
+        if (purchLine.RecId)
+        {
+            purchTable.FWFAccusStatus = NoYes::Yes;
+        }
+        else
+        {
+            purchTable.FWFAccusStatus = NoYes::No;
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>
